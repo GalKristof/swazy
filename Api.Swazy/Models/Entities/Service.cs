@@ -7,4 +7,5 @@ public class Service : BaseEntity
 {
     public string Tag { get; set; }
     public BusinessType BusinessType { get; set; }
+    public string Value { get; set; }
 }
