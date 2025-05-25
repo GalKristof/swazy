@@ -24,7 +24,7 @@ public static class ServiceModule
                     return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
                 }
 
-                var getServiceDto = new GetServiceDto(response.Value.Id, response.Value.Tag, response.Value.BusinessType);
+                var getServiceDto = new GetServiceDto(response.Value.Id, response.Value.Tag, response.Value.BusinessType, response.Value.Value);
 
                 return Results.Ok(getServiceDto);
             })
