@@ -1,0 +1,18 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Swazy", "Api.Swazy.csproj", "{EEAF0314-C024-4C1D-BB49-7D36457AD32D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EEAF0314-C024-4C1D-BB49-7D36457AD32D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEAF0314-C024-4C1D-BB49-7D36457AD32D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEAF0314-C024-4C1D-BB49-7D36457AD32D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEAF0314-C024-4C1D-BB49-7D36457AD32D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+EndGlobal
