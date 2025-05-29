@@ -2,17 +2,21 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http'; // Import HttpClientModule
 import { SyncfusionLicenseModule } from '@syncfusion/ej2-angular-base';
+import { CalendarModule } from '@syncfusion/ej2-angular-calendars';
 
 import { AppComponent } from './app.component';
+import { UiTestComponent } from './ui-test/ui-test.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    UiTestComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule, // Add HttpClientModule here
-    SyncfusionLicenseModule
+    SyncfusionLicenseModule,
+    CalendarModule
   ],
   providers: [],
   bootstrap: [AppComponent]
