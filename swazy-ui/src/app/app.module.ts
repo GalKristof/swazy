@@ -1,27 +1,17 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http'; // Import HttpClientModule
+import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { SyncfusionLicenseModule } from '@syncfusion/ej2-angular-base';
-import { CalendarModule } from '@syncfusion/ej2-angular-calendars';
-
-import { AppComponent } from './app.component';
-import { UiTestComponent } from './ui-test/ui-test.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    UiTestComponent
-  ],
+  declarations: [], // Should be empty
   imports: [
-    BrowserModule,
-    HttpClientModule, // Add HttpClientModule here
-    SyncfusionLicenseModule,
-    CalendarModule,
-    RouterModule.forRoot([])
+    HttpClientModule,
+    RouterModule.forRoot([]), // Or ensure routes are in app.routes.ts and provided in app.config.ts
+    SyncfusionLicenseModule
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+  providers: [], // Global services might be here or in app.config.ts
+  // bootstrap: [] // Should be empty or not present
 })
 export class AppModule {
   constructor() {
