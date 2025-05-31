@@ -4,8 +4,6 @@ import { Subscription } from 'rxjs'; // Import Subscription
 import { BookingDataService, Booking } from '../../services/booking-data.service'; // Import service and interface
 import {
   ScheduleModule,
-  ViewChild, // Optional: if manual refresh is needed
-  ScheduleComponent, // Optional: type for @ViewChild
   DayService,
   WeekService,
   WorkWeekService,
@@ -24,9 +22,6 @@ import {
   styleUrls: ['./bookings.component.scss']
 })
 export class BookingsComponent implements OnInit, OnDestroy { // Implement OnDestroy
-
-  // Optional: For manually refreshing the schedule if needed
-  // @ViewChild('schedule') public scheduleObj?: ScheduleComponent;
 
   public eventSettings: EventSettingsModel = {
     dataSource: [], // Initialize with empty array, will be populated by the service
@@ -65,8 +60,6 @@ export class BookingsComponent implements OnInit, OnDestroy { // Implement OnDes
         if (bookings.length > 0 && bookings[0].StartTime) {
            this.selectedDate = new Date(bookings[0].StartTime);
         }
-        // Optional: Manually refresh if necessary
-        // this.scheduleObj?.refreshEvents();
       }
     );
   }
