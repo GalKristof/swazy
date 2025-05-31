@@ -86,7 +86,8 @@ export class BookingComponent implements OnInit {
   public onDateChange(args: any): void {
     if (args.value) {
       this.selectedDate = args.value;
-      const dateString = this.formatDate(this.selectedDate);
+      // Using non-null assertion operator as args.value ensures selectedDate is not null here
+      const dateString = this.formatDate(this.selectedDate!);
       this.timeSlotsForSelectedDate = this.availableTimeSlots[dateString] || [];
       this.selectedTimeSlot = null;
       this.assignedEmployee = null;
