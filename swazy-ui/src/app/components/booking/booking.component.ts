@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // For form handling
-import { CalendarModule, DatePickerModule } from '@syncfusion/ej2-angular-calendars'; // Syncfusion Calendar
+import { CalendarModule } from '@syncfusion/ej2-angular-calendars'; // Syncfusion Calendar (DatePickerModule might be unused now)
+import { BookingDataService, Booking } from '../../services/booking-data.service'; // Import service and interface
 
 @Component({
   selector: 'app-booking',
@@ -44,9 +45,17 @@ export class BookingComponent implements OnInit {
   // Mock employees for time slots
   private employeeAssignments: { [key: string]: { [time: string]: string } } = {
     // Example: '2024-07-30': { '10:00': 'Anna', '10:30': 'Péter', '14:00': 'Anna' }
+    // This mock data for employees might need to be centralized or made more dynamic in a real app
   };
 
-  constructor() { }
+  // Employee name to ID mapping (example)
+  private employeeNameToIdMap: { [name: string]: number } = {
+    'Márk': 1,
+    'Eszter': 2,
+    'Laura': 3,
+  };
+
+  constructor(private bookingDataService: BookingDataService) { }
 
   ngOnInit(): void {
     this.selectedService = this.services[0]; // Default to first service
@@ -135,26 +144,62 @@ export class BookingComponent implements OnInit {
 
   public bookAppointment(): void {
     if (this.selectedDate && this.selectedTimeSlot && this.fullName && this.selectedService) {
-      const dateString = this.formatDate(this.selectedDate);
+      // const dateString = this.formatDate(this.selectedDate!); // Keep for alert if needed, or use formatted StartTime
 
-      // Remove the booked time slot
-      const index = this.availableTimeSlots[dateString].indexOf(this.selectedTimeSlot);
-      if (index > -1) {
-        this.availableTimeSlots[dateString].splice(index, 1);
+      // 1. Create StartTime
+      const [hours, minutes] = this.selectedTimeSlot.split(':').map(Number);
+      const startTime = new Date(this.selectedDate!);
+      startTime.setHours(hours, minutes, 0, 0);
+
+      // 2. Calculate EndTime (e.g., fixed 45 minutes for now)
+      const endTime = new Date(startTime.getTime() + 45 * 60000); // 45 minutes later
+
+      // 3. Get EmployeeID
+      let employeeId: number | undefined = undefined;
+      if (this.assignedEmployee && this.employeeNameToIdMap[this.assignedEmployee]) {
+        employeeId = this.employeeNameToIdMap[this.assignedEmployee];
       }
 
-      // Update UI
-      this.timeSlotsForSelectedDate = [...this.availableTimeSlots[dateString]];
+      // 4. Create Booking Object
+      const newBooking: Booking = {
+        Id: 0, // Service will assign ID
+        Subject: `${this.selectedService} - ${this.fullName}`,
+        StartTime: startTime,
+        EndTime: endTime,
+        EmployeeID: employeeId,
+        Description: `Booked by ${this.fullName} via booking form. Employee: ${this.assignedEmployee || 'N/A'}`,
+        CategoryColor: '#547597' // A default color for new bookings from this form
+      };
 
-      alert(`Booking confirmed for ${this.fullName} for service ${this.selectedService} on ${dateString} at ${this.selectedTimeSlot} with ${this.assignedEmployee}!`);
+      // 5. Add booking via service
+      this.bookingDataService.addBooking(newBooking);
+
+      // Comment out direct manipulation of local availableTimeSlots as per requirement
+      // The source of truth for bookings is now the service.
+      // Availability should ideally be derived from the service's data in a more advanced scenario.
+      /*
+      const dateStringForSlotRemoval = this.formatDate(this.selectedDate!);
+      const index = this.availableTimeSlots[dateStringForSlotRemoval]?.indexOf(this.selectedTimeSlot);
+      if (index !== undefined && index > -1) {
+        this.availableTimeSlots[dateStringForSlotRemoval].splice(index, 1);
+        // Update UI for immediate feedback (optional, as service should drive this)
+        this.timeSlotsForSelectedDate = [...this.availableTimeSlots[dateStringForSlotRemoval]];
+      }
+      */
+
+      // For immediate UI feedback, we might still want to refresh the local view of slots,
+      // or better, have availableTimeSlots react to changes in bookingDataService.
+      // For now, just clear the selected slot.
+      const formattedStartTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'});
+      alert(`Booking for ${this.fullName} for service ${this.selectedService} on ${startTime.toLocaleDateString()} at ${formattedStartTime} has been requested and sent to the system.`);
 
       // Reset selection
       this.selectedTimeSlot = null;
       this.assignedEmployee = null;
-      // Potentially reset date or fullName depending on desired UX
-      // this.selectedDate = null;
+      // Consider resetting fullName and selectedService, or navigating away,
+      // or refreshing available slots based on the new booking.
       // this.fullName = '';
-
+      // this.selectedDate = null; // This would clear dependent UI parts
 
     } else {
       alert('Please fill in all details and select a date and time slot.');

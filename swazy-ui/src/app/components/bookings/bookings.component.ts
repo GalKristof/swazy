@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core'; // Import OnDestroy
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs'; // Import Subscription
+import { BookingDataService, Booking } from '../../services/booking-data.service'; // Import service and interface
 import {
   ScheduleModule,
+  ViewChild, // Optional: if manual refresh is needed
+  ScheduleComponent, // Optional: type for @ViewChild
   DayService,
   WeekService,
   WorkWeekService,
@@ -15,90 +19,61 @@ import {
   selector: 'app-bookings',
   standalone: true,
   imports: [CommonModule, ScheduleModule],
-  providers: [DayService, WeekService, WorkWeekService, MonthService, AgendaService], // Services for different views
+  providers: [DayService, WeekService, WorkWeekService, MonthService, AgendaService],
   templateUrl: './bookings.component.html',
   styleUrls: ['./bookings.component.scss']
 })
-export class BookingsComponent implements OnInit {
+export class BookingsComponent implements OnInit, OnDestroy { // Implement OnDestroy
 
-  public eventSettings: EventSettingsModel = {};
-  public currentView: View = 'Month'; // Default view
-  public views: View[] = ['Day', 'Week', 'WorkWeek', 'Month', 'Agenda'];
-  public selectedDate: Date = new Date(); // Default to today
+  // Optional: For manually refreshing the schedule if needed
+  // @ViewChild('schedule') public scheduleObj?: ScheduleComponent;
 
-  private mockBookings: Record<string, any>[] = [
-    {
-      Id: 1,
-      Subject: 'Hajvágás - Kiss János',
-      StartTime: new Date(2024, 6, 28, 10, 0), // Note: Month is 0-indexed (6 = July)
-      EndTime: new Date(2024, 6, 28, 10, 45),
-      EmployeeID: 1, // Example: Corresponds to 'Márk'
-      Description: 'Regular haircut for Mr. Kiss.',
-      CategoryColor: '#1aaa55'
-    },
-    {
-      Id: 2,
-      Subject: 'Szakáll igazítás - Nagy Béla',
-      StartTime: new Date(2024, 6, 29, 14, 0),
-      EndTime: new Date(2024, 6, 29, 14, 30),
-      EmployeeID: 2, // Example: Corresponds to 'Eszter'
-      Description: 'Beard trim and shaping.',
-      CategoryColor: '#357cd2'
-    },
-    {
-      Id: 3,
-      Subject: 'Gyerek hajvágás - Kovács Pisti',
-      StartTime: new Date(2024, 6, 30, 9, 0),
-      EndTime: new Date(2024, 6, 30, 9, 30),
-      EmployeeID: 1,
-      CategoryColor: '#7fa900'
-    },
-    {
-      Id: 4,
-      Subject: 'Festés - Horváth Anna',
-      StartTime: new Date(2024, 7, 1, 11, 0), // August 1st
-      EndTime: new Date(2024, 7, 1, 13, 0),
-      EmployeeID: 3, // Example: Corresponds to 'Laura'
-      Description: 'Full hair coloring service.',
-      IsAllDay: false,
-      CategoryColor: '#ea7a57'
-    },
-     {
-      Id: 5,
-      Subject: 'Hajvágás - Varga Dávid',
-      // Using current year and month for relevance
-      StartTime: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 2, 15, 0),
-      EndTime: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 2, 15, 45),
-      EmployeeID: 2,
-      CategoryColor: '#1aaa55'
-    },
-    {
-      Id: 6,
-      Subject: 'Szakáll igazítás - Fekete László',
-      StartTime: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 3, 16, 0),
-      EndTime: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 3, 16, 30),
-      EmployeeID: 1,
-      CategoryColor: '#357cd2'
+  public eventSettings: EventSettingsModel = {
+    dataSource: [], // Initialize with empty array, will be populated by the service
+    fields: { // Ensure this mapping matches the Booking interface properties
+      id: 'Id',
+      subject: { name: 'Subject', title: 'Service & Client' },
+      startTime: { name: 'StartTime', title: 'From' },
+      endTime: { name: 'EndTime', title: 'To' },
+      description: { name: 'Description', title: 'Notes'},
+      // Add other field mappings if they are part of your Booking interface and used by the schedule
+      // e.g., isAllDay: 'IsAllDay', recurrenceRule: 'RecurrenceRule', categoryColor: 'CategoryColor'
     }
-  ];
+  };
+  public currentView: View = 'Month';
+  public views: View[] = ['Day', 'Week', 'WorkWeek', 'Month', 'Agenda'];
+  public selectedDate: Date = new Date();
 
-  constructor() { }
+  private bookingsSubscription!: Subscription; // Definite assignment assertion or initialize in constructor
+
+  constructor(private bookingDataService: BookingDataService) { }
 
   ngOnInit(): void {
-    this.eventSettings = {
-      dataSource: this.mockBookings,
-      fields: {
-        id: 'Id',
-        subject: { name: 'Subject', title: 'Service & Client' },
-        startTime: { name: 'StartTime', title: 'From' },
-        endTime: { name: 'EndTime', title: 'To' },
-        description: { name: 'Description', title: 'Notes'},
-        // You can add more fields like IsAllDay, RecurrenceRule, etc.
+    this.bookingsSubscription = this.bookingDataService.bookings$.subscribe(
+      (bookings: Booking[]) => {
+        console.log('Bookings received in BookingsComponent:', bookings);
+        // The dataSource needs to be an array of objects.
+        // If the Syncfusion schedule component is not updating,
+        // it might be due to change detection. Re-assigning the eventSettings object
+        // or its dataSource property usually triggers it.
+        this.eventSettings = {
+          ...this.eventSettings, // Preserve other settings like 'fields'
+          dataSource: [...bookings] // Create a new array reference
+        };
+
+        // If the first booking has a date, set the calendar to it for better UX
+        if (bookings.length > 0 && bookings[0].StartTime) {
+           this.selectedDate = new Date(bookings[0].StartTime);
+        }
+        // Optional: Manually refresh if necessary
+        // this.scheduleObj?.refreshEvents();
       }
-    };
-    // Adjust selectedDate to be near some bookings if needed, or just use current date
-    if (this.mockBookings.length > 0) {
-        // this.selectedDate = this.mockBookings[0].StartTime as Date;
+    );
+  }
+
+  ngOnDestroy(): void {
+    if (this.bookingsSubscription) {
+      this.bookingsSubscription.unsubscribe();
     }
   }
 }
