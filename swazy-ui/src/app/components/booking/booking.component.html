@@ -1,0 +1,89 @@
+<div class="container mx-auto p-4 max-w-3xl">
+  <h1 class="text-3xl font-bold mb-6 text-center text-primary">Book Your Appointment</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+    <!-- Left Column: Booking Form -->
+    <div class="card bg-base-100 shadow-xl p-6">
+      <h2 class="text-xl font-semibold mb-4 card-title">1. Your Details & Service</h2>
+
+      <!-- Full Name -->
+      <div class="form-control w-full mb-4">
+        <label class="label">
+          <span class="label-text">Full Name</span>
+        </label>
+        <input type="text" placeholder="Enter your full name" class="input input-bordered w-full" [(ngModel)]="fullName" />
+      </div>
+
+      <!-- Service Selection -->
+      <div class="form-control w-full mb-6">
+        <label class="label">
+          <span class="label-text">Select Service</span>
+        </label>
+        <select class="select select-bordered w-full" [(ngModel)]="selectedService">
+          <option *ngFor="let service of services" [value]="service">{{ service }}</option>
+        </select>
+      </div>
+
+      <h2 class="text-xl font-semibold mb-4 card-title">2. Select Date</h2>
+      <!-- Syncfusion Calendar -->
+      <div class="form-control w-full items-center">
+        <ejs-calendar
+            [min]="minDate"
+            [max]="maxDate"
+            (renderDayCell)="onRenderDayCell($event)"
+            (change)="onDateChange($event)">
+        </ejs-calendar>
+        <p *ngIf="selectedDate" class="mt-2 text-sm text-info">Selected date: {{ selectedDate | date:'longDate' }}</p>
+      </div>
+    </div>
+
+    <!-- Right Column: Availability & Booking -->
+    <div class="card bg-base-100 shadow-xl p-6">
+      <h2 class="text-xl font-semibold mb-4 card-title">3. Available Time Slots</h2>
+      <div *ngIf="!selectedDate" class="text-center text-gray-500">
+        <p>Please select a date to see available times.</p>
+      </div>
+
+      <div *ngIf="selectedDate">
+        <div *ngIf="timeSlotsForSelectedDate.length === 0 && !isDateUnavailable(selectedDate) && selectedDate.getDay() !== 0 && selectedDate.getDay() !== 6" class="text-center text-warning">
+          <p>No time slots available for this day, or it might be fully booked.</p>
+        </div>
+        <div *ngIf="isDateUnavailable(selectedDate) || selectedDate.getDay() === 0 || selectedDate.getDay() === 6" class="text-center text-error">
+            <p>This day is unavailable for booking (e.g. fully booked, weekend or holiday).</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 mb-4" *ngIf="timeSlotsForSelectedDate.length > 0">
+          <button *ngFor="let slot of timeSlotsForSelectedDate"
+                  class="btn"
+                  [class.btn-primary]="selectedTimeSlot === slot"
+                  [class.btn-outline]="selectedTimeSlot !== slot"
+                  (click)="selectTimeSlot(slot)">
+            {{ slot }}
+          </button>
+        </div>
+
+        <div *ngIf="selectedTimeSlot" class="mt-4 p-4 bg-base-200 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">Your Selection:</h3>
+          <p><span class="font-medium">Date:</span> {{ selectedDate | date:'longDate' }}</p>
+          <p><span class="font-medium">Time:</span> {{ selectedTimeSlot }}</p>
+          <p *ngIf="assignedEmployee"><span class="font-medium">With:</span> {{ assignedEmployee }}</p>
+          <p *ngIf="!assignedEmployee" class="text-error">Employee not assigned for this slot.</p>
+        </div>
+      </div>
+
+      <!-- Booking Button -->
+      <div class="form-control mt-6 card-actions justify-end" *ngIf="selectedDate && selectedTimeSlot && fullName && selectedService">
+        <button class="btn btn-primary w-full" (click)="bookAppointment()">
+          Book Appointment
+        </button>
+      </div>
+       <div class="form-control mt-6" *ngIf="!(selectedDate && selectedTimeSlot && fullName && selectedService)">
+        <button class="btn btn-primary w-full" disabled>
+          Book Appointment
+        </button>
+        <p class="text-xs text-center mt-1">Please fill all details and select a slot.</p>
+      </div>
+    </div>
+  </div>
+</div>
