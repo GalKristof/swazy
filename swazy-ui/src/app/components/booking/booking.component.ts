@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // For form handling
-import { CalendarModule } from '@syncfusion/ej2-angular-calendars'; // Syncfusion Calendar (DatePickerModule might be unused now)
-import { BookingDataService, Booking } from '../../services/booking-data.service'; // Import service and interface
+import { FormsModule } from '@angular/forms';
+import { CalendarModule } from '@syncfusion/ej2-angular-calendars';
+import {BookingService} from '../../services/booking.service';
+import {Booking} from '../../models/booking/booking.model';
+import {CreateBookingDto} from '../../models/dto/booking-dto.model';
 
 @Component({
   selector: 'app-booking',
@@ -11,7 +13,6 @@ import { BookingDataService, Booking } from '../../services/booking-data.service
     CommonModule,
     FormsModule,
     CalendarModule,
-    // DatePickerModule might also be useful for date inputs if needed later
   ],
   templateUrl: './booking.component.html',
   styleUrls: ['./booking.component.scss']
@@ -24,18 +25,14 @@ export class BookingComponent implements OnInit {
 
   public selectedDate: Date | null = null;
   public today: Date = new Date();
-  public minDate: Date = new Date(this.today.getFullYear(), this.today.getMonth(), this.today.getDate()); // Today
-  public maxDate: Date = new Date(this.today.getFullYear(), this.today.getMonth() + 2, this.today.getDate()); // Approx 2 months out
+  public minDate: Date = new Date(this.today.getFullYear(), this.today.getMonth(), this.today.getDate());
+  public maxDate: Date = new Date(this.today.getFullYear(), this.today.getMonth() + 2, this.today.getDate());
 
-  // Mock unavailable dates - e.g., tomorrow is fully booked
   public unavailableDates: Date[] = [
     new Date(this.today.getFullYear(), this.today.getMonth(), this.today.getDate() + 1)
   ];
 
   public availableTimeSlots: { [key: string]: string[] } = {
-    // Default empty, to be populated when a date is selected
-    // Example structure:
-    // '2024-07-30': ['10:00', '10:30', '14:00']
   };
 
   public timeSlotsForSelectedDate: string[] = [];
@@ -43,10 +40,7 @@ export class BookingComponent implements OnInit {
   public assignedEmployee: string | null = null;
 
   // Mock employees for time slots
-  private employeeAssignments: { [key: string]: { [time: string]: string } } = {
-    // Example: '2024-07-30': { '10:00': 'Anna', '10:30': 'Péter', '14:00': 'Anna' }
-    // This mock data for employees might need to be centralized or made more dynamic in a real app
-  };
+  private employeeAssignments: { [key: string]: { [time: string]: string } } = {};
 
   // Employee name to ID mapping (example)
   private employeeNameToIdMap: { [name: string]: number } = {
@@ -55,23 +49,20 @@ export class BookingComponent implements OnInit {
     'Laura': 3,
   };
 
-  constructor(private bookingDataService: BookingDataService) { }
+  constructor(private bookingService: BookingService) { }
 
   ngOnInit(): void {
-    this.selectedService = this.services[0]; // Default to first service
+    this.selectedService = this.services[0];
     this.generateInitialTimeSlotsAndAssignments();
   }
 
   private generateInitialTimeSlotsAndAssignments(): void {
-    // Generate some mock available slots and employee assignments for the next few available days
-    for (let i = 0; i < 7; i++) { // Generate for the next 7 days
+    for (let i = 0; i < 7; i++) {
       const date = new Date(this.today.getFullYear(), this.today.getMonth(), this.today.getDate() + i);
       const dateString = this.formatDate(date);
 
-      // Skip if it's an "unavailable day" like tomorrow
       if (this.isDateUnavailable(date)) continue;
 
-      // Skip weekends (Sunday = 0, Saturday = 6)
       if (date.getDay() === 0 || date.getDay() === 6) {
         this.availableTimeSlots[dateString] = [];
         this.employeeAssignments[dateString] = {};
@@ -161,8 +152,7 @@ export class BookingComponent implements OnInit {
       }
 
       // 4. Create Booking Object
-      const newBooking: Booking = {
-        Id: 0, // Service will assign ID
+      const newBooking: CreateBookingDto = {
         Subject: `${this.selectedService} - ${this.fullName}`,
         StartTime: startTime,
         EndTime: endTime,

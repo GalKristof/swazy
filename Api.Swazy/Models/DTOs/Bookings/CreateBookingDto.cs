@@ -7,6 +7,5 @@ public record CreateBookingDto(
     string LastName,
     string Email,
     string PhoneNumber,
-    Guid? BookedByUserId,
     Guid BusinessServiceId,
     Guid? EmployeeId);

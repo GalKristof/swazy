@@ -63,13 +63,7 @@ public class SwazyDbContext(DbContextOptions<SwazyDbContext> options) : DbContex
             .WithMany()
             .HasForeignKey(b => b.EmployeeId)
             .OnDelete(DeleteBehavior.SetNull);
-
-        modelBuilder.Entity<Booking>()
-            .HasOne(b => b.BookedByUser)
-            .WithMany()
-            .HasForeignKey(b => b.BookedByUserId)
-            .OnDelete(DeleteBehavior.SetNull);
-
+        
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Email)
             .IsUnique();

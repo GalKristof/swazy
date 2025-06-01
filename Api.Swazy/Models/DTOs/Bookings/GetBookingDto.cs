@@ -8,6 +8,5 @@ public class GetBookingDto(
     string LastName,
     string Email,
     string PhoneNumber,
-    Guid? BookedByUserId,
     Guid BusinessServiceId,
     Guid? EmployeeId);

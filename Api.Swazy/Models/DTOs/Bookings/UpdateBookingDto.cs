@@ -8,6 +8,5 @@ public record UpdateBookingDto(
     string LastName,
     string Email,
     string PhoneNumber,
-    Guid? BookedByUserId,
     Guid BusinessServiceId,
     Guid? EmployeeId) : BaseUpdateDto(Id);
