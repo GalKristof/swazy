@@ -62,6 +62,7 @@ app.MapBusinessEndpoints();
 app.MapServiceEndpoints();
 app.MapBookingEndpoints();
 app.MapUserEndpoints();
+app.MapBusinessServiceEndpoints(); // Added this line
 Log.Information($"[Swazy] Endpoints mapped, setting up HTTPS Redirection...");
 app.UseHttpsRedirection();
 Log.Information("[Swazy] Everything is setup, the app starts to run!");

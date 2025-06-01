@@ -22,4 +22,7 @@ public static class SwazyConstants
     
     public const string AuthModuleName = "Auth";
     public static readonly string AuthModuleApi = UserModuleName.ToLower();
+
+    public const string BusinessServiceModuleName = "BusinessService";
+    public static readonly string BusinessServiceModuleApi = BusinessServiceModuleName.ToLower();
 }

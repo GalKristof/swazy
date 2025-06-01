@@ -5,6 +5,7 @@ using Api.Swazy.Services.Bookings;
 using Api.Swazy.Services.Businesses;
 using Api.Swazy.Services.Services;
 using Api.Swazy.Services.Users;
+using Api.Swazy.Services.BusinessServices;
 
 namespace Api.Swazy.Extensions;
 
@@ -24,6 +25,7 @@ public static class SwazyExtensions
         services.AddScoped<IServiceService, ServiceService>();
         services.AddScoped<IBookingService, BookingService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IBusinessServiceService, BusinessServiceService>();
 
         // Providers
         services.AddSingleton<IHashingProvider, HashingProvider>();

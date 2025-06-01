@@ -3,6 +3,7 @@ using Api.Swazy.Models.DTOs.Bookings;
 using Api.Swazy.Models.DTOs.Businesses;
 using Api.Swazy.Models.DTOs.Services;
 using Api.Swazy.Models.DTOs.Users;
+using Api.Swazy.Models.DTOs.BusinessServices;
 using Api.Swazy.Models.Entities;
 using AutoMapper;
 namespace Api.Swazy.Profiles;
@@ -24,6 +25,11 @@ public class MappingProfile : Profile
         // Service
         CreateMap<CreateServiceDto, Service>();
         CreateMap<UpdateServiceDto, Service>();
+
+        // BusinessService
+        CreateMap<BusinessService, BusinessServiceDto>().ReverseMap();
+        CreateMap<BusinessService, CreateBusinessServiceDto>().ReverseMap();
+        CreateMap<BusinessService, UpdateBusinessServiceDto>().ReverseMap();
 
         // User
         CreateMap<CreateUserDto, User>();
