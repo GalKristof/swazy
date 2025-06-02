@@ -1,9 +1,6 @@
 namespace Swazy.Tests;
 
-public class UnitTest1
+public class UnitTest1 : BaseTest
 {
-    [Fact]
-    public void Test1()
-    {
-    }
+    // Remove the Test1 method
 }
