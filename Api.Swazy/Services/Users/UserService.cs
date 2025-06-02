@@ -21,7 +21,7 @@ public class UserService(
         Log.Verbose("[UserService - {MethodName}] Invoked. {UserEmail}", 
             nameof(CreateEntityAsync), dto.Email);
         
-        var response = new CommonResponse<User>();
+        var response = new CommonResponse<User?>();
         try
         {
             var repository = unitOfWork?.Repository<User>() ?? defaultRepository;

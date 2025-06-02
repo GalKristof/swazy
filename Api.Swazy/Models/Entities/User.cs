@@ -14,5 +14,5 @@ public class User : BaseEntity
     [JsonIgnore]
     public string HashedPassword { get; set; } = string.Empty;
     
-    public UserRole Role { get; set; }
+    public UserRole Role { get; set; } = UserRole.Guest;
 }

@@ -1,6 +1,7 @@
 ﻿using Api.Swazy.Persistence.Repositories;
 using Api.Swazy.Persistence.UoW;
 using Api.Swazy.Providers;
+using Api.Swazy.Services.Auth;
 using Api.Swazy.Services.Bookings;
 using Api.Swazy.Services.Businesses;
 using Api.Swazy.Services.Services;
@@ -26,6 +27,7 @@ public static class SwazyExtensions
         services.AddScoped<IBookingService, BookingService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IBusinessServiceService, BusinessServiceService>();
+        services.AddScoped<IAuthService, AuthService>();
 
         // Providers
         services.AddSingleton<IHashingProvider, HashingProvider>();

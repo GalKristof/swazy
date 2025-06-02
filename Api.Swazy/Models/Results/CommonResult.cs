@@ -9,5 +9,5 @@ public enum CommonResult
     InvalidCredentials = 5,
     DatabaseError = 6,
     AlreadyIncluded = 7,
-    UserAlreadyExists = 8 // Added UserAlreadyExists
+    UserAlreadyExists = 8
 }

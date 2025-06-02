@@ -1,5 +1,3 @@
-using Api.Swazy.Types;
-
 namespace Api.Swazy.Models.DTOs.Users;
 
 public record RegisterUserDto(
@@ -8,6 +6,5 @@ public record RegisterUserDto(
     string Email,
     string Password,
     string ConfirmPassword,
-    string PhoneNumber,
-    UserRole Role
+    string PhoneNumber
 );

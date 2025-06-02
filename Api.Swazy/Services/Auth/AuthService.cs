@@ -4,21 +4,18 @@ using Api.Swazy.Models.Entities;
 using Api.Swazy.Models.Results;
 using Api.Swazy.Persistence.Repositories;
 using Api.Swazy.Providers;
-using Api.Swazy.Services.Users; // Added IUserService
+using Api.Swazy.Services.Users;
 using Serilog;
 
 namespace Api.Swazy.Services.Auth;
 
-// Removed GenericService inheritance and IMapper injection
-// Added IUserService injection
 public class AuthService(
-    IRepository<User> userRepository, // Renamed for clarity
-    IHashingProvider hashingProvider, // Renamed for clarity
-    IJwtTokenProvider jwtTokenProvider, // Renamed for clarity
-    IUserService userService // Added
+    IRepository<User> userRepository,
+    IHashingProvider hashingProvider,
+    IJwtTokenProvider jwtTokenProvider,
+    IUserService userService
     ) : IAuthService
 {
-    // Removed _mapper field
 
     public async Task<CommonResponse<string>> LoginUserAsync(LoginUserDto dto)
     {
@@ -52,8 +49,7 @@ public class AuthService(
                     nameof(LoginUserAsync), dto.Email, user.Id);
                 return response;
             }
-
-            // Manual mapping from User to TokenDto
+            
             var tokenDto = new TokenDto
             {
                 Id = user.Id,
@@ -92,8 +88,7 @@ public class AuthService(
                 Log.Debug("[AuthService - {MethodName}] Registration failed. User already exists: {UserEmail}", nameof(RegisterUserAsync), dto.Email);
                 return response;
             }
-
-            // Manual mapping from RegisterUserDto to CreateUserDto
+            
             var createUserDto = new CreateUserDto(
                 dto.FirstName,
                 dto.LastName,
@@ -101,18 +96,6 @@ public class AuthService(
                 dto.Email,
                 dto.Password
             );
-
-            // We also need to pass the Role, but CreateUserDto doesn't have it.
-            // For now, let's assume UserService's CreateEntityAsync handles setting a default role
-            // or that the User entity's constructor/properties handle it.
-            // If not, UserService.CreateEntityAsync or CreateUserDto might need adjustment.
-            // However, the issue is about registration, not role management complexity at this stage.
-            // The User entity itself has a Role property. UserService CreateEntityAsync uses AutoMapper
-            // which would map the Role if CreateUserDto had it. Since we are not using AutoMapper here,
-            // and CreateUserDto doesn't have Role, the Role from RegisterUserDto will not be passed to UserService.
-            // This means the user will be created with whatever default Role is set in the User entity or by the DB.
-            // This is a limitation of the current CreateUserDto and UserService interaction without AutoMapper or direct Role passing.
-            // For this task, we will proceed with creating the user, and the Role from RegisterUserDto will be ignored by UserService.
 
             var createUserResponse = await userService.CreateEntityAsync(createUserDto);
 

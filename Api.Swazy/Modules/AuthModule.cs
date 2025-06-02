@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using Api.Swazy.Common;
 using Api.Swazy.Models.DTOs.Users;
 using Api.Swazy.Models.Results;
@@ -35,8 +36,8 @@ public static class AuthModule
                 return response.Result switch
                 {
                     CommonResult.Success => Results.Ok(response.Value),
-                    CommonResult.UserAlreadyExists => Results.Conflict("User with this email already exists."), // Added UserAlreadyExists
-                    CommonResult.InvalidCredentials => Results.BadRequest("Invalid credentials provided for registration."), // Should not happen with register but as a general case
+                    CommonResult.UserAlreadyExists => Results.Conflict("User with this email already exists."),
+                    CommonResult.InvalidCredentials => throw new UnreachableException(),
                     _ => Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError)
                 };
             })
