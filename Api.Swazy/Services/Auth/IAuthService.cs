@@ -6,4 +6,5 @@ namespace Api.Swazy.Services.Auth;
 public interface IAuthService
 {
     Task<CommonResponse<string>> LoginUserAsync(LoginUserDto dto);
+    Task<CommonResponse<string>> RegisterUserAsync(RegisterUserDto dto);
 }

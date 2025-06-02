@@ -24,7 +24,22 @@ public static class AuthModule
                     _ => Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError)
                 };
             })
-            .WithTags(SwazyConstants.AuthModuleName); 
-    }
+            .WithTags(SwazyConstants.AuthModuleName);
 
+        endpoints.MapPost($"api/{SwazyConstants.AuthModuleApi}/register", async (
+                [FromServices] IAuthService authService,
+                [FromBody] RegisterUserDto registerUserDto) =>
+            {
+                var response = await authService.RegisterUserAsync(registerUserDto);
+
+                return response.Result switch
+                {
+                    CommonResult.Success => Results.Ok(response.Value),
+                    CommonResult.UserAlreadyExists => Results.Conflict("User with this email already exists."), // Added UserAlreadyExists
+                    CommonResult.InvalidCredentials => Results.BadRequest("Invalid credentials provided for registration."), // Should not happen with register but as a general case
+                    _ => Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError)
+                };
+            })
+            .WithTags(SwazyConstants.AuthModuleName);
+    }
 }

@@ -8,5 +8,6 @@ public enum CommonResult
     RequirementNotFound = 4,
     InvalidCredentials = 5,
     DatabaseError = 6,
-    AlreadyIncluded = 7
+    AlreadyIncluded = 7,
+    UserAlreadyExists = 8 // Added UserAlreadyExists
 }
