@@ -211,4 +211,125 @@
       </table>
     </div>
   </div>
+
+  <!-- Business Services Management Section -->
+  <hr class="my-8 border-t-2 border-gray-300">
+
+  <div class="flex justify-between items-center mb-4 mt-8">
+    <h1 class="text-2xl font-bold">Business Services Management</h1>
+    <button (click)="toggleBusinessServicesSection()" class="btn btn-sm btn-outline">
+      {{ businessServicesSectionOpen ? 'Collapse' : 'Expand' }}
+    </button>
+  </div>
+
+  <div *ngIf="businessServicesSectionOpen">
+    <!-- Business Selection Dropdown -->
+    <div class="mb-4 p-4 border rounded-lg shadow">
+      <h2 class="text-xl font-semibold mb-2">Select Business</h2>
+      <label class="label"><span class="label-text">Business</span></label>
+      <select [(ngModel)]="selectedBusinessIdForServices" (change)="onBusinessSelectedForServices($event)" class="select select-bordered w-full">
+        <option value="">-- Select a Business --</option>
+        <option *ngFor="let business of allBusinessesForDropdown" [value]="business.id">{{ business.name }}</option>
+      </select>
+    </div>
+
+    <div *ngIf="!selectedBusinessIdForServices && businessServicesSectionOpen" class="text-center p-4 text-gray-500">
+      Please select a business to view or manage its services.
+    </div>
+
+    <div *ngIf="selectedBusinessIdForServices">
+      <!-- Button to toggle Create Business Service Form -->
+      <div class="my-4">
+        <button (click)="toggleCreateBusinessServiceForm()" class="btn btn-primary" [disabled]="!selectedBusinessIdForServices">
+          {{ showCreateBusinessServiceForm ? 'Cancel Adding Service' : 'Add New Business Service' }}
+        </button>
+      </div>
+
+      <!-- Create New Business Service Form -->
+      <div *ngIf="showCreateBusinessServiceForm" class="mb-8 p-4 border rounded-lg shadow bg-base-200">
+        <h2 class="text-xl font-semibold mb-2">Create New Business Service</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="label"><span class="label-text">Service ID (Existing Generic Service ID)</span></label>
+            <input type="text" [(ngModel)]="newBusinessService.serviceId" placeholder="Generic Service ID" class="input input-bordered w-full" />
+          </div>
+          <div>
+            <label class="label"><span class="label-text">Price</span></label>
+            <input type="number" [(ngModel)]="newBusinessService.price" placeholder="Price" class="input input-bordered w-full" />
+          </div>
+          <div>
+            <label class="label"><span class="label-text">Duration (Minutes)</span></label>
+            <input type="number" [(ngModel)]="newBusinessService.duration" placeholder="Duration" class="input input-bordered w-full" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <button (click)="createBusinessService()" class="btn btn-primary mr-2">Save Service</button>
+          <button (click)="cancelCreateBusinessService()" class="btn btn-ghost">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Edit Business Service Form -->
+      <div *ngIf="editingBusinessService" class="mb-8 p-4 border rounded-lg shadow bg-base-200">
+        <h2 class="text-xl font-semibold mb-2">Edit Business Service</h2>
+         <!-- Display Service ID (read-only as it's part of key) -->
+        <div>
+          <label class="label"><span class="label-text">Service ID (Read-only)</span></label>
+          <input type="text" [ngModel]="editingBusinessService.id" placeholder="Service ID" class="input input-bordered w-full" disabled />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+          <div>
+            <label class="label"><span class="label-text">Price</span></label>
+            <input type="number" [(ngModel)]="editingBusinessService.price" placeholder="Price" class="input input-bordered w-full" />
+          </div>
+          <div>
+            <label class="label"><span class="label-text">Duration (Minutes)</span></label>
+            <input type="number" [(ngModel)]="editingBusinessService.duration" placeholder="Duration" class="input input-bordered w-full" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <button (click)="updateBusinessService()" class="btn btn-primary mr-2">Update Service</button>
+          <button (click)="cancelEditBusinessService()" class="btn btn-ghost">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Loading Indicator -->
+      <div *ngIf="isLoadingBusinessServices" class="text-center p-4">
+        <span class="loading loading-lg loading-spinner text-primary"></span>
+        <p>Loading business services...</p>
+      </div>
+
+      <!-- Existing Business Services List -->
+      <div *ngIf="!isLoadingBusinessServices && businessServicesForSelectedBusiness.length > 0 && selectedBusinessIdForServices" class="overflow-x-auto mb-8">
+        <h2 class="text-xl font-semibold mb-2">Services for Selected Business</h2>
+        <table class="table w-full table-zebra">
+          <thead>
+            <tr>
+              <th>ID (BusinessService ID)</th>
+              <th>Generic Service ID</th>
+              <th>Price</th>
+              <th>Duration (Mins)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let bs of businessServicesForSelectedBusiness">
+              <td>{{ bs.id }}</td>
+              <td>{{ bs.serviceId }}</td>
+              <td>{{ bs.price | currency }}</td>
+              <td>{{ bs.duration }}</td>
+              <td>
+                <button (click)="editBusinessService(bs)" class="btn btn-sm btn-outline btn-info mr-2">Edit</button>
+                <button (click)="deleteBusinessService(bs.id)" class="btn btn-sm btn-outline btn-error">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Message if no services found -->
+      <div *ngIf="!isLoadingBusinessServices && businessServicesForSelectedBusiness.length === 0 && selectedBusinessIdForServices" class="text-center p-4 text-gray-500">
+        No business services found for this business. You can add new ones using the button above.
+      </div>
+    </div>
+  </div>
 </div>
