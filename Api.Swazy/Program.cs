@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Api.Swazy.Common;
 using Api.Swazy.DataSeeding;
 using Api.Swazy.Extensions;
@@ -31,6 +32,8 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(SwazyCon
 builder.Services.Configure<JsonOptions>(options =>
 {
     options.SerializerOptions.PropertyNameCaseInsensitive = true;
+    options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    options.SerializerOptions.WriteIndented = true;
 });
 builder.Services.AddDbContext<SwazyDbContext>(options => 
     options

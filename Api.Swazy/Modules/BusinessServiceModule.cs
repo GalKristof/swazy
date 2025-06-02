@@ -42,9 +42,7 @@ namespace Api.Swazy.Modules
                     [FromServices] IBusinessServiceService businessServiceService,
                     [FromRoute] Guid id) =>
                 {
-                    // Assuming GetEntityByIdAsync exists in IGenericService returning CommonResponse<T>
-                    // If not, this needs to be implemented in BusinessServiceService or GenericService
-                    var response = await businessServiceService.GetEntityByIdAsync(id);
+                    var response = await businessServiceService.GetSingleEntityByIdAsync(id);
 
                     return response.Result switch
                     {

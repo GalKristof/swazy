@@ -3,20 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { CreateBookingDto } from '../models/dto/booking-dto.model';
+import {CreateBookingDto, UpdateBookingDto} from '../models/dto/booking-dto.model';
 import { Booking } from '../models/booking/booking.model';
-
-export interface UpdateBookingDto {
-  id: string;
-  bookingDate: Date;
-  notes?: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  businessServiceId: string;
-  employeeId?: string;
-}
 
 @Injectable({
   providedIn: 'root'
