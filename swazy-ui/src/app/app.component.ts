@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ServiceService } from './services/service.service';
 import { GetServiceDto, CreateServiceDto, UpdateServiceDto } from './models/service.model';
 import { BusinessType } from './models/business-type.enum';
-import { FormsModule } from '@angular/forms'; // Import FormsModule
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Add CommonModule and FormsModule
+  imports: [CommonModule, FormsModule],
   providers: [],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -17,9 +17,7 @@ export class AppComponent {
   services: GetServiceDto[] = [];
   newService: CreateServiceDto = { tag: '', businessType: BusinessType.None, value: '' };
   editingService: UpdateServiceDto | null = null;
-  businessTypes = Object.values(BusinessType).filter(value => typeof value === 'number');
-  // Helper to get the string value of BusinessType for the UI
-  BusinessTypeLabel = BusinessType;
+  businessTypes = Object.values(BusinessType);
 
   constructor(private serviceService: ServiceService) {}
 
