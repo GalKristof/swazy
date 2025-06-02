@@ -87,4 +87,111 @@
       </tbody>
     </table>
   </div>
+
+  <!-- NEW: Business Services Management Section -->
+  <div class="mt-12 mb-8 p-4 border rounded-lg shadow">
+    <h1 class="text-2xl font-bold mb-6">Business Services Management</h1>
+
+    <!-- Business Selection Dropdown -->
+    <div class="mb-6">
+      <label for="businessSelect" class="label">
+        <span class="label-text text-lg">Select Business</span>
+      </label>
+      <select id="businessSelect" [(ngModel)]="selectedBusinessId" (change)="onBusinessSelected($event)" class="select select-bordered w-full max-w-xs">
+        <option [ngValue]="null">Select a Business</option>
+        <option *ngFor="let business of businesses" [ngValue]="business.id">{{ business.name }}</option>
+      </select>
+    </div>
+
+    <!-- Display Business Services List (conditionally) -->
+    <div *ngIf="selectedBusinessId">
+      <div *ngIf="!editingBusinessService">
+        <h2 class="text-xl font-semibold mb-4">Services for {{ businesses.find(b => b.id === selectedBusinessId)?.name }}</h2>
+        <div *ngIf="businessServices.length > 0" class="overflow-x-auto mb-6">
+          <table class="table w-full table-zebra">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Duration (mins)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let bs of businessServices">
+                <td>{{ bs.id }}</td>
+                <td>{{ bs.name }}</td>
+                <td>{{ bs.description }}</td>
+                <td>{{ bs.price }}</td>
+                <td>{{ bs.duration }}</td>
+                <td>
+                  <button (click)="editBusinessService(bs)" class="btn btn-sm btn-outline btn-info mr-2">Edit</button>
+                  <button (click)="deleteBusinessService(bs.id)" class="btn btn-sm btn-outline btn-error">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p *ngIf="businessServices.length === 0 && selectedBusinessId" class="text-center py-4">No services found for this business.</p>
+      </div>
+
+      <!-- Create New Business Service Form (conditionally) -->
+      <div *ngIf="selectedBusinessId && !editingBusinessService" class="p-4 border rounded-lg shadow-inner bg-base-100 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Create New Business Service</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="label"><span class="label-text">Name</span></label>
+            <input type="text" [(ngModel)]="newBusinessService.name" placeholder="Service Name" class="input input-bordered w-full" />
+          </div>
+          <div>
+            <label class="label"><span class="label-text">Description</span></label>
+            <input type="text" [(ngModel)]="newBusinessService.description" placeholder="Service Description" class="input input-bordered w-full" />
+          </div>
+          <div>
+            <label class="label"><span class="label-text">Price</span></label>
+            <input type="text" [(ngModel)]="newBusinessService.price" placeholder="Price" class="input input-bordered w-full" />
+          </div>
+          <div>
+            <label class="label"><span class="label-text">Duration (minutes)</span></label>
+            <input type="number" [(ngModel)]="newBusinessService.duration" placeholder="Duration" class="input input-bordered w-full" />
+          </div>
+          <!-- serviceId could be added here if it's user-definable at creation -->
+        </div>
+        <button (click)="createBusinessService()" class="btn btn-primary mt-4">Create Business Service</button>
+      </div>
+
+      <!-- Edit Business Service Form (conditionally) -->
+      <div *ngIf="editingBusinessService" class="p-4 border rounded-lg shadow-inner bg-base-200">
+        <h2 class="text-xl font-semibold mb-4">Edit Business Service: {{ editingBusinessService.name }}</h2>
+        <input type="hidden" [(ngModel)]="editingBusinessService.id" />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="label"><span class="label-text">Name</span></label>
+            <input type="text" [(ngModel)]="editingBusinessService.name" placeholder="Service Name" class="input input-bordered w-full" />
+          </div>
+          <div>
+            <label class="label"><span class="label-text">Description</span></label>
+            <input type="text" [(ngModel)]="editingBusinessService.description" placeholder="Service Description" class="input input-bordered w-full" />
+          </div>
+          <div>
+            <label class="label"><span class="label-text">Price</span></label>
+            <input type="text" [(ngModel)]="editingBusinessService.price" placeholder="Price" class="input input-bordered w-full" />
+          </div>
+          <div>
+            <label class="label"><span class="label-text">Duration (minutes)</span></label>
+            <input type="number" [(ngModel)]="editingBusinessService.duration" placeholder="Duration" class="input input-bordered w-full" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <button (click)="updateBusinessService()" class="btn btn-primary mr-2">Update Business Service</button>
+          <button (click)="cancelEditBusinessService()" class="btn btn-ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="!selectedBusinessId" class="text-center py-4">
+        <p>Please select a business to view or manage its services.</p>
+    </div>
+  </div>
 </div>
