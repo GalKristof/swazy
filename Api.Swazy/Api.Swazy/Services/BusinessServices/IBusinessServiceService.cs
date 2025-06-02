@@ -7,7 +7,6 @@ namespace Api.Swazy.Services.BusinessServices
 {
     public interface IBusinessServiceService : IGenericService<BusinessService, CreateBusinessServiceDto, UpdateBusinessServiceDto>
     {
-        // Add any additional BusinessService specific methods here
-        Task<CommonResponse<IEnumerable<GetBusinessServiceDto>>> GetBusinessServicesByBusinessIdAsync(Guid businessId);
+        Task<CommonResponse<IEnumerable<BusinessService?>>> GetBusinessServicesByBusinessIdAsync(Guid businessId);
     }
 }
