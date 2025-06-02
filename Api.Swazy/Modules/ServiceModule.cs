@@ -30,6 +30,28 @@ public static class ServiceModule
             })
             .WithTags(SwazyConstants.ServiceModuleName);
 
+        endpoints.MapGet($"api/{SwazyConstants.ServiceModuleApi}/{{id:guid}}", async (
+                [FromServices] IServiceService serviceService,
+                [FromServices] IMapper mapper,
+                [FromRoute] Guid id) =>
+            {
+                var response = await serviceService.GetSingleEntityByIdAsync(id);
+                
+                if (response is { Result: CommonResult.Success, Value: not null })
+                {
+                    var getServiceDto = new GetServiceDto(response.Value.Id, response.Value.Tag, response.Value.BusinessType, response.Value.Value);
+                    return Results.Ok(getServiceDto);
+                }
+                
+                if (response.Result == CommonResult.NotFound)
+                {
+                    return Results.NotFound("Service not found.");
+                }
+                
+                return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
+            })
+            .WithTags(SwazyConstants.ServiceModuleName);
+
         endpoints.MapGet($"api/{SwazyConstants.ServiceModuleApi}/all", async (
                 [FromServices] IServiceService serviceService) =>
             {
@@ -40,7 +62,9 @@ public static class ServiceModule
                     return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
                 }
 
-                return Results.Ok(response.Value);
+                var getServicesDtos = response.Value.Select(entity => new GetServiceDto(entity.Id, entity.Tag, entity.BusinessType, entity.Value)).ToList();
+
+                return Results.Ok(getServicesDtos);
             })
             .WithTags(SwazyConstants.ServiceModuleName);
         
@@ -52,7 +76,8 @@ public static class ServiceModule
 
                 if (response is { Result: CommonResult.Success, Value: not null })
                 {
-                    return Results.Ok(response.Value);
+                    var getServiceDto = new GetServiceDto(response.Value.Id, response.Value.Tag, response.Value.BusinessType, response.Value.Value);
+                    return Results.Ok(getServiceDto);
                 }
 
                 if (response.Result == CommonResult.NotFound)
@@ -72,7 +97,7 @@ public static class ServiceModule
 
                 if (response is { Result: CommonResult.Success, Value: not null })
                 {
-                    return Results.Ok(response.Value);
+                    return Results.NoContent();
                 }
 
                 if (response.Result == CommonResult.NotFound)
