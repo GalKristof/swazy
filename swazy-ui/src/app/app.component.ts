@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core'; // Added OnInit
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ServiceService } from './services/service.service';
 import { GetServiceDto, CreateServiceDto, UpdateServiceDto } from './models/service.model';
 import { BusinessType } from './models/business-type.enum';
 import { FormsModule } from '@angular/forms';
-import { BusinessService } from './services/business.service'; // Added
-import { GetBusinessDto, CreateBusinessDto, UpdateBusinessDto } from './models/dto/business-dto.model'; // Added
+import { BusinessService } from './services/business.service';
+import { GetBusinessDto, CreateBusinessDto, UpdateBusinessDto } from './models/dto/business-dto.model';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +15,7 @@ import { GetBusinessDto, CreateBusinessDto, UpdateBusinessDto } from './models/d
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent implements OnInit { // Implemented OnInit
+export class AppComponent implements OnInit {
   // Existing Service properties
   services: GetServiceDto[] = [];
   newService: CreateServiceDto = { tag: '', businessType: BusinessType.None, value: '' };
@@ -34,14 +34,17 @@ export class AppComponent implements OnInit { // Implemented OnInit
   };
   editingBusiness: UpdateBusinessDto | null = null;
 
+  servicesSectionOpen: boolean = true;
+  businessesSectionOpen: boolean = true;
+
   constructor(
     private serviceService: ServiceService,
-    private businessService: BusinessService // Injected BusinessService
+    private businessService: BusinessService
   ) {}
 
   ngOnInit(): void {
     this.loadServices();
-    this.loadBusinesses(); // Added
+    this.loadBusinesses();
   }
 
   // Existing Service methods
@@ -127,5 +130,13 @@ export class AppComponent implements OnInit { // Implemented OnInit
 
   cancelEditBusiness(): void {
     this.editingBusiness = null;
+  }
+
+  toggleServicesSection(): void {
+    this.servicesSectionOpen = !this.servicesSectionOpen;
+  }
+
+  toggleBusinessesSection(): void {
+    this.businessesSectionOpen = !this.businessesSectionOpen;
   }
 }
