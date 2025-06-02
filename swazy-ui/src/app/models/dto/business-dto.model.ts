@@ -21,7 +21,6 @@ export interface CreateBusinessDto {
   email: string;
   businessType: BusinessType;
   websiteUrl: string;
-  // Omitting employees and services as they are likely managed by separate endpoints
 }
 
 export interface UpdateBusinessDto {
@@ -32,5 +31,4 @@ export interface UpdateBusinessDto {
   email?: string;
   businessType?: BusinessType;
   websiteUrl?: string;
-  // Omitting employees and services as they are likely managed by separate endpoints
 }

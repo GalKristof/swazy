@@ -11,18 +11,16 @@ import { GetBusinessDto, CreateBusinessDto, UpdateBusinessDto } from './models/d
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  providers: [], // BusinessService will be added in app.config.ts later
+  providers: [],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-  // Existing Service properties
   services: GetServiceDto[] = [];
   newService: CreateServiceDto = { tag: '', businessType: BusinessType.None, value: '' };
   editingService: UpdateServiceDto | null = null;
-  businessTypes = Object.values(BusinessType); // Keep this as it's used by both services and businesses
+  businessTypes = Object.values(BusinessType);
 
-  // New Business properties
   businesses: GetBusinessDto[] = [];
   newBusiness: CreateBusinessDto = {
     name: '',
@@ -34,8 +32,8 @@ export class AppComponent implements OnInit {
   };
   editingBusiness: UpdateBusinessDto | null = null;
 
-  servicesSectionOpen: boolean = true;
-  businessesSectionOpen: boolean = true;
+  servicesSectionOpen: boolean = false;
+  businessesSectionOpen: boolean = false;
 
   constructor(
     private serviceService: ServiceService,
@@ -106,10 +104,6 @@ export class AppComponent implements OnInit {
   }
 
   editBusiness(business: GetBusinessDto): void {
-    // For UpdateBusinessDto, we only need the id and the fields that can be updated.
-    // We spread the original business object here. If some fields are not part of UpdateBusinessDto,
-    // they will be ignored by the backend if the DTO is defined strictly.
-    // Or, ensure UpdateBusinessDto includes all editable fields from GetBusinessDto.
     this.editingBusiness = { ...business };
   }
 
