@@ -4,12 +4,9 @@ using Api.Swazy.Models.Results;
 using Api.Swazy.Persistence.Repositories;
 using Api.Swazy.Services.Generic;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace Api.Swazy.Services.BusinessServices
@@ -19,28 +16,33 @@ namespace Api.Swazy.Services.BusinessServices
         IMapper mapper) :
         GenericService<BusinessService, CreateBusinessServiceDto, UpdateBusinessServiceDto>(defaultRepository, mapper), IBusinessServiceService
     {
-        public async Task<OperationResult<IEnumerable<BusinessServiceDto>>> GetBusinessServicesByBusinessIdAsync(Guid businessId)
+        public async Task<CommonResponse<IEnumerable<GetBusinessServiceDto>>> GetBusinessServicesByBusinessIdAsync(Guid businessId)
         {
+            var response = new CommonResponse<IEnumerable<GetBusinessServiceDto>>();
             try
             {
-                var services = await _defaultRepository.FindByCondition(s => s.BusinessId == businessId)
-                                                       .ProjectTo<BusinessServiceDto>(_mapper.ConfigurationProvider)
-                                                       .ToListAsync();
+                var businessServices = await _defaultRepository.GetAsync(filter: bs => bs.BusinessId == businessId);
 
-                if (services == null || !services.Any())
+                if (businessServices == null || !businessServices.Any())
                 {
-                    return OperationResult<IEnumerable<BusinessServiceDto>>.Failure(
-                        new Error((int)HttpStatusCode.NotFound, $"No services found for business ID {businessId}."));
+                    response.Result = CommonResult.NotFound;
+                    response.Value = Enumerable.Empty<GetBusinessServiceDto>();
                 }
-
-                return OperationResult<IEnumerable<BusinessServiceDto>>.Success(services);
+                else
+                {
+                    response.Value = _mapper.Map<IEnumerable<GetBusinessServiceDto>>(businessServices);
+                    response.Result = CommonResult.Success;
+                }
             }
             catch (Exception ex)
             {
-                // Log the exception ex here
-                return OperationResult<IEnumerable<BusinessServiceDto>>.Failure(
-                    new Error((int)HttpStatusCode.InternalServerError, $"An error occurred while fetching services for business ID {businessId}: {ex.Message}"));
+                // Future: Consider adding logging here, e.g., using Serilog
+                // For now, ex is not used to avoid warnings if no logging is in place.
+                // To use ex, you might log: Console.WriteLine(ex.Message);
+                response.Result = CommonResult.UnknownError;
+                response.Value = null;
             }
+            return response;
         }
     }
 }

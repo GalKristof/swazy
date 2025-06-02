@@ -2,64 +2,84 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-// Existing Service-related imports
+// Existing Service imports
 import { ServiceService } from './services/service.service';
-import { GetServiceDto, CreateServiceDto, UpdateServiceDto } from './models/service.model';
-import { BusinessType } from './models/business-type.enum';
+import { GetServiceDto, CreateServiceDto, UpdateServiceDto } from './models/service.model'; // This DTO is for generic services
 
-// New BusinessService-related imports
-import { BusinessServiceService } from './services/business-service.service';
-import { Business as GetBusinessDto } from './models/business/business.model';
-import {
-  GetBusinessServiceDto,
-  CreateBusinessServiceDto,
-  UpdateBusinessServiceDto
-} from './models/business/business.service.model';
+// Existing Business imports (for managing Business entities)
+import { BusinessService } from './services/business.service';
+import { GetBusinessDto, CreateBusinessDto, UpdateBusinessDto } from './models/dto/business-dto.model';
+
+// Added: BusinessService (linking Service to Business) imports
+import { BusinessServiceApiService } from './services/business-service-api.service';
+import { GetBusinessServiceDto, CreateBusinessServiceDto, UpdateBusinessServiceDto } from './models/business-service/business-service.dtos';
+
+import { BusinessType } from './models/business-type.enum';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule], // FormsModule is important for ngModel
-  // BusinessServiceService is providedIn: 'root'
-  providers: [],
+  imports: [CommonModule, FormsModule],
+  providers: [], // Services are typically providedIn: 'root' or in modules
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-  // Existing properties for ServiceService
-  services: GetServiceDto[] = [];
+  // Existing properties for generic Services
+  services: GetServiceDto[] = []; // Generic services available in the system
   newService: CreateServiceDto = { tag: '', businessType: BusinessType.None, value: '' };
   editingService: UpdateServiceDto | null = null;
-  businessTypes = Object.values(BusinessType);
-
-  // New properties for BusinessServiceService
-  businesses: GetBusinessDto[] = [];
-  selectedBusinessId: string | null = null;
-  businessServices: GetBusinessServiceDto[] = [];
   
-  // Initialize newBusinessService based on CreateBusinessServiceDto structure
-  // Assuming name, description, price, duration are primary fields. businessId is set on creation.
-  newBusinessService: CreateBusinessServiceDto = {
+  // Existing properties for Businesses
+  businesses: GetBusinessDto[] = []; // List of businesses (for the Business management section)
+  newBusiness: CreateBusinessDto = {
     name: '',
-    description: '',
-    price: '0', // Default to string '0' or appropriate initial value
-    duration: 0, // Default to 0 or appropriate initial value
-    // serviceId: '', // Optional: if linking to a predefined generic service
-    businessId: '' // Will be set when a business is selected
+    address: '',
+    phoneNumber: '',
+    email: '',
+    businessType: BusinessType.None,
+    websiteUrl: ''
+  };
+  editingBusiness: UpdateBusinessDto | null = null;
+
+  // Common
+  businessTypes = Object.values(BusinessType); // Used by both Business and generic Service forms
+
+  // Section visibility toggles
+  servicesSectionOpen: boolean = false; // For generic services
+  businessesSectionOpen: boolean = false; // For managing businesses
+  businessServicesSectionOpen: boolean = false; // For managing services offered by a specific business
+
+  // --- New Properties for BusinessService Management ---
+  allBusinessesForDropdown: GetBusinessDto[] = []; // To populate the business selection dropdown
+  selectedBusinessIdForServices: string = ''; // ID of the business selected to view/manage its services
+  businessServicesForSelectedBusiness: GetBusinessServiceDto[] = []; // Services offered by the selected business
+  
+  newBusinessService: CreateBusinessServiceDto = { 
+    serviceId: '', // This will need to be selected from 'services' (GetServiceDto[])
+    businessId: '', 
+    price: 0, 
+    duration: 0 
   };
   editingBusinessService: UpdateBusinessServiceDto | null = null;
+  
+  isLoadingBusinessServices: boolean = false;
+  showCreateBusinessServiceForm: boolean = false;
+  // --- End of New Properties ---
 
   constructor(
-    private serviceService: ServiceService, // Existing service
-    private businessServiceService: BusinessServiceService // New service
+    private serviceService: ServiceService, // For generic services
+    private businessService: BusinessService, // For managing Business entities
+    private businessServiceApiService: BusinessServiceApiService // For BusinessService entities (linking Service to Business)
   ) {}
 
   ngOnInit(): void {
-    this.loadServices(); // Existing
-    this.loadBusinesses(); // New
+    this.loadServices(); // Load generic services
+    this.loadBusinesses(); // Load businesses for the business management section
+    this.loadAllBusinessesForDropdown(); // Load all businesses for the dropdown in BusinessServices section
   }
 
-  // --- Existing methods for ServiceService ---
+  // --- Generic Service Methods (No changes, existing) ---
   loadServices(): void {
     this.serviceService.getServices().subscribe(data => {
       this.services = data;
@@ -96,124 +116,199 @@ export class AppComponent implements OnInit {
     this.editingService = null;
   }
 
-  // --- New methods for BusinessServiceService ---
+  // --- Business Entity Management Methods (No changes, existing) ---
   loadBusinesses(): void {
-    this.businessServiceService.getBusinesses().subscribe({
-      next: (data) => {
-        this.businesses = data;
-      },
-      error: (err) => console.error('Error loading businesses:', err)
+    this.businessService.getBusinesses().subscribe(data => {
+      this.businesses = data; 
     });
   }
 
-  onBusinessSelected(event: any): void {
-    // Assuming the event is directly the value, or from event.target.value
-    const businessId = event?.target?.value || event; 
-    this.selectedBusinessId = businessId;
-    if (this.selectedBusinessId) {
-      this.loadBusinessServices();
-    } else {
-      this.businessServices = [];
+  createBusiness(): void {
+    this.businessService.createBusiness(this.newBusiness).subscribe(() => {
+      this.loadBusinesses();
+      this.newBusiness = {
+        name: '',
+        address: '',
+        phoneNumber: '',
+        email: '',
+        businessType: BusinessType.None,
+        websiteUrl: ''
+      };
+    });
+  }
+
+  editBusiness(business: GetBusinessDto): void {
+    this.editingBusiness = { ...business };
+  }
+
+  updateBusiness(): void {
+    if (this.editingBusiness && this.editingBusiness.id) {
+      this.businessService.updateBusiness(this.editingBusiness).subscribe(() => {
+        this.loadBusinesses();
+        this.editingBusiness = null;
+      });
     }
   }
 
-  loadBusinessServices(): void {
-    if (!this.selectedBusinessId) {
-      this.businessServices = []; // Clear services if no business is selected
+  deleteBusiness(id: string): void {
+    this.businessService.deleteBusiness(id).subscribe(() => {
+      this.loadBusinesses();
+    });
+  }
+
+  cancelEditBusiness(): void {
+    this.editingBusiness = null;
+  }
+
+  // --- Section Toggle Methods ---
+  toggleServicesSection(): void {
+    this.servicesSectionOpen = !this.servicesSectionOpen;
+  }
+
+  toggleBusinessesSection(): void {
+    this.businessesSectionOpen = !this.businessesSectionOpen;
+  }
+
+  toggleBusinessServicesSection(): void { // New
+    this.businessServicesSectionOpen = !this.businessServicesSectionOpen;
+  }
+
+  // --- New Methods for BusinessService Management ---
+
+  loadAllBusinessesForDropdown(): void {
+    this.businessService.getBusinesses().subscribe(
+      data => {
+        this.allBusinessesForDropdown = data;
+      },
+      error => {
+        console.error('Error loading businesses for dropdown:', error);
+        // Potentially set an error message for the UI
+      }
+    );
+  }
+
+  onBusinessSelectedForServices(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const businessId = selectElement.value;
+    this.selectedBusinessIdForServices = businessId;
+    
+    this.businessServicesForSelectedBusiness = []; // Clear previous services
+    this.editingBusinessService = null; // Clear any ongoing edit
+    this.showCreateBusinessServiceForm = false; // Hide create form
+
+    if (businessId) {
+      this.loadBusinessServicesForBusiness(businessId);
+    }
+  }
+
+  loadBusinessServicesForBusiness(businessId: string): void {
+    if (!businessId) {
+      this.businessServicesForSelectedBusiness = [];
       return;
     }
-    this.businessServiceService.getBusinessServices(this.selectedBusinessId).subscribe({
-      next: (data) => {
-        // The service returns GetBusinessServiceDto which should match the component's expectation
-        // If mapping was needed (e.g. from RawBusinessService), it would happen here or in the service
-        this.businessServices = data.map(bs => ({
-          ...bs,
-          // Ensure name and description are top-level if they come from a nested 'service' object
-          // This depends on the actual structure of GetBusinessServiceDto from the service vs model
-          // Based on current DTO, name/description are already top-level.
-          // Price and duration are also part of GetBusinessServiceDto
-        }));
+    this.isLoadingBusinessServices = true;
+    this.businessServiceApiService.getBusinessServicesByBusinessId(businessId).subscribe(
+      data => {
+        this.businessServicesForSelectedBusiness = data;
+        this.isLoadingBusinessServices = false;
       },
-      error: (err) => {
-        console.error('Error loading business services:', err);
-        this.businessServices = []; // Clear on error
+      error => {
+        console.error(`Error loading business services for business ID ${businessId}:`, error);
+        this.businessServicesForSelectedBusiness = []; // Clear on error
+        this.isLoadingBusinessServices = false;
+        // Potentially set an error message for the UI
       }
-    });
+    );
+  }
+
+  toggleCreateBusinessServiceForm(): void {
+    this.showCreateBusinessServiceForm = !this.showCreateBusinessServiceForm;
+    if (this.showCreateBusinessServiceForm) {
+      this.editingBusinessService = null; // Cancel any edit if opening create form
+      this.newBusinessService = { 
+        serviceId: '', // User will need to select a generic service
+        businessId: this.selectedBusinessIdForServices, // Pre-fill selected business
+        price: 0, 
+        duration: 0 
+      };
+    }
   }
 
   createBusinessService(): void {
-    if (!this.selectedBusinessId) {
-      console.error('No business selected to create a service for.');
+    if (!this.newBusinessService.serviceId || !this.selectedBusinessIdForServices) {
+      console.error('Service ID and Business ID are required to create a business service.');
+      // Potentially show user error
       return;
     }
-    this.newBusinessService.businessId = this.selectedBusinessId;
-    
-    // Ensure all required fields for CreateBusinessServiceDto are present
-    const serviceToCreate: CreateBusinessServiceDto = {
-        name: this.newBusinessService.name,
-        description: this.newBusinessService.description,
-        price: this.newBusinessService.price,
-        duration: this.newBusinessService.duration,
-        businessId: this.selectedBusinessId,
-        serviceId: this.newBusinessService.serviceId // if applicable
-    };
+    // Ensure businessId is correctly set from the selection
+    this.newBusinessService.businessId = this.selectedBusinessIdForServices;
 
-    this.businessServiceService.createBusinessService(serviceToCreate).subscribe({
-      next: () => {
-        this.loadBusinessServices(); // Reload services for the current business
-        this.newBusinessService = { // Reset form
-          name: '',
-          description: '',
-          price: '0',
-          duration: 0,
-          businessId: this.selectedBusinessId, // Keep businessId for convenience
-          serviceId: ''
-        };
+    this.businessServiceApiService.createBusinessService(this.newBusinessService).subscribe(
+      () => {
+        this.loadBusinessServicesForBusiness(this.selectedBusinessIdForServices);
+        this.showCreateBusinessServiceForm = false; // Hide form
+        this.newBusinessService = { serviceId: '', businessId: this.selectedBusinessIdForServices, price: 0, duration: 0 }; // Reset form
       },
-      error: (err) => console.error('Error creating business service:', err)
-    });
+      error => {
+        console.error('Error creating business service:', error);
+        // Potentially set an error message for the UI
+      }
+    );
   }
 
-  editBusinessService(service: GetBusinessServiceDto): void {
-    // Create a copy for editing, matching UpdateBusinessServiceDto structure
+  editBusinessService(bs: GetBusinessServiceDto): void {
+    // The UpdateBusinessServiceDto only needs id, price, duration.
+    // ServiceId and BusinessId are not updatable for an existing BusinessService.
     this.editingBusinessService = { 
-      id: service.id,
-      name: service.name,
-      description: service.description,
-      price: service.price,
-      duration: service.duration,
-      serviceId: service.serviceId
-     };
+      id: bs.id, 
+      price: bs.price, 
+      duration: bs.duration 
+    };
+    this.showCreateBusinessServiceForm = false; // Hide create form if editing
   }
 
   updateBusinessService(): void {
-    if (!this.editingBusinessService || !this.editingBusinessService.id) {
-      console.error('No service selected for update or ID is missing.');
-      return;
+    if (this.editingBusinessService && this.editingBusinessService.id) {
+      this.businessServiceApiService.updateBusinessService(this.editingBusinessService).subscribe(
+        () => {
+          this.loadBusinessServicesForBusiness(this.selectedBusinessIdForServices);
+          this.editingBusinessService = null; // Clear editing model
+        },
+        error => {
+          console.error('Error updating business service:', error);
+          // Potentially set an error message for the UI
+        }
+      );
     }
-    this.businessServiceService.updateBusinessService(this.editingBusinessService).subscribe({
-      next: () => {
-        this.loadBusinessServices();
-        this.editingBusinessService = null;
-      },
-      error: (err) => console.error('Error updating business service:', err)
-    });
   }
 
-  deleteBusinessService(id: string): void {
-    if (!id) {
-      console.error('Service ID is required for deletion.');
+  deleteBusinessService(bsId: string): void {
+    if (!this.selectedBusinessIdForServices) {
+      console.error("Cannot delete: No business selected.");
       return;
     }
-    this.businessServiceService.deleteBusinessService(id).subscribe({
-      next: () => {
-        this.loadBusinessServices();
+    this.businessServiceApiService.deleteBusinessService(bsId).subscribe(
+      () => {
+        this.loadBusinessServicesForBusiness(this.selectedBusinessIdForServices);
       },
-      error: (err) => console.error('Error deleting business service:', err)
-    });
+      error => {
+        console.error(`Error deleting business service ID ${bsId}:`, error);
+        // Potentially set an error message for the UI
+      }
+    );
   }
 
   cancelEditBusinessService(): void {
     this.editingBusinessService = null;
+  }
+
+  cancelCreateBusinessService(): void {
+    this.showCreateBusinessServiceForm = false;
+    this.newBusinessService = { 
+      serviceId: '', 
+      businessId: this.selectedBusinessIdForServices, // Keep context of selected business
+      price: 0, 
+      duration: 0 
+    };
   }
 }
