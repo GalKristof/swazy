@@ -84,7 +84,7 @@ public class AuthService(
             var existingUser = await userRepository.SingleOrDefaultAsync(x => x.Email == dto.Email);
             if (existingUser != null)
             {
-                response.Result = CommonResult.UserAlreadyExists; // Ensure this exists in CommonResult
+                response.Result = CommonResult.UserAlreadyExists;
                 Log.Debug("[AuthService - {MethodName}] Registration failed. User already exists: {UserEmail}", nameof(RegisterUserAsync), dto.Email);
                 return response;
             }
@@ -108,15 +108,7 @@ public class AuthService(
             }
 
             var newUser = createUserResponse.Value;
-             // The user's Role will be the default one, as RegisterUserDto.Role is not used by UserService.CreateEntityAsync
-            // If a specific role needs to be set during registration, UserService.CreateEntityAsync would need modification
-            // or we would need a way to pass the Role to it, perhaps by modifying CreateUserDto or having another method in IUserService.
-            // For now, we proceed with the current structure. The created `newUser` object from `userService` will have its Role property set
-            // (either default or by UserService logic if any). We need to make sure this Role is what we expect or document this behavior.
-            // The User entity has a Role property, let's assume it's set by UserService.CreateEntityAsync,
-            // or if not, it gets a default value. When we create TokenDto, it does not include Role.
-
-            // Manual mapping from User to TokenDto
+            
             var tokenDto = new TokenDto
             {
                 Id = newUser.Id,
