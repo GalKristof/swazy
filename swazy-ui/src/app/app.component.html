@@ -58,7 +58,7 @@
     </div>
   </div>
 
-  <div class="overflow-x-auto">
+  <div class="overflow-x-auto mb-8">
     <h2 class="text-xl font-semibold mb-2">Existing Services</h2>
     <table class="table w-full table-zebra">
       <thead>
@@ -83,6 +83,115 @@
         </tr>
         <tr *ngIf="services.length === 0">
           <td colspan="5" class="text-center">No services found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Business Management Section -->
+  <hr class="my-8 border-t-2 border-gray-300">
+  <h1 class="text-2xl font-bold mb-4 mt-8">Business Management</h1>
+
+  <div class="mb-8 p-4 border rounded-lg shadow">
+    <h2 class="text-xl font-semibold mb-2">Create New Business</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="label"><span class="label-text">Name</span></label>
+        <input type="text" [(ngModel)]="newBusiness.name" placeholder="Business Name" class="input input-bordered w-full" />
+      </div>
+      <div>
+        <label class="label"><span class="label-text">Address</span></label>
+        <input type="text" [(ngModel)]="newBusiness.address" placeholder="Address" class="input input-bordered w-full" />
+      </div>
+      <div>
+        <label class="label"><span class="label-text">Phone Number</span></label>
+        <input type="text" [(ngModel)]="newBusiness.phoneNumber" placeholder="Phone Number" class="input input-bordered w-full" />
+      </div>
+      <div>
+        <label class="label"><span class="label-text">Email</span></label>
+        <input type="email" [(ngModel)]="newBusiness.email" placeholder="Email" class="input input-bordered w-full" />
+      </div>
+      <div>
+        <label class="label"><span class="label-text">Website URL</span></label>
+        <input type="url" [(ngModel)]="newBusiness.websiteUrl" placeholder="Website URL" class="input input-bordered w-full" />
+      </div>
+      <div>
+        <label class="label"><span class="label-text">Business Type</span></label>
+        <select [(ngModel)]="newBusiness.businessType" class="select select-bordered w-full">
+          <option *ngFor="let type of businessTypes" [ngValue]="type">{{ type }}</option>
+        </select>
+      </div>
+    </div>
+    <button (click)="createBusiness()" class="btn btn-primary mt-4">Create Business</button>
+  </div>
+
+  <div *ngIf="editingBusiness" class="mb-8 p-4 border rounded-lg shadow bg-base-200">
+    <h2 class="text-xl font-semibold mb-2">Edit Business: {{ editingBusiness.name }}</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="label"><span class="label-text">Name</span></label>
+        <input type="text" [(ngModel)]="editingBusiness.name" placeholder="Business Name" class="input input-bordered w-full" />
+      </div>
+      <div>
+        <label class="label"><span class="label-text">Address</span></label>
+        <input type="text" [(ngModel)]="editingBusiness.address" placeholder="Address" class="input input-bordered w-full" />
+      </div>
+      <div>
+        <label class="label"><span class="label-text">Phone Number</span></label>
+        <input type="text" [(ngModel)]="editingBusiness.phoneNumber" placeholder="Phone Number" class="input input-bordered w-full" />
+      </div>
+      <div>
+        <label class="label"><span class="label-text">Email</span></label>
+        <input type="email" [(ngModel)]="editingBusiness.email" placeholder="Email" class="input input-bordered w-full" />
+      </div>
+      <div>
+        <label class="label"><span class="label-text">Website URL</span></label>
+        <input type="url" [(ngModel)]="editingBusiness.websiteUrl" placeholder="Website URL" class="input input-bordered w-full" />
+      </div>
+      <div>
+        <label class="label"><span class="label-text">Business Type</span></label>
+        <select [(ngModel)]="editingBusiness.businessType" class="select select-bordered w-full">
+          <option *ngFor="let type of businessTypes" [ngValue]="type">{{ type }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="mt-4">
+      <button (click)="updateBusiness()" class="btn btn-primary mr-2">Update Business</button>
+      <button (click)="cancelEditBusiness()" class="btn btn-ghost">Cancel</button>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto">
+    <h2 class="text-xl font-semibold mb-2">Existing Businesses</h2>
+    <table class="table w-full table-zebra">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Address</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Website</th>
+          <th>Type</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let business of businesses">
+          <td>{{ business.id }}</td>
+          <td>{{ business.name }}</td>
+          <td>{{ business.address }}</td>
+          <td>{{ business.phoneNumber }}</td>
+          <td>{{ business.email }}</td>
+          <td><a [href]="business.websiteUrl" target="_blank" class="link link-hover">{{ business.websiteUrl }}</a></td>
+          <td>{{ business.businessType }}</td>
+          <td>
+            <button (click)="editBusiness(business)" class="btn btn-sm btn-outline btn-info mr-2">Edit</button>
+            <button (click)="deleteBusiness(business.id)" class="btn btn-sm btn-outline btn-error">Delete</button>
+          </td>
+        </tr>
+        <tr *ngIf="businesses.length === 0">
+          <td colspan="8" class="text-center">No businesses found.</td>
         </tr>
       </tbody>
     </table>
