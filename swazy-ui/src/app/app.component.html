@@ -416,7 +416,7 @@
                   [class.select-error]="createBookingForm.controls['businessServiceId'].invalid && createBookingForm.controls['businessServiceId'].touched">
             <option value="" disabled>-- Select a Service --</option>
             <option *ngFor="let service of availableServicesForBooking" [value]="service.id">
-              {{ service.service?.value || 'Unknown Service' }} ({{ service.duration }} mins) - {{ service.price | currency }}
+              {{ getServiceNameById(service.serviceId) }} ({{ service.duration }} mins) - {{ service.price | currency }}
             </option>
           </select>
           <div *ngIf="createBookingForm.controls['businessServiceId'].invalid && createBookingForm.controls['businessServiceId'].touched" class="label text-error text-xs">

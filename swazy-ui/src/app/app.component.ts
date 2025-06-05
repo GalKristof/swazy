@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { FormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms'; // Added FormGroup, FormBuilder, Validators
+import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms'; // Added ReactiveFormsModule here
 
 // Existing Service imports
 import { ServiceService } from './services/service.service';
@@ -419,6 +419,12 @@ export class AppComponent implements OnInit {
 
   setSchedulerView(view: View): void {
     this.schedulerView = view;
+  }
+
+  // Helper method to get service name for display
+  getServiceNameById(serviceId: string): string {
+    const service = this.services.find(s => s.id === serviceId);
+    return service ? service.value : 'Unknown Service';
   }
 
   // --- Methods for Create Booking Modal and Form ---
