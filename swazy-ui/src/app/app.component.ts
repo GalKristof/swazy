@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms'; // Added FormGroup, FormBuilder, Validators
 
 // Existing Service imports
 import { ServiceService } from './services/service.service';
@@ -20,13 +20,24 @@ import { BookingDetailsDto } from './models/dto/booking-details-dto.model';
 
 // Syncfusion Schedule imports
 import { View, EventSettingsModel, DayService, WeekService, MonthService, AgendaService, ScheduleAllModule } from '@syncfusion/ej2-angular-schedule'; // Corrected name
+import { DatePickerModule, TimePickerModule } from '@syncfusion/ej2-angular-calendars'; // Added Calendar imports
+
+// DTO for creating bookings
+import { CreateBookingDto } from './models/dto/booking-dto.model'; // Added CreateBookingDto
 
 import { BusinessType } from './models/business-type.enum';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, ScheduleAllModule], // Corrected name
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule, // Added
+    ScheduleAllModule,
+    DatePickerModule,  // Added
+    TimePickerModule   // Added
+  ],
   providers: [DayService, WeekService, MonthService, AgendaService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -83,8 +94,19 @@ export class AppComponent implements OnInit {
   schedulerEventSettings: EventSettingsModel = { dataSource: [] };
   currentSchedulerDate: Date = new Date(); // Added property
 
+  // --- New Properties for Create Booking Form ---
+  showCreateBookingModal: boolean = false;
+  createBookingForm!: FormGroup;
+  availableServicesForBooking: GetBusinessServiceDto[] = [];
+  availableEmployeesForBooking: any[] = []; // Keep as any[] for now
+  minBookingDate: Date = new Date();
+  selectedBookingDateForForm: Date | null = null;
+  selectedBookingTimeForForm: Date | null = null; // This can be a Date object where only time part is relevant
+  isSubmittingBooking: boolean = false;
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
+    private fb: FormBuilder, // Added FormBuilder
     private serviceService: ServiceService, // For generic services
     private businessService: BusinessService, // For managing Business entities
     private businessServiceApiService: BusinessServiceApiService, // For BusinessService entities (linking Service to Business)
@@ -97,6 +119,20 @@ export class AppComponent implements OnInit {
       this.loadBusinesses(); // Load businesses for the business management section
       this.loadAllBusinessesForDropdown(); // Load all businesses for the dropdown in BusinessServices section
     }
+
+    this.minBookingDate.setHours(0, 0, 0, 0); // Set min date for date picker
+
+    this.createBookingForm = this.fb.group({
+      businessServiceId: ['', Validators.required],
+      selectedDate: [null, Validators.required], // For DatePicker
+      selectedTime: [null, Validators.required], // For TimePicker
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      phoneNumber: ['', Validators.required],
+      notes: [''],
+      employeeId: [null] // Optional
+    });
   }
 
   // --- Generic Service Methods (No changes, existing) ---
@@ -383,5 +419,152 @@ export class AppComponent implements OnInit {
 
   setSchedulerView(view: View): void {
     this.schedulerView = view;
+  }
+
+  // --- Methods for Create Booking Modal and Form ---
+  openCreateBookingModal(): void {
+    this.showCreateBookingModal = true;
+    this.createBookingForm.reset();
+
+    // Pre-fill with current business context if available
+    // Ensure businessServicesForSelectedBusiness contains services for the *currently selected business for bookings*
+    // This might need adjustment if selectedBusinessIdForBookings and selectedBusinessIdForServices are different
+    if (this.selectedBusinessIdForBookings) {
+        // Assuming businessServicesForSelectedBusiness is loaded when a business is selected for service management
+        // If not, or if the context is different, this list might need to be re-fetched or filtered.
+        // For now, let's use what's available if selectedBusinessIdForServices matches selectedBusinessIdForBookings.
+        // A more robust approach might be to fetch services for selectedBusinessIdForBookings specifically.
+        if (this.selectedBusinessIdForBookings === this.selectedBusinessIdForServices) {
+            this.availableServicesForBooking = this.businessServicesForSelectedBusiness;
+        } else {
+            // If the contexts are different, or services for the booking business haven't been loaded,
+            // you might need to fetch them here or ensure they are loaded when onBusinessSelectedForBookings is called.
+            // For simplicity now, we'll clear it if not matching, implying a reload or different logic might be needed.
+            this.availableServicesForBooking = [];
+            // TODO: Consider fetching this.businessServiceApiService.getBusinessServicesByBusinessId(this.selectedBusinessIdForBookings)
+            // and then populating this.availableServicesForBooking.
+            // This example assumes services are already available or will be handled by another mechanism for now.
+            // If businessServicesForSelectedBusiness is specific to the "Business Services Management" context,
+            // then this.availableServicesForBooking should be populated based on this.selectedBusinessIdForBookings.
+            // A simple way is to re-use loadBusinessServicesForBusiness if it stores its result in a way this can use,
+            // or call a specific method to get services for the booking form's selected business.
+            // For now, if selectedBusinessIdForBookings is set, we assume the user wants to book for that business,
+            // and we need its services.
+             if(this.selectedBusinessIdForServices === this.selectedBusinessIdForBookings) {
+               this.availableServicesForBooking = this.businessServicesForSelectedBusiness;
+             } else {
+                // This implies a need to fetch services for this.selectedBusinessIdForBookings
+                // For now, we'll just log a TODO or leave it empty and assume it's handled elsewhere or by user selection.
+                console.warn("Service list for booking might not be for the correct business. Consider fetching.");
+                this.availableServicesForBooking = []; // Or trigger a load
+             }
+        }
+    } else {
+        this.availableServicesForBooking = [];
+    }
+
+    // Default date to today, or selected scheduler date if available
+    const initialDate = this.currentSchedulerDate ? new Date(this.currentSchedulerDate) : new Date();
+    initialDate.setHours(0,0,0,0); // Ensure it's just the date part for comparison/initialization
+    this.selectedBookingDateForForm = initialDate;
+
+    // Default time (e.g., 9 AM), or could be more dynamic based on scheduler interaction later
+    const initialTime = new Date();
+    initialTime.setHours(9, 0, 0, 0);
+    this.selectedBookingTimeForForm = initialTime;
+
+    this.createBookingForm.patchValue({
+      selectedDate: this.selectedBookingDateForForm,
+      selectedTime: this.selectedBookingTimeForForm
+      // businessServiceId will be empty, user needs to select
+    });
+
+    // Reset employee list or load if applicable
+    this.availableEmployeesForBooking = [];
+  }
+
+  closeCreateBookingModal(): void {
+    this.showCreateBookingModal = false;
+    this.isSubmittingBooking = false; // Ensure submitting flag is reset
+  }
+
+  onBookingDateChange(args: any): void { // Type for args can be more specific if known e.g. ChangedEventArgs
+    if (args && args.value) {
+      this.selectedBookingDateForForm = new Date(args.value);
+      this.selectedBookingDateForForm.setHours(0,0,0,0); // Normalize
+
+      // Navigate scheduler to this date and change to Day view
+      this.currentSchedulerDate = new Date(this.selectedBookingDateForForm);
+      this.schedulerView = 'Day';
+    } else {
+      this.selectedBookingDateForForm = null;
+    }
+    this.createBookingForm.controls['selectedDate'].setValue(this.selectedBookingDateForForm);
+  }
+
+  onBookingTimeChange(args: any): void { // Type for args can be more specific
+    if (args && args.value) {
+      this.selectedBookingTimeForForm = new Date(args.value);
+    } else {
+      this.selectedBookingTimeForForm = null;
+    }
+    this.createBookingForm.controls['selectedTime'].setValue(this.selectedBookingTimeForForm);
+  }
+
+  onSubmitBooking(): void {
+    this.isSubmittingBooking = true;
+    this.createBookingForm.markAllAsTouched();
+
+    if (this.createBookingForm.invalid) {
+      this.isSubmittingBooking = false;
+      // Optionally: Add a generic "form invalid" user notification
+      return;
+    }
+
+    const formValues = this.createBookingForm.value;
+
+    if (!formValues.selectedDate || !formValues.selectedTime) {
+      console.error("Selected date or time is missing.");
+      // Optionally: Add user notification
+      this.isSubmittingBooking = false;
+      return;
+    }
+
+    // Combine date and time
+    const bookingDateTime = new Date(formValues.selectedDate);
+    bookingDateTime.setHours(
+      formValues.selectedTime.getHours(),
+      formValues.selectedTime.getMinutes(),
+      formValues.selectedTime.getSeconds()
+    );
+
+    const bookingDto: CreateBookingDto = {
+      businessServiceId: formValues.businessServiceId,
+      bookingDate: bookingDateTime.toISOString(), // Convert to ISO string for API
+      firstName: formValues.firstName,
+      lastName: formValues.lastName,
+      email: formValues.email,
+      phoneNumber: formValues.phoneNumber,
+      notes: formValues.notes || '',
+      employeeId: formValues.employeeId || null
+    };
+
+    this.bookingService.createBooking(bookingDto).subscribe({
+      next: (newBooking) => {
+        // TODO: Implement actual success notification based on existing patterns
+        console.log('Booking created successfully!', newBooking);
+        // Refresh scheduler only if the created booking is for the currently selected business for display
+        if (this.selectedBusinessIdForBookings && newBooking) { // Assuming newBooking contains enough info or we reload all
+             this.loadBookingsForBusiness(this.selectedBusinessIdForBookings);
+        }
+        this.closeCreateBookingModal();
+        this.isSubmittingBooking = false;
+      },
+      error: (err) => {
+        console.error('Error creating booking:', err);
+        // TODO: Implement actual error notification
+        this.isSubmittingBooking = false;
+      }
+    });
   }
 }

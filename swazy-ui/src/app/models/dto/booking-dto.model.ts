@@ -11,7 +11,7 @@
 }
 
 export interface CreateBookingDto {
-  bookingDate: Date;
+  bookingDate: string; // Changed from Date to string
   notes?: string;
   firstName: string;
   lastName: string;

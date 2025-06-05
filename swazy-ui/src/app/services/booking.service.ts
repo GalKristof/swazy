@@ -50,8 +50,12 @@ export class BookingService {
     this.loadingSubject.next(true);
     this.errorSubject.next(null);
 
-    return this.http.post<Booking>(this.apiUrl, booking)
+    return this.http.post<any>(this.apiUrl, booking) // Changed <Booking> to <any>
       .pipe(
+        map((response: any) => ({ // Added map operator
+          ...response,
+          bookingDate: new Date(response.bookingDate)
+        } as Booking)),
         tap(() => this.loadingSubject.next(false)),
         tap(newBooking => {
           const currentBookings = this.bookingsSubject.value;
@@ -105,8 +109,8 @@ export class BookingService {
     this.loadingSubject.next(true);
     this.errorSubject.next(null);
 
-    // Use the correct plural 'bookings' and full path for this specific endpoint
-    const requestUrl = `${environment.apiUrl}/bookings/business/${businessId}`;
+    // Changed 'bookings' to 'booking' (singular) in the path
+    const requestUrl = `${environment.apiUrl}/booking/business/${businessId}`;
 
     return this.http.get<any[]>(requestUrl) // Get as any[] first for mapping
       .pipe(
