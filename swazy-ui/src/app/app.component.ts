@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 // Existing Service imports
@@ -16,18 +16,18 @@ import { GetBusinessServiceDto, CreateBusinessServiceDto, UpdateBusinessServiceD
 
 // Booking related imports
 import { BookingService } from './services/booking.service';
-import { BookingDetailsDto } from '../models/dto/booking-details-dto.model';
+import { BookingDetailsDto } from './models/dto/booking-details-dto.model';
 
 // Syncfusion Schedule imports
-import { View, EventSettingsModel, DayService, WeekService, MonthService, AgendaService } from '@syncfusion/ej2-angular-schedule';
+import { View, EventSettingsModel, DayService, WeekService, MonthService, AgendaService, ScheduleAllModule } from '@syncfusion/ej2-angular-schedule'; // Corrected name
 
 import { BusinessType } from './models/business-type.enum';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule], // SchedulerAllModule will be added here in a later step
-  providers: [DayService, WeekService, MonthService, AgendaService], // Added Syncfusion providers
+  imports: [CommonModule, FormsModule, ScheduleAllModule], // Corrected name
+  providers: [DayService, WeekService, MonthService, AgendaService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -84,6 +84,7 @@ export class AppComponent implements OnInit {
   currentSchedulerDate: Date = new Date(); // Added property
 
   constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
     private serviceService: ServiceService, // For generic services
     private businessService: BusinessService, // For managing Business entities
     private businessServiceApiService: BusinessServiceApiService, // For BusinessService entities (linking Service to Business)
@@ -91,9 +92,11 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadServices(); // Load generic services
-    this.loadBusinesses(); // Load businesses for the business management section
-    this.loadAllBusinessesForDropdown(); // Load all businesses for the dropdown in BusinessServices section
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadServices(); // Load generic services
+      this.loadBusinesses(); // Load businesses for the business management section
+      this.loadAllBusinessesForDropdown(); // Load all businesses for the dropdown in BusinessServices section
+    }
   }
 
   // --- Generic Service Methods (No changes, existing) ---
