@@ -5,6 +5,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import {CreateBookingDto, UpdateBookingDto} from '../models/dto/booking-dto.model';
 import { Booking } from '../models/booking/booking.model';
+import { BookingDetailsDto } from '../models/dto/booking-details-dto.model';
 
 @Injectable({
   providedIn: 'root'
@@ -98,6 +99,29 @@ export class BookingService {
     return this.bookings$.pipe(
       map(bookings => bookings.find(booking => booking.id === id))
     );
+  }
+
+  public getBookingsByBusinessId(businessId: string): Observable<BookingDetailsDto[]> {
+    this.loadingSubject.next(true);
+    this.errorSubject.next(null);
+
+    // Use the correct plural 'bookings' and full path for this specific endpoint
+    const requestUrl = `${environment.apiUrl}/bookings/business/${businessId}`;
+
+    return this.http.get<any[]>(requestUrl) // Get as any[] first for mapping
+      .pipe(
+        map((bookingsFromApi: any[]) =>
+          bookingsFromApi.map(booking => ({
+            ...booking,
+            startTime: new Date(booking.startTime),
+            endTime: new Date(booking.endTime)
+          } as BookingDetailsDto))
+        ),
+        tap(() => {
+          this.loadingSubject.next(false);
+        }),
+        catchError(this.handleError.bind(this))
+      );
   }
 
   public clearError(): void {

@@ -87,4 +87,9 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
     {
         await context.SaveChangesAsync();
     }
+
+    public IQueryable<T> GetQueryable() // Implementation of new method
+    {
+        return dbSet;
+    }
 }

@@ -16,4 +16,5 @@ public interface IRepository<T> where T : BaseEntity
     Task<T?> RestoreAsync(Guid id);
     Task<T?> GetSoftDeletedEntityByIdAsync(Guid id);
     Task SaveChangesAsync();
+    IQueryable<T> GetQueryable(); // New method
 }

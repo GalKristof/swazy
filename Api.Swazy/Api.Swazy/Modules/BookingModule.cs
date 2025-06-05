@@ -40,6 +40,21 @@ public static class BookingModule
             })
             .WithTags(SwazyConstants.BookingModuleName);
 
+        endpoints.MapGet($"api/{SwazyConstants.BookingModuleApi}/business/{{businessId:guid}}", async (
+                [FromServices] IBookingService bookingService,
+                [FromRoute] Guid businessId) =>
+            {
+                var response = await bookingService.GetBookingsByBusinessIdAsync(businessId);
+
+                if (response.Result == CommonResult.Success)
+                {
+                    return Results.Ok(response.Value);
+                }
+
+                return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
+            })
+            .WithTags(SwazyConstants.BookingModuleName);
+
         endpoints.MapPut($"api/{SwazyConstants.BookingModuleApi}", async (
                 [FromServices] IBookingService bookingService,
                 [FromBody] UpdateBookingDto updateBookingDto) =>

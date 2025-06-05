@@ -14,13 +14,20 @@ import { GetBusinessDto, CreateBusinessDto, UpdateBusinessDto } from './models/d
 import { BusinessServiceApiService } from './services/business-service-api.service';
 import { GetBusinessServiceDto, CreateBusinessServiceDto, UpdateBusinessServiceDto } from './models/business-service/business-service.dtos';
 
+// Booking related imports
+import { BookingService } from './services/booking.service';
+import { BookingDetailsDto } from '../models/dto/booking-details-dto.model';
+
+// Syncfusion Schedule imports
+import { View, EventSettingsModel, DayService, WeekService, MonthService, AgendaService } from '@syncfusion/ej2-angular-schedule';
+
 import { BusinessType } from './models/business-type.enum';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  providers: [], // Services are typically providedIn: 'root' or in modules
+  imports: [CommonModule, FormsModule], // SchedulerAllModule will be added here in a later step
+  providers: [DayService, WeekService, MonthService, AgendaService], // Added Syncfusion providers
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -67,10 +74,20 @@ export class AppComponent implements OnInit {
   showCreateBusinessServiceForm: boolean = false;
   // --- End of New Properties ---
 
+  // --- New Properties for Booking Management ---
+  bookingsSectionOpen: boolean = false;
+  selectedBusinessIdForBookings: string = '';
+  bookingsForSelectedBusiness: BookingDetailsDto[] = [];
+  isLoadingBookings: boolean = false;
+  schedulerView: View = 'Week';
+  schedulerEventSettings: EventSettingsModel = { dataSource: [] };
+  currentSchedulerDate: Date = new Date(); // Added property
+
   constructor(
     private serviceService: ServiceService, // For generic services
     private businessService: BusinessService, // For managing Business entities
-    private businessServiceApiService: BusinessServiceApiService // For BusinessService entities (linking Service to Business)
+    private businessServiceApiService: BusinessServiceApiService, // For BusinessService entities (linking Service to Business)
+    private bookingService: BookingService // Added BookingService
   ) {}
 
   ngOnInit(): void {
@@ -310,5 +327,58 @@ export class AppComponent implements OnInit {
       price: 0, 
       duration: 0 
     };
+  }
+
+  // --- New Methods for Booking Management and Scheduler ---
+  toggleBookingsSection(): void {
+    this.bookingsSectionOpen = !this.bookingsSectionOpen;
+  }
+
+  onBusinessSelectedForBookings(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const businessId = selectElement.value;
+    this.selectedBusinessIdForBookings = businessId;
+    this.bookingsForSelectedBusiness = [];
+    this.schedulerEventSettings = { dataSource: [] }; // Clear previous events
+
+    if (businessId) {
+      this.loadBookingsForBusiness(businessId);
+    }
+  }
+
+  loadBookingsForBusiness(businessId: string): void {
+    if (!businessId) {
+      this.bookingsForSelectedBusiness = [];
+      this.schedulerEventSettings = { dataSource: [] };
+      return;
+    }
+    this.isLoadingBookings = true;
+    this.bookingService.getBookingsByBusinessId(businessId).subscribe({
+      next: (bookings) => {
+        this.bookingsForSelectedBusiness = bookings;
+        this.schedulerEventSettings = {
+          dataSource: bookings.map(booking => ({
+            Id: booking.id, // Ensure Id matches your EventSettingsModel field for unique ID
+            Subject: `${booking.serviceName} - ${booking.firstName} ${booking.lastName}`,
+            StartTime: booking.startTime,
+            EndTime: booking.endTime,
+            // You can add more fields here to match EventSettingsModel properties
+            // e.g., IsAllDay, RecurrenceRule, IsReadonly etc.
+          }))
+        };
+        this.isLoadingBookings = false;
+      },
+      error: (err) => {
+        console.error('Error loading bookings for business:', businessId, err);
+        this.isLoadingBookings = false;
+        this.bookingsForSelectedBusiness = [];
+        this.schedulerEventSettings = { dataSource: [] }; // Clear on error
+        // TODO: Optionally set a user-facing error message for this section
+      }
+    });
+  }
+
+  setSchedulerView(view: View): void {
+    this.schedulerView = view;
   }
 }
