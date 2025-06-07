@@ -1,29 +1,24 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms'; // Added ReactiveFormsModule here
+import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 
-// Existing Service imports
+
 import { ServiceService } from './services/service.service';
-import { GetServiceDto, CreateServiceDto, UpdateServiceDto } from './models/service.model'; // This DTO is for generic services
+import { GetServiceDto, CreateServiceDto, UpdateServiceDto } from './models/service.model';
 
-// Existing Business imports (for managing Business entities)
 import { BusinessService } from './services/business.service';
 import { GetBusinessDto, CreateBusinessDto, UpdateBusinessDto } from './models/dto/business-dto.model';
 
-// Added: BusinessService (linking Service to Business) imports
 import { BusinessServiceApiService } from './services/business-service-api.service';
 import { GetBusinessServiceDto, CreateBusinessServiceDto, UpdateBusinessServiceDto } from './models/business-service/business-service.dtos';
 
-// Booking related imports
 import { BookingService } from './services/booking.service';
 import { BookingDetailsDto } from './models/dto/booking-details-dto.model';
 
-// Syncfusion Schedule imports
-import { View, EventSettingsModel, DayService, WeekService, MonthService, AgendaService, ScheduleAllModule } from '@syncfusion/ej2-angular-schedule'; // Corrected name
-import { DatePickerModule, TimePickerModule } from '@syncfusion/ej2-angular-calendars'; // Added Calendar imports
+import { View, EventSettingsModel, DayService, WeekService, MonthService, AgendaService, ScheduleAllModule } from '@syncfusion/ej2-angular-schedule';
+import { DatePickerModule, TimePickerModule } from '@syncfusion/ej2-angular-calendars';
 
-// DTO for creating bookings
-import { CreateBookingDto } from './models/dto/booking-dto.model'; // Added CreateBookingDto
+import { CreateBookingDto } from './models/dto/booking-dto.model';
 
 import { BusinessType } from './models/business-type.enum';
 
@@ -33,23 +28,21 @@ import { BusinessType } from './models/business-type.enum';
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule, // Added
+    ReactiveFormsModule,
     ScheduleAllModule,
-    DatePickerModule,  // Added
-    TimePickerModule   // Added
+    DatePickerModule,
+    TimePickerModule
   ],
   providers: [DayService, WeekService, MonthService, AgendaService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-  // Existing properties for generic Services
-  services: GetServiceDto[] = []; // Generic services available in the system
+  services: GetServiceDto[] = [];
   newService: CreateServiceDto = { tag: '', businessType: BusinessType.None, value: '' };
   editingService: UpdateServiceDto | null = null;
-  
-  // Existing properties for Businesses
-  businesses: GetBusinessDto[] = []; // List of businesses (for the Business management section)
+
+  businesses: GetBusinessDto[] = [];
   newBusiness: CreateBusinessDto = {
     name: '',
     address: '',
@@ -60,82 +53,75 @@ export class AppComponent implements OnInit {
   };
   editingBusiness: UpdateBusinessDto | null = null;
 
-  // Common
-  businessTypes = Object.values(BusinessType); // Used by both Business and generic Service forms
+  businessTypes = Object.values(BusinessType);
 
-  // Section visibility toggles
-  servicesSectionOpen: boolean = false; // For generic services
-  businessesSectionOpen: boolean = false; // For managing businesses
-  businessServicesSectionOpen: boolean = false; // For managing services offered by a specific business
+  servicesSectionOpen: boolean = false;
+  businessesSectionOpen: boolean = false;
+  businessServicesSectionOpen: boolean = false;
 
-  // --- New Properties for BusinessService Management ---
-  allBusinessesForDropdown: GetBusinessDto[] = []; // To populate the business selection dropdown
-  selectedBusinessIdForServices: string = ''; // ID of the business selected to view/manage its services
-  businessServicesForSelectedBusiness: GetBusinessServiceDto[] = []; // Services offered by the selected business
-  
-  newBusinessService: CreateBusinessServiceDto = { 
-    serviceId: '', // This will need to be selected from 'services' (GetServiceDto[])
-    businessId: '', 
-    price: 0, 
-    duration: 0 
+  allBusinessesForDropdown: GetBusinessDto[] = [];
+  selectedBusinessIdForServices: string = '';
+  businessServicesForSelectedBusiness: GetBusinessServiceDto[] = [];
+
+  newBusinessService: CreateBusinessServiceDto = {
+    serviceId: '',
+    businessId: '',
+    price: 0,
+    duration: 0
   };
   editingBusinessService: UpdateBusinessServiceDto | null = null;
-  
+
   isLoadingBusinessServices: boolean = false;
   showCreateBusinessServiceForm: boolean = false;
-  // --- End of New Properties ---
 
-  // --- New Properties for Booking Management ---
   bookingsSectionOpen: boolean = false;
   selectedBusinessIdForBookings: string = '';
   bookingsForSelectedBusiness: BookingDetailsDto[] = [];
   isLoadingBookings: boolean = false;
   schedulerView: View = 'Week';
   schedulerEventSettings: EventSettingsModel = { dataSource: [] };
-  currentSchedulerDate: Date = new Date(); // Added property
+  currentSchedulerDate: Date = new Date();
 
-  // --- New Properties for Create Booking Form ---
   showCreateBookingModal: boolean = false;
   createBookingForm!: FormGroup;
   availableServicesForBooking: GetBusinessServiceDto[] = [];
-  availableEmployeesForBooking: any[] = []; // Keep as any[] for now
+  availableEmployeesForBooking: any[] = [];
   minBookingDate: Date = new Date();
   selectedBookingDateForForm: Date | null = null;
-  selectedBookingTimeForForm: Date | null = null; // This can be a Date object where only time part is relevant
+  selectedBookingTimeForForm: Date | null = null;
   isSubmittingBooking: boolean = false;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private fb: FormBuilder, // Added FormBuilder
-    private serviceService: ServiceService, // For generic services
-    private businessService: BusinessService, // For managing Business entities
-    private businessServiceApiService: BusinessServiceApiService, // For BusinessService entities (linking Service to Business)
-    private bookingService: BookingService // Added BookingService
+    private fb: FormBuilder,
+    private serviceService: ServiceService,
+    private businessService: BusinessService,
+    private businessServiceApiService: BusinessServiceApiService,
+    private bookingService: BookingService
   ) {}
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadServices(); // Load generic services
-      this.loadBusinesses(); // Load businesses for the business management section
-      this.loadAllBusinessesForDropdown(); // Load all businesses for the dropdown in BusinessServices section
+      this.loadServices();
+      this.loadBusinesses();
+      this.loadAllBusinessesForDropdown();
     }
 
-    this.minBookingDate.setHours(0, 0, 0, 0); // Set min date for date picker
+    this.minBookingDate.setHours(0, 0, 0, 0);
 
     this.createBookingForm = this.fb.group({
       businessServiceId: ['', Validators.required],
-      selectedDate: [null, Validators.required], // For DatePicker
-      selectedTime: [null, Validators.required], // For TimePicker
+      selectedDate: [null, Validators.required],
+      selectedTime: [null, Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phoneNumber: ['', Validators.required],
       notes: [''],
-      employeeId: [null] // Optional
+      employeeId: [null]
     });
   }
 
-  // --- Generic Service Methods (No changes, existing) ---
   loadServices(): void {
     this.serviceService.getServices().subscribe(data => {
       this.services = data;
@@ -172,10 +158,9 @@ export class AppComponent implements OnInit {
     this.editingService = null;
   }
 
-  // --- Business Entity Management Methods (No changes, existing) ---
   loadBusinesses(): void {
     this.businessService.getBusinesses().subscribe(data => {
-      this.businesses = data; 
+      this.businesses = data;
     });
   }
 
@@ -229,8 +214,6 @@ export class AppComponent implements OnInit {
     this.businessServicesSectionOpen = !this.businessServicesSectionOpen;
   }
 
-  // --- New Methods for BusinessService Management ---
-
   loadAllBusinessesForDropdown(): void {
     this.businessService.getBusinesses().subscribe(
       data => {
@@ -238,7 +221,6 @@ export class AppComponent implements OnInit {
       },
       error => {
         console.error('Error loading businesses for dropdown:', error);
-        // Potentially set an error message for the UI
       }
     );
   }
@@ -247,10 +229,10 @@ export class AppComponent implements OnInit {
     const selectElement = event.target as HTMLSelectElement;
     const businessId = selectElement.value;
     this.selectedBusinessIdForServices = businessId;
-    
-    this.businessServicesForSelectedBusiness = []; // Clear previous services
-    this.editingBusinessService = null; // Clear any ongoing edit
-    this.showCreateBusinessServiceForm = false; // Hide create form
+
+    this.businessServicesForSelectedBusiness = [];
+    this.editingBusinessService = null;
+    this.showCreateBusinessServiceForm = false;
 
     if (businessId) {
       this.loadBusinessServicesForBusiness(businessId);
@@ -270,9 +252,8 @@ export class AppComponent implements OnInit {
       },
       error => {
         console.error(`Error loading business services for business ID ${businessId}:`, error);
-        this.businessServicesForSelectedBusiness = []; // Clear on error
+        this.businessServicesForSelectedBusiness = [];
         this.isLoadingBusinessServices = false;
-        // Potentially set an error message for the UI
       }
     );
   }
@@ -280,12 +261,12 @@ export class AppComponent implements OnInit {
   toggleCreateBusinessServiceForm(): void {
     this.showCreateBusinessServiceForm = !this.showCreateBusinessServiceForm;
     if (this.showCreateBusinessServiceForm) {
-      this.editingBusinessService = null; // Cancel any edit if opening create form
-      this.newBusinessService = { 
-        serviceId: '', // User will need to select a generic service
-        businessId: this.selectedBusinessIdForServices, // Pre-fill selected business
-        price: 0, 
-        duration: 0 
+      this.editingBusinessService = null;
+      this.newBusinessService = {
+        serviceId: '',
+        businessId: this.selectedBusinessIdForServices,
+        price: 0,
+        duration: 0
       };
     }
   }
@@ -293,10 +274,8 @@ export class AppComponent implements OnInit {
   createBusinessService(): void {
     if (!this.newBusinessService.serviceId || !this.selectedBusinessIdForServices) {
       console.error('Service ID and Business ID are required to create a business service.');
-      // Potentially show user error
       return;
     }
-    // Ensure businessId is correctly set from the selection
     this.newBusinessService.businessId = this.selectedBusinessIdForServices;
 
     this.businessServiceApiService.createBusinessService(this.newBusinessService).subscribe(
@@ -307,20 +286,17 @@ export class AppComponent implements OnInit {
       },
       error => {
         console.error('Error creating business service:', error);
-        // Potentially set an error message for the UI
       }
     );
   }
 
   editBusinessService(bs: GetBusinessServiceDto): void {
-    // The UpdateBusinessServiceDto only needs id, price, duration.
-    // ServiceId and BusinessId are not updatable for an existing BusinessService.
-    this.editingBusinessService = { 
-      id: bs.id, 
-      price: bs.price, 
-      duration: bs.duration 
+    this.editingBusinessService = {
+      id: bs.id,
+      price: bs.price,
+      duration: bs.duration
     };
-    this.showCreateBusinessServiceForm = false; // Hide create form if editing
+    this.showCreateBusinessServiceForm = false;
   }
 
   updateBusinessService(): void {
@@ -328,11 +304,10 @@ export class AppComponent implements OnInit {
       this.businessServiceApiService.updateBusinessService(this.editingBusinessService).subscribe(
         () => {
           this.loadBusinessServicesForBusiness(this.selectedBusinessIdForServices);
-          this.editingBusinessService = null; // Clear editing model
+          this.editingBusinessService = null;
         },
         error => {
           console.error('Error updating business service:', error);
-          // Potentially set an error message for the UI
         }
       );
     }
@@ -349,7 +324,6 @@ export class AppComponent implements OnInit {
       },
       error => {
         console.error(`Error deleting business service ID ${bsId}:`, error);
-        // Potentially set an error message for the UI
       }
     );
   }
@@ -360,15 +334,14 @@ export class AppComponent implements OnInit {
 
   cancelCreateBusinessService(): void {
     this.showCreateBusinessServiceForm = false;
-    this.newBusinessService = { 
-      serviceId: '', 
-      businessId: this.selectedBusinessIdForServices, // Keep context of selected business
-      price: 0, 
-      duration: 0 
+    this.newBusinessService = {
+      serviceId: '',
+      businessId: this.selectedBusinessIdForServices,
+      price: 0,
+      duration: 0
     };
   }
 
-  // --- New Methods for Booking Management and Scheduler ---
   toggleBookingsSection(): void {
     this.bookingsSectionOpen = !this.bookingsSectionOpen;
   }
@@ -378,7 +351,7 @@ export class AppComponent implements OnInit {
     const businessId = selectElement.value;
     this.selectedBusinessIdForBookings = businessId;
     this.bookingsForSelectedBusiness = [];
-    this.schedulerEventSettings = { dataSource: [] }; // Clear previous events
+    this.schedulerEventSettings = { dataSource: [] };
 
     if (businessId) {
       this.loadBookingsForBusiness(businessId);
@@ -397,12 +370,10 @@ export class AppComponent implements OnInit {
         this.bookingsForSelectedBusiness = bookings;
         this.schedulerEventSettings = {
           dataSource: bookings.map(booking => ({
-            Id: booking.id, // Ensure Id matches your EventSettingsModel field for unique ID
+            Id: booking.id,
             Subject: `${booking.serviceName} - ${booking.firstName} ${booking.lastName}`,
             StartTime: booking.startTime,
             EndTime: booking.endTime,
-            // You can add more fields here to match EventSettingsModel properties
-            // e.g., IsAllDay, RecurrenceRule, IsReadonly etc.
           }))
         };
         this.isLoadingBookings = false;
@@ -411,8 +382,7 @@ export class AppComponent implements OnInit {
         console.error('Error loading bookings for business:', businessId, err);
         this.isLoadingBookings = false;
         this.bookingsForSelectedBusiness = [];
-        this.schedulerEventSettings = { dataSource: [] }; // Clear on error
-        // TODO: Optionally set a user-facing error message for this section
+        this.schedulerEventSettings = { dataSource: [] };
       }
     });
   }
@@ -421,60 +391,38 @@ export class AppComponent implements OnInit {
     this.schedulerView = view;
   }
 
-  // Helper method to get service name for display
   getServiceNameById(serviceId: string): string {
     const service = this.services.find(s => s.id === serviceId);
     return service ? service.value : 'Unknown Service';
   }
 
-  // --- Methods for Create Booking Modal and Form ---
   openCreateBookingModal(): void {
     this.showCreateBookingModal = true;
     this.createBookingForm.reset();
 
-    // Pre-fill with current business context if available
-    // Ensure businessServicesForSelectedBusiness contains services for the *currently selected business for bookings*
-    // This might need adjustment if selectedBusinessIdForBookings and selectedBusinessIdForServices are different
+
     if (this.selectedBusinessIdForBookings) {
-        // Assuming businessServicesForSelectedBusiness is loaded when a business is selected for service management
-        // If not, or if the context is different, this list might need to be re-fetched or filtered.
-        // For now, let's use what's available if selectedBusinessIdForServices matches selectedBusinessIdForBookings.
-        // A more robust approach might be to fetch services for selectedBusinessIdForBookings specifically.
         if (this.selectedBusinessIdForBookings === this.selectedBusinessIdForServices) {
             this.availableServicesForBooking = this.businessServicesForSelectedBusiness;
         } else {
-            // If the contexts are different, or services for the booking business haven't been loaded,
-            // you might need to fetch them here or ensure they are loaded when onBusinessSelectedForBookings is called.
-            // For simplicity now, we'll clear it if not matching, implying a reload or different logic might be needed.
+
             this.availableServicesForBooking = [];
-            // TODO: Consider fetching this.businessServiceApiService.getBusinessServicesByBusinessId(this.selectedBusinessIdForBookings)
-            // and then populating this.availableServicesForBooking.
-            // This example assumes services are already available or will be handled by another mechanism for now.
-            // If businessServicesForSelectedBusiness is specific to the "Business Services Management" context,
-            // then this.availableServicesForBooking should be populated based on this.selectedBusinessIdForBookings.
-            // A simple way is to re-use loadBusinessServicesForBusiness if it stores its result in a way this can use,
-            // or call a specific method to get services for the booking form's selected business.
-            // For now, if selectedBusinessIdForBookings is set, we assume the user wants to book for that business,
-            // and we need its services.
              if(this.selectedBusinessIdForServices === this.selectedBusinessIdForBookings) {
                this.availableServicesForBooking = this.businessServicesForSelectedBusiness;
              } else {
-                // This implies a need to fetch services for this.selectedBusinessIdForBookings
-                // For now, we'll just log a TODO or leave it empty and assume it's handled elsewhere or by user selection.
                 console.warn("Service list for booking might not be for the correct business. Consider fetching.");
-                this.availableServicesForBooking = []; // Or trigger a load
+                this.availableServicesForBooking = [];
              }
         }
     } else {
         this.availableServicesForBooking = [];
     }
 
-    // Default date to today, or selected scheduler date if available
+
     const initialDate = this.currentSchedulerDate ? new Date(this.currentSchedulerDate) : new Date();
-    initialDate.setHours(0,0,0,0); // Ensure it's just the date part for comparison/initialization
+    initialDate.setHours(0,0,0,0);
     this.selectedBookingDateForForm = initialDate;
 
-    // Default time (e.g., 9 AM), or could be more dynamic based on scheduler interaction later
     const initialTime = new Date();
     initialTime.setHours(9, 0, 0, 0);
     this.selectedBookingTimeForForm = initialTime;
@@ -482,24 +430,21 @@ export class AppComponent implements OnInit {
     this.createBookingForm.patchValue({
       selectedDate: this.selectedBookingDateForForm,
       selectedTime: this.selectedBookingTimeForForm
-      // businessServiceId will be empty, user needs to select
     });
 
-    // Reset employee list or load if applicable
     this.availableEmployeesForBooking = [];
   }
 
   closeCreateBookingModal(): void {
     this.showCreateBookingModal = false;
-    this.isSubmittingBooking = false; // Ensure submitting flag is reset
+    this.isSubmittingBooking = false;
   }
 
-  onBookingDateChange(args: any): void { // Type for args can be more specific if known e.g. ChangedEventArgs
+  onBookingDateChange(args: any): void {
     if (args && args.value) {
       this.selectedBookingDateForForm = new Date(args.value);
-      this.selectedBookingDateForForm.setHours(0,0,0,0); // Normalize
+      this.selectedBookingDateForForm.setHours(0,0,0,0);
 
-      // Navigate scheduler to this date and change to Day view
       this.currentSchedulerDate = new Date(this.selectedBookingDateForForm);
       this.schedulerView = 'Day';
     } else {
@@ -508,7 +453,7 @@ export class AppComponent implements OnInit {
     this.createBookingForm.controls['selectedDate'].setValue(this.selectedBookingDateForForm);
   }
 
-  onBookingTimeChange(args: any): void { // Type for args can be more specific
+  onBookingTimeChange(args: any): void {
     if (args && args.value) {
       this.selectedBookingTimeForForm = new Date(args.value);
     } else {
@@ -523,7 +468,6 @@ export class AppComponent implements OnInit {
 
     if (this.createBookingForm.invalid) {
       this.isSubmittingBooking = false;
-      // Optionally: Add a generic "form invalid" user notification
       return;
     }
 
@@ -531,12 +475,10 @@ export class AppComponent implements OnInit {
 
     if (!formValues.selectedDate || !formValues.selectedTime) {
       console.error("Selected date or time is missing.");
-      // Optionally: Add user notification
       this.isSubmittingBooking = false;
       return;
     }
 
-    // Combine date and time
     const bookingDateTime = new Date(formValues.selectedDate);
     bookingDateTime.setHours(
       formValues.selectedTime.getHours(),
@@ -546,7 +488,7 @@ export class AppComponent implements OnInit {
 
     const bookingDto: CreateBookingDto = {
       businessServiceId: formValues.businessServiceId,
-      bookingDate: bookingDateTime.toISOString(), // Convert to ISO string for API
+      bookingDate: bookingDateTime.toISOString(),
       firstName: formValues.firstName,
       lastName: formValues.lastName,
       email: formValues.email,
@@ -557,10 +499,8 @@ export class AppComponent implements OnInit {
 
     this.bookingService.createBooking(bookingDto).subscribe({
       next: (newBooking) => {
-        // TODO: Implement actual success notification based on existing patterns
         console.log('Booking created successfully!', newBooking);
-        // Refresh scheduler only if the created booking is for the currently selected business for display
-        if (this.selectedBusinessIdForBookings && newBooking) { // Assuming newBooking contains enough info or we reload all
+        if (this.selectedBusinessIdForBookings && newBooking) {
              this.loadBookingsForBusiness(this.selectedBusinessIdForBookings);
         }
         this.closeCreateBookingModal();
@@ -568,7 +508,6 @@ export class AppComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error creating booking:', err);
-        // TODO: Implement actual error notification
         this.isSubmittingBooking = false;
       }
     });
