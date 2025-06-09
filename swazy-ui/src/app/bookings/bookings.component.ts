@@ -8,7 +8,6 @@ import { BusinessService } from '../services/business.service';
 import { BookingService } from '../services/booking.service';
 import { GetBusinessDto } from '../models/dto/business-dto.model';
 import { BookingDetailsDto } from '../models/dto/booking-details-dto.model';
-import { BookingComponent } from '../booking/booking.component';
 
 
 @Component({
@@ -17,10 +16,9 @@ import { BookingComponent } from '../booking/booking.component';
   imports: [
     CommonModule,
     FormsModule,
-    ScheduleAllModule, // Syncfusion Schedule
-    BookingComponent   // Import standalone BookingComponent here
+    ScheduleAllModule,
   ],
-  providers: [DayService, WeekService, MonthService, AgendaService], // For Syncfusion Scheduler
+  providers: [DayService, WeekService, MonthService, AgendaService],
   templateUrl: './bookings.component.html',
   styleUrl: './bookings.component.scss'
 })
