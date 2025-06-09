@@ -1,17 +1,11 @@
-using Api.Swazy.Models.DTOs.Bookings;
 using Api.Swazy.Models.Entities;
 using Api.Swazy.Models.Results;
 using Api.Swazy.Persistence.Repositories;
 using Api.Swazy.Services.Bookings;
 using AutoMapper;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
 
-namespace Api.Swazy.Tests.Services;
+namespace Swazy.Tests.Services;
 
 public class BookingServiceTests
 {
@@ -22,7 +16,7 @@ public class BookingServiceTests
     public BookingServiceTests()
     {
         _mockBookingRepository = new Mock<IRepository<Booking>>();
-        _mockMapper = new Mock<IMapper>(); // Even if not used directly by this method, BookingService constructor needs it.
+        _mockMapper = new Mock<IMapper>();
         _bookingService = new BookingService(_mockBookingRepository.Object, _mockMapper.Object);
     }
 
