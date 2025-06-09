@@ -2,11 +2,12 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { BusinessService } from '../services/business.service'; // Adjusted path
+// import { BusinessService } from '../services/business.service'; // Adjusted path - No longer needed for dropdown
 import { BusinessServiceApiService } from '../services/business-service-api.service'; // Adjusted path
 import { ServiceService } from '../services/service.service'; // For loading generic services
+import { TenantService } from '../services/tenant.service'; // Import TenantService
 
-import { GetBusinessDto } from '../models/dto/business-dto.model'; // Adjusted path
+import { GetBusinessDto } from '../models/dto/business-dto.model'; // Adjusted path - still needed for TenantService type
 import { GetBusinessServiceDto, CreateBusinessServiceDto, UpdateBusinessServiceDto } from '../models/business-service/business-service.dtos'; // Adjusted path
 import { GetServiceDto } from '../models/service.model'; // For generic services list
 
@@ -21,8 +22,8 @@ import { GetServiceDto } from '../models/service.model'; // For generic services
   styleUrl: './business-services.component.scss'
 })
 export class BusinessServicesComponent implements OnInit {
-  allBusinessesForDropdown: GetBusinessDto[] = [];
-  selectedBusinessIdForServices: string = '';
+  // allBusinessesForDropdown: GetBusinessDto[] = []; // Removed
+  selectedBusinessIdForServices: string = ''; // Will be set by TenantService
   businessServicesForSelectedBusiness: GetBusinessServiceDto[] = [];
 
   services: GetServiceDto[] = []; // To hold generic services for dropdown and getServiceNameById
@@ -40,28 +41,40 @@ export class BusinessServicesComponent implements OnInit {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private businessService: BusinessService,
+    // private businessService: BusinessService, // Removed
     private businessServiceApiService: BusinessServiceApiService,
-    private serviceService: ServiceService // Injected to load generic services
+    private serviceService: ServiceService, // Injected to load generic services
+    private tenantService: TenantService // Injected TenantService
   ) {}
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadAllBusinessesForDropdown();
+      // this.loadAllBusinessesForDropdown(); // Removed
+      this.tenantService.tenantBusinessObs$.subscribe(tenantBusiness => {
+        if (tenantBusiness) {
+          this.selectedBusinessIdForServices = tenantBusiness.id;
+          this.newBusinessService.businessId = tenantBusiness.id; // Update for new services
+          this.loadBusinessServicesForBusiness(tenantBusiness.id);
+        } else {
+          this.selectedBusinessIdForServices = '';
+          this.businessServicesForSelectedBusiness = [];
+          this.newBusinessService.businessId = '';
+        }
+      });
       this.loadGenericServices(); // Load all generic services for dropdown/naming
     }
   }
 
-  loadAllBusinessesForDropdown(): void {
-    this.businessService.getBusinesses().subscribe(
-      data => {
-        this.allBusinessesForDropdown = data;
-      },
-      error => {
-        console.error('Error loading businesses for dropdown:', error);
-      }
-    );
-  }
+  // loadAllBusinessesForDropdown(): void { // Removed
+  //   this.businessService.getBusinesses().subscribe(
+  //     data => {
+  //       this.allBusinessesForDropdown = data;
+  //     },
+  //     error => {
+  //       console.error('Error loading businesses for dropdown:', error);
+  //     }
+  //   );
+  // }
 
   loadGenericServices(): void {
     this.serviceService.getServices().subscribe(data => {
@@ -69,27 +82,26 @@ export class BusinessServicesComponent implements OnInit {
     });
   }
 
-  onBusinessSelectedForServices(event: Event): void {
-    const selectElement = event.target as HTMLSelectElement;
-    const businessId = selectElement.value;
-    this.selectedBusinessIdForServices = businessId;
+  // onBusinessSelectedForServices(event: Event): void { // Removed - selection is now from TenantService
+  //   const selectElement = event.target as HTMLSelectElement;
+  //   const businessId = selectElement.value;
+  //   this.selectedBusinessIdForServices = businessId;
 
-    this.businessServicesForSelectedBusiness = [];
-    this.editingBusinessService = null;
-    this.showCreateBusinessServiceForm = false;
-    // Reset newBusinessService when business changes
-    this.newBusinessService = {
-      serviceId: '',
-      businessId: businessId, // Set current business ID
-      price: 0,
-      duration: 0
-    };
+  //   this.businessServicesForSelectedBusiness = [];
+  //   this.editingBusinessService = null;
+  //   this.showCreateBusinessServiceForm = false;
+  //   // Reset newBusinessService when business changes
+  //   this.newBusinessService = {
+  //     serviceId: '',
+  //     businessId: businessId, // Set current business ID
+  //     price: 0,
+  //     duration: 0
+  //   };
 
-
-    if (businessId) {
-      this.loadBusinessServicesForBusiness(businessId);
-    }
-  }
+  //   if (businessId) {
+  //     this.loadBusinessServicesForBusiness(businessId);
+  //   }
+  // }
 
   loadBusinessServicesForBusiness(businessId: string): void {
     if (!businessId) {
@@ -126,16 +138,18 @@ export class BusinessServicesComponent implements OnInit {
 
   createBusinessService(): void {
     if (!this.newBusinessService.serviceId || !this.selectedBusinessIdForServices) {
-      console.error('Service ID and Business ID are required to create a business service.');
+      console.error('Service ID and Business ID (from tenant) are required to create a business service.');
       // Potentially show a user-facing error
       return;
     }
-    this.newBusinessService.businessId = this.selectedBusinessIdForServices; // Ensure businessId is correctly set
+    // Ensure businessId is from the tenant, which should be set by the subscription or when toggling form
+    this.newBusinessService.businessId = this.selectedBusinessIdForServices;
 
     this.businessServiceApiService.createBusinessService(this.newBusinessService).subscribe(
       () => {
         this.loadBusinessServicesForBusiness(this.selectedBusinessIdForServices);
         this.showCreateBusinessServiceForm = false;
+        // Reset newBusinessService, ensuring businessId is from the tenant
         this.newBusinessService = { serviceId: '', businessId: this.selectedBusinessIdForServices, price: 0, duration: 0 };
       },
       error => {

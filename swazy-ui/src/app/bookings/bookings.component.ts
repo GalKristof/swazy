@@ -4,9 +4,10 @@ import { FormsModule } from '@angular/forms';
 
 import { View, EventSettingsModel, DayService, WeekService, MonthService, AgendaService, ScheduleAllModule } from '@syncfusion/ej2-angular-schedule';
 
-import { BusinessService } from '../services/business.service';
+// import { BusinessService } from '../services/business.service'; // To be removed
 import { BookingService } from '../services/booking.service';
-import { GetBusinessDto } from '../models/dto/business-dto.model';
+import { TenantService } from '../services/tenant.service'; // Import TenantService
+// import { GetBusinessDto } from '../models/dto/business-dto.model'; // To be removed
 import { BookingDetailsDto } from '../models/dto/booking-details-dto.model';
 
 
@@ -23,8 +24,8 @@ import { BookingDetailsDto } from '../models/dto/booking-details-dto.model';
   styleUrl: './bookings.component.scss'
 })
 export class BookingsComponent implements OnInit {
-  allBusinessesForDropdown: GetBusinessDto[] = [];
-  selectedBusinessIdForBookings: string = '';
+  // allBusinessesForDropdown: GetBusinessDto[] = []; // Removed
+  selectedBusinessIdForBookings: string = ''; // Will be set by TenantService
   bookingsForSelectedBusiness: BookingDetailsDto[] = [];
   isLoadingBookings: boolean = false;
 
@@ -34,40 +35,52 @@ export class BookingsComponent implements OnInit {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private businessService: BusinessService,
-    private bookingService: BookingService
+    // private businessService: BusinessService, // Removed
+    private bookingService: BookingService,
+    private tenantService: TenantService // Injected TenantService
   ) {}
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadAllBusinessesForDropdown();
+      // this.loadAllBusinessesForDropdown(); // Removed
+      this.tenantService.tenantBusinessObs$.subscribe(tenantBusiness => {
+        if (tenantBusiness && tenantBusiness.id) {
+          this.selectedBusinessIdForBookings = tenantBusiness.id;
+          this.loadBookingsForBusiness(tenantBusiness.id);
+        } else {
+          this.selectedBusinessIdForBookings = '';
+          this.bookingsForSelectedBusiness = [];
+          this.schedulerEventSettings = { dataSource: [] };
+          // Optionally, display a message or disable booking features
+        }
+      });
     }
     this.currentSchedulerDate = new Date(); // Initialize current date for scheduler
   }
 
-  loadAllBusinessesForDropdown(): void {
-    this.businessService.getBusinesses().subscribe(
-      data => {
-        this.allBusinessesForDropdown = data;
-      },
-      error => {
-        console.error('Error loading businesses for dropdown:', error);
-      }
-    );
-  }
+  // loadAllBusinessesForDropdown(): void { // Removed
+  //   this.businessService.getBusinesses().subscribe(
+  //     data => {
+  //       this.allBusinessesForDropdown = data;
+  //     },
+  //     error => {
+  //       console.error('Error loading businesses for dropdown:', error);
+  //     }
+  //   );
+  // }
 
-  onBusinessSelectedForBookings(event: Event): void {
-    const selectElement = event.target as HTMLSelectElement;
-    const businessId = selectElement.value;
-    this.selectedBusinessIdForBookings = businessId; // This will be passed to app-booking
+  // onBusinessSelectedForBookings(event: Event): void { // Removed
+  //   const selectElement = event.target as HTMLSelectElement;
+  //   const businessId = selectElement.value;
+  //   this.selectedBusinessIdForBookings = businessId; // This will be passed to app-booking
 
-    this.bookingsForSelectedBusiness = [];
-    this.schedulerEventSettings = { dataSource: [] };
+  //   this.bookingsForSelectedBusiness = [];
+  //   this.schedulerEventSettings = { dataSource: [] };
 
-    if (businessId) {
-      this.loadBookingsForBusiness(businessId);
-    }
-  }
+  //   if (businessId) {
+  //     this.loadBookingsForBusiness(businessId);
+  //   }
+  // }
 
   loadBookingsForBusiness(businessId: string): void {
     if (!businessId) {

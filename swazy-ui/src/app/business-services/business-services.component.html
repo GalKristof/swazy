@@ -1,17 +1,11 @@
 ﻿<!-- Business Services Management Section -->
 <div class="container mx-auto p-4">
-  <!-- Business Selection Dropdown -->
-  <div class="mb-4 p-4 border rounded-lg shadow">
-    <h2 class="text-xl font-semibold mb-2">Select Business</h2>
-    <label class="label"><span class="label-text">Business</span></label>
-    <select [(ngModel)]="selectedBusinessIdForServices" (change)="onBusinessSelectedForServices($event)" class="select select-bordered w-full">
-      <option value="">-- Select a Business --</option>
-      <option *ngFor="let business of allBusinessesForDropdown" [value]="business.id">{{ business.name }}</option>
-    </select>
-  </div>
+  <!-- Business Selection Dropdown Removed -->
 
+  <!-- Message when no business is selected (via TenantService) -->
   <div *ngIf="!selectedBusinessIdForServices" class="text-center p-4 text-gray-500">
-    Please select a business to view or manage its services.
+    <!-- This message might need adjustment based on TenantService behavior -->
+    No business context is currently set. Services cannot be managed.
   </div>
 
   <div *ngIf="selectedBusinessIdForServices">

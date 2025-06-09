@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, Output, EventEmitter } from '@angular/core'; // Removed Input, OnChanges, SimpleChanges
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { CalendarModule, DatePickerModule, TimePickerModule } from '@syncfusion/ej2-angular-calendars';
@@ -6,6 +6,7 @@ import { CalendarModule, DatePickerModule, TimePickerModule } from '@syncfusion/
 import { BookingService } from '../services/booking.service';
 import { BusinessServiceApiService } from '../services/business-service-api.service';
 import { ServiceService } from '../services/service.service'; // For getServiceNameById
+import { TenantService } from '../services/tenant.service'; // Import TenantService
 
 import { CreateBookingDto } from '../models/dto/booking-dto.model';
 import { GetBusinessServiceDto } from '../models/business-service/business-service.dtos';
@@ -25,8 +26,8 @@ import { GetServiceDto } from '../models/service.model'; // For holding generic 
   templateUrl: './booking.component.html',
   styleUrl: './booking.component.scss'
 })
-export class BookingComponent implements OnInit, OnChanges {
-  @Input() selectedBusinessIdForBookings: string = ''; // Passed from BookingsComponent
+export class BookingComponent implements OnInit { // Removed OnChanges
+  // @Input() selectedBusinessIdForBookings: string = ''; // Removed
   @Output() bookingCreated = new EventEmitter<void>();
   @Output() bookingDateChanged = new EventEmitter<Date>();
 
@@ -37,6 +38,7 @@ export class BookingComponent implements OnInit, OnChanges {
   selectedBookingDateForForm: Date | null = null;
   selectedBookingTimeForForm: Date | null = null;
   isSubmittingBooking: boolean = false;
+  private currentTenantId: string | null = null; // Added to store current tenant ID
 
   services: GetServiceDto[] = []; // For getServiceNameById
 
@@ -45,7 +47,8 @@ export class BookingComponent implements OnInit, OnChanges {
     private fb: FormBuilder,
     private bookingService: BookingService,
     private businessServiceApiService: BusinessServiceApiService,
-    private serviceService: ServiceService // To load generic services
+    private serviceService: ServiceService, // To load generic services
+    private tenantService: TenantService // Injected TenantService
   ) {}
 
   ngOnInit(): void {
@@ -54,21 +57,28 @@ export class BookingComponent implements OnInit, OnChanges {
 
     if (isPlatformBrowser(this.platformId)) {
       this.loadGenericServices(); // Load generic services for names
-      // Initial load of available services if a business is already selected (e.g. on init)
-      if (this.selectedBusinessIdForBookings) {
-        this.prepareBookingForm();
-      }
+      this.tenantService.tenantBusinessObs$.subscribe(tenantBusiness => {
+        if (tenantBusiness && tenantBusiness.id) {
+          this.currentTenantId = tenantBusiness.id; // Store tenant ID
+          this.prepareBookingForm(tenantBusiness.id);
+        } else {
+          this.currentTenantId = null; // Clear tenant ID
+          // No tenant business ID, clear services or handle as needed
+          this.availableServicesForBooking = [];
+          this.createBookingForm.reset(); // Optionally reset form if no business context
+        }
+      });
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['selectedBusinessIdForBookings'] && !changes['selectedBusinessIdForBookings'].firstChange) {
-      // If business ID changes, reload services for that business
-      if (isPlatformBrowser(this.platformId)) {
-        this.prepareBookingForm();
-      }
-    }
-  }
+  // ngOnChanges(changes: SimpleChanges): void { // Removed
+  //   if (changes['selectedBusinessIdForBookings'] && !changes['selectedBusinessIdForBookings'].firstChange) {
+  //     // If business ID changes, reload services for that business
+  //     if (isPlatformBrowser(this.platformId)) {
+  //       this.prepareBookingForm();
+  //     }
+  //   }
+  // }
 
   initializeForm(): void {
     this.createBookingForm = this.fb.group({
@@ -95,12 +105,12 @@ export class BookingComponent implements OnInit, OnChanges {
     });
   }
 
-  prepareBookingForm(): void {
+  prepareBookingForm(businessId: string | null): void { // Added businessId parameter
     this.createBookingForm.reset();
     this.availableServicesForBooking = [];
 
-    if (this.selectedBusinessIdForBookings) {
-      this.businessServiceApiService.getBusinessServicesByBusinessId(this.selectedBusinessIdForBookings).subscribe({
+    if (businessId) {
+      this.businessServiceApiService.getBusinessServicesByBusinessId(businessId).subscribe({
         next: (services) => {
           this.availableServicesForBooking = services;
         },
@@ -195,7 +205,8 @@ export class BookingComponent implements OnInit, OnChanges {
         console.log('Booking created successfully!', newBooking);
         this.bookingCreated.emit(); // Emit event
         this.clearBookingSubmissionState();
-        this.prepareBookingForm(); // Reset form
+        // Reset form, ensuring it uses the current tenant's business ID if available
+        this.prepareBookingForm(this.currentTenantId); // Use stored tenant ID
       },
       error: (err) => {
         console.error('Error creating booking:', err);
