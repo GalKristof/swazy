@@ -1,0 +1,51 @@
+﻿<!-- Booking Management Section -->
+<div class="container mx-auto p-4">
+  <!-- Business Selection Dropdown -->
+  <div class="mb-4 p-4 border rounded-lg shadow">
+    <h2 class="text-xl font-semibold mb-2">Select Business to View Bookings</h2>
+    <label class="label"><span class="label-text">Business</span></label>
+    <select [(ngModel)]="selectedBusinessIdForBookings" (change)="onBusinessSelectedForBookings($event)" class="select select-bordered w-full">
+      <option value="">-- Select a Business --</option>
+      <option *ngFor="let business of allBusinessesForDropdown" [value]="business.id">{{ business.name }}</option>
+    </select>
+  </div>
+
+  <div *ngIf="!selectedBusinessIdForBookings" class="text-center p-4 text-gray-500">
+    Please select a business to manage its bookings.
+  </div>
+
+  <div *ngIf="selectedBusinessIdForBookings">
+    <!-- View Toggle Buttons -->
+    <div class="my-6 flex justify-center space-x-2">
+      <button (click)="setSchedulerView('Day')" class="btn" [class.btn-active]="schedulerView === 'Day'">Day</button>
+      <button (click)="setSchedulerView('Week')" class="btn" [class.btn-active]="schedulerView === 'Week'">Week</button>
+      <button (click)="setSchedulerView('Month')" class="btn" [class.btn-active]="schedulerView === 'Month'">Month</button>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoadingBookings" class="text-center p-4">
+      <span class="loading loading-lg loading-spinner text-primary"></span>
+      <p>Loading bookings...</p>
+    </div>
+
+    <!-- Syncfusion Scheduler -->
+    <div *ngIf="!isLoadingBookings && selectedBusinessIdForBookings" class="mt-6">
+      <ejs-schedule [height]="'650px'" [width]="'100%'"
+                    [selectedDate]="currentSchedulerDate"
+                    [currentView]="schedulerView"
+                    [eventSettings]="schedulerEventSettings">
+        <e-views>
+          <e-view option="Day"></e-view>
+          <e-view option="Week"></e-view>
+          <e-view option="Month"></e-view>
+          <!-- <e-view option="Agenda"></e-view> -->
+        </e-views>
+      </ejs-schedule>
+    </div>
+
+    <!-- Message if no bookings found -->
+    <div *ngIf="!isLoadingBookings && bookingsForSelectedBusiness.length === 0 && selectedBusinessIdForBookings" class="text-center p-4 text-gray-500 mt-4">
+      No bookings found for this business for the selected period.
+    </div>
+  </div>
+</div>
