@@ -359,13 +359,109 @@
     </div>
 
     <div *ngIf="selectedBusinessIdForBookings">
-      <!-- Create Booking Button -->
-      <div class="my-4">
-        <button (click)="openCreateBookingModal()" class="btn btn-primary"
-                [disabled]="!selectedBusinessIdForBookings || isLoadingBookings">
-          Create New Booking
-        </button>
+      <!-- NEW BOOKING FORM SECTION -->
+      <div class="card bg-base-100 shadow-xl p-6 mb-6 border border-primary">
+        <h3 class="font-bold text-xl mb-4 text-primary">Create New Booking</h3>
+        <form [formGroup]="createBookingForm" (ngSubmit)="onSubmitBooking()">
+
+          <!-- Business Service Dropdown -->
+          <div class="form-control w-full mb-4">
+            <label class="label"><span class="label-text">Service</span></label>
+            <select formControlName="businessServiceId" class="select select-bordered w-full"
+                    [class.select-error]="createBookingForm.controls['businessServiceId'].invalid && createBookingForm.controls['businessServiceId'].touched">
+              <option value="" disabled>-- Select a Service --</option>
+              <option *ngFor="let service of availableServicesForBooking" [value]="service.id">
+                {{ getServiceNameById(service.serviceId) }} ({{ service.duration }} mins) - {{ service.price | currency }}
+              </option>
+            </select>
+            <div *ngIf="createBookingForm.controls['businessServiceId'].invalid && createBookingForm.controls['businessServiceId'].touched" class="text-error text-xs mt-1">
+              Service is required.
+            </div>
+          </div>
+
+          <!-- Date and Time Pickers -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-control w-full">
+              <label class="label"><span class="label-text">Booking Date</span></label>
+              <ejs-calendar formControlName="selectedDate"
+                            [min]="minBookingDate"
+                            (change)="onBookingDateChange($event)"
+                            [ngClass]="{'input-error': createBookingForm.controls['selectedDate'].invalid && createBookingForm.controls['selectedDate'].touched}">
+              </ejs-calendar>
+              <div *ngIf="createBookingForm.controls['selectedDate'].invalid && createBookingForm.controls['selectedDate'].touched" class="text-error text-xs mt-1">
+                Date is required.
+              </div>
+            </div>
+            <div class="form-control w-full">
+              <label class="label"><span class="label-text">Booking Time</span></label>
+              <ejs-timepicker formControlName="selectedTime"
+                              (change)="onBookingTimeChange($event)"
+                              placeholder="Select a time" format="HH:mm" step="15"
+                              [ngClass]="{'input-error': createBookingForm.controls['selectedTime'].invalid && createBookingForm.controls['selectedTime'].touched}">
+              </ejs-timepicker>
+              <div *ngIf="createBookingForm.controls['selectedTime'].invalid && createBookingForm.controls['selectedTime'].touched" class="text-error text-xs mt-1">
+                Time is required.
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer Details -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-control w-full">
+              <label class="label"><span class="label-text">First Name</span></label>
+              <input type="text" formControlName="firstName" placeholder="First Name" class="input input-bordered w-full"
+                     [class.input-error]="createBookingForm.controls['firstName'].invalid && createBookingForm.controls['firstName'].touched" />
+              <div *ngIf="createBookingForm.controls['firstName'].invalid && createBookingForm.controls['firstName'].touched" class="text-error text-xs mt-1">
+                First name is required.
+              </div>
+            </div>
+            <div class="form-control w-full">
+              <label class="label"><span class="label-text">Last Name</span></label>
+              <input type="text" formControlName="lastName" placeholder="Last Name" class="input input-bordered w-full"
+                     [class.input-error]="createBookingForm.controls['lastName'].invalid && createBookingForm.controls['lastName'].touched" />
+              <div *ngIf="createBookingForm.controls['lastName'].invalid && createBookingForm.controls['lastName'].touched" class="text-error text-xs mt-1">
+                Last name is required.
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-control w-full">
+              <label class="label"><span class="label-text">Email</span></label>
+              <input type="email" formControlName="email" placeholder="Email" class="input input-bordered w-full"
+                     [class.input-error]="createBookingForm.controls['email'].invalid && createBookingForm.controls['email'].touched" />
+              <div *ngIf="createBookingForm.controls['email'].touched && createBookingForm.controls['email'].errors?.['required']" class="text-error text-xs mt-1">
+                Email is required.
+              </div>
+              <div *ngIf="createBookingForm.controls['email'].touched && createBookingForm.controls['email'].errors?.['email']" class="text-error text-xs mt-1">
+                Invalid email format.
+              </div>
+            </div>
+            <div class="form-control w-full">
+              <label class="label"><span class="label-text">Phone Number</span></label>
+              <input type="tel" formControlName="phoneNumber" placeholder="Phone Number" class="input input-bordered w-full"
+                     [class.input-error]="createBookingForm.controls['phoneNumber'].invalid && createBookingForm.controls['phoneNumber'].touched" />
+              <div *ngIf="createBookingForm.controls['phoneNumber'].invalid && createBookingForm.controls['phoneNumber'].touched" class="text-error text-xs mt-1">
+                Phone number is required.
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes Textarea -->
+          <div class="form-control w-full mb-4">
+            <label class="label"><span class="label-text">Notes (Optional)</span></label>
+            <textarea formControlName="notes" class="textarea textarea-bordered w-full" placeholder="Any special requests or notes..."></textarea>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex justify-end mt-6">
+            <button type="submit" class="btn btn-primary" [disabled]="createBookingForm.invalid || isSubmittingBooking">
+              <span *ngIf="isSubmittingBooking" class="loading loading-spinner"></span>
+              {{ isSubmittingBooking ? 'Submitting...' : 'Submit Booking' }}
+            </button>
+          </div>
+        </form>
       </div>
+      <!-- END OF NEW BOOKING FORM SECTION -->
 
       <!-- View Toggle Buttons -->
       <div class="mb-4 flex justify-center space-x-2">
@@ -403,114 +499,4 @@
   </div>
   <!-- End of Booking Management Section -->
 
-  <!-- Create Booking Modal -->
-  <dialog class="modal" [class.modal-open]="showCreateBookingModal">
-    <div class="modal-box w-11/12 max-w-3xl">
-      <form [formGroup]="createBookingForm" (ngSubmit)="onSubmitBooking()">
-        <h3 class="font-bold text-lg mb-4">Create New Booking</h3>
-
-        <!-- Business Service Dropdown -->
-        <div class="form-control w-full mb-4">
-          <label class="label"><span class="label-text">Service</span></label>
-          <select formControlName="businessServiceId" class="select select-bordered w-full"
-                  [class.select-error]="createBookingForm.controls['businessServiceId'].invalid && createBookingForm.controls['businessServiceId'].touched">
-            <option value="" disabled>-- Select a Service --</option>
-            <option *ngFor="let service of availableServicesForBooking" [value]="service.id">
-              {{ getServiceNameById(service.serviceId) }} ({{ service.duration }} mins) - {{ service.price | currency }}
-            </option>
-          </select>
-          <div *ngIf="createBookingForm.controls['businessServiceId'].invalid && createBookingForm.controls['businessServiceId'].touched" class="label text-error text-xs">
-            Service is required.
-          </div>
-        </div>
-
-        <!-- Date and Time Pickers -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div class="form-control w-full">
-            <label class="label"><span class="label-text">Booking Date</span></label>
-            <ejs-datepicker formControlName="selectedDate"
-                            [min]="minBookingDate"
-                            (change)="onBookingDateChange($event)"
-                            placeholder="Select a date"
-                            [ngClass]="{'input-error': createBookingForm.controls['selectedDate'].invalid && createBookingForm.controls['selectedDate'].touched}">
-            </ejs-datepicker>
-            <div *ngIf="createBookingForm.controls['selectedDate'].invalid && createBookingForm.controls['selectedDate'].touched" class="label text-error text-xs">
-              Date is required.
-            </div>
-          </div>
-          <div class="form-control w-full">
-            <label class="label"><span class="label-text">Booking Time</span></label>
-            <ejs-timepicker formControlName="selectedTime"
-                            (change)="onBookingTimeChange($event)"
-                            placeholder="Select a time" format="HH:mm" step="15"
-                            [ngClass]="{'input-error': createBookingForm.controls['selectedTime'].invalid && createBookingForm.controls['selectedTime'].touched}">
-            </ejs-timepicker>
-            <div *ngIf="createBookingForm.controls['selectedTime'].invalid && createBookingForm.controls['selectedTime'].touched" class="label text-error text-xs">
-              Time is required.
-            </div>
-          </div>
-        </div>
-
-        <!-- Customer Details -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div class="form-control w-full">
-            <label class="label"><span class="label-text">First Name</span></label>
-            <input type="text" formControlName="firstName" placeholder="First Name" class="input input-bordered w-full"
-                   [class.input-error]="createBookingForm.controls['firstName'].invalid && createBookingForm.controls['firstName'].touched" />
-            <div *ngIf="createBookingForm.controls['firstName'].invalid && createBookingForm.controls['firstName'].touched" class="label text-error text-xs">
-              First name is required.
-            </div>
-          </div>
-          <div class="form-control w-full">
-            <label class="label"><span class="label-text">Last Name</span></label>
-            <input type="text" formControlName="lastName" placeholder="Last Name" class="input input-bordered w-full"
-                   [class.input-error]="createBookingForm.controls['lastName'].invalid && createBookingForm.controls['lastName'].touched" />
-            <div *ngIf="createBookingForm.controls['lastName'].invalid && createBookingForm.controls['lastName'].touched" class="label text-error text-xs">
-              Last name is required.
-            </div>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div class="form-control w-full">
-            <label class="label"><span class="label-text">Email</span></label>
-            <input type="email" formControlName="email" placeholder="Email" class="input input-bordered w-full"
-                   [class.input-error]="createBookingForm.controls['email'].invalid && createBookingForm.controls['email'].touched" />
-            <div *ngIf="createBookingForm.controls['email'].touched && createBookingForm.controls['email'].errors?.['required']" class="label text-error text-xs">
-              Email is required.
-            </div>
-            <div *ngIf="createBookingForm.controls['email'].touched && createBookingForm.controls['email'].errors?.['email']" class="label text-error text-xs">
-              Invalid email format.
-            </div>
-          </div>
-          <div class="form-control w-full">
-            <label class="label"><span class="label-text">Phone Number</span></label>
-            <input type="tel" formControlName="phoneNumber" placeholder="Phone Number" class="input input-bordered w-full"
-                   [class.input-error]="createBookingForm.controls['phoneNumber'].invalid && createBookingForm.controls['phoneNumber'].touched" />
-            <div *ngIf="createBookingForm.controls['phoneNumber'].invalid && createBookingForm.controls['phoneNumber'].touched" class="label text-error text-xs">
-              Phone number is required.
-            </div>
-          </div>
-        </div>
-
-        <!-- Employee Dropdown (Optional) -->
-        <!-- Add similar structure if employee selection is implemented -->
-        <!-- For now, it's just a placeholder in the form group -->
-
-        <!-- Notes Textarea -->
-        <div class="form-control w-full mb-4">
-          <label class="label"><span class="label-text">Notes (Optional)</span></label>
-          <textarea formControlName="notes" class="textarea textarea-bordered w-full" placeholder="Any special requests or notes..."></textarea>
-        </div>
-
-        <!-- Modal Actions -->
-        <div class="modal-action">
-          <button type="button" (click)="closeCreateBookingModal()" class="btn btn-ghost">Cancel</button>
-          <button type="submit" class="btn btn-primary" [disabled]="createBookingForm.invalid || isSubmittingBooking">
-            <span *ngIf="isSubmittingBooking" class="loading loading-spinner"></span>
-            {{ isSubmittingBooking ? 'Submitting...' : 'Create Booking' }}
-          </button>
-        </div>
-      </form>
-    </div>
-  </dialog>
 </div>

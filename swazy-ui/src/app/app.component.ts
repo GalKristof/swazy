@@ -16,7 +16,7 @@ import { BookingService } from './services/booking.service';
 import { BookingDetailsDto } from './models/dto/booking-details-dto.model';
 
 import { View, EventSettingsModel, DayService, WeekService, MonthService, AgendaService, ScheduleAllModule } from '@syncfusion/ej2-angular-schedule';
-import { DatePickerModule, TimePickerModule } from '@syncfusion/ej2-angular-calendars';
+import {CalendarModule, DatePickerModule, TimePickerModule} from '@syncfusion/ej2-angular-calendars';
 
 import { CreateBookingDto } from './models/dto/booking-dto.model';
 
@@ -31,7 +31,8 @@ import { BusinessType } from './models/business-type.enum';
     ReactiveFormsModule,
     ScheduleAllModule,
     DatePickerModule,
-    TimePickerModule
+    TimePickerModule,
+    CalendarModule
   ],
   providers: [DayService, WeekService, MonthService, AgendaService],
   templateUrl: './app.component.html',
@@ -82,7 +83,6 @@ export class AppComponent implements OnInit {
   schedulerEventSettings: EventSettingsModel = { dataSource: [] };
   currentSchedulerDate: Date = new Date();
 
-  showCreateBookingModal: boolean = false;
   createBookingForm!: FormGroup;
   availableServicesForBooking: GetBusinessServiceDto[] = [];
   availableEmployeesForBooking: any[] = [];
@@ -352,9 +352,12 @@ export class AppComponent implements OnInit {
     this.selectedBusinessIdForBookings = businessId;
     this.bookingsForSelectedBusiness = [];
     this.schedulerEventSettings = { dataSource: [] };
+    // Reset services for booking form as well when business changes
+    this.availableServicesForBooking = [];
 
     if (businessId) {
       this.loadBookingsForBusiness(businessId);
+      this.prepareBookingForm();
     }
   }
 
@@ -396,28 +399,22 @@ export class AppComponent implements OnInit {
     return service ? service.value : 'Unknown Service';
   }
 
-  openCreateBookingModal(): void {
-    this.showCreateBookingModal = true;
+  prepareBookingForm(): void {
     this.createBookingForm.reset();
 
+    this.availableServicesForBooking = []; // Initialize as empty
 
     if (this.selectedBusinessIdForBookings) {
-        if (this.selectedBusinessIdForBookings === this.selectedBusinessIdForServices) {
-            this.availableServicesForBooking = this.businessServicesForSelectedBusiness;
-        } else {
-
-            this.availableServicesForBooking = [];
-             if(this.selectedBusinessIdForServices === this.selectedBusinessIdForBookings) {
-               this.availableServicesForBooking = this.businessServicesForSelectedBusiness;
-             } else {
-                console.warn("Service list for booking might not be for the correct business. Consider fetching.");
-                this.availableServicesForBooking = [];
-             }
+      this.businessServiceApiService.getBusinessServicesByBusinessId(this.selectedBusinessIdForBookings).subscribe({
+        next: (services) => {
+          this.availableServicesForBooking = services;
+        },
+        error: (err) => {
+          console.error('Error loading services for booking:', err);
+          this.availableServicesForBooking = []; // Ensure it's empty on error
         }
-    } else {
-        this.availableServicesForBooking = [];
+      });
     }
-
 
     const initialDate = this.currentSchedulerDate ? new Date(this.currentSchedulerDate) : new Date();
     initialDate.setHours(0,0,0,0);
@@ -435,8 +432,7 @@ export class AppComponent implements OnInit {
     this.availableEmployeesForBooking = [];
   }
 
-  closeCreateBookingModal(): void {
-    this.showCreateBookingModal = false;
+  clearBookingSubmissionState(): void {
     this.isSubmittingBooking = false;
   }
 
@@ -503,12 +499,12 @@ export class AppComponent implements OnInit {
         if (this.selectedBusinessIdForBookings && newBooking) {
              this.loadBookingsForBusiness(this.selectedBusinessIdForBookings);
         }
-        this.closeCreateBookingModal();
-        this.isSubmittingBooking = false;
+        this.clearBookingSubmissionState(); // Renamed method
+        this.prepareBookingForm(); // Reset form and reload services
       },
       error: (err) => {
         console.error('Error creating booking:', err);
-        this.isSubmittingBooking = false;
+        this.clearBookingSubmissionState(); // Also clear submission state on error
       }
     });
   }
