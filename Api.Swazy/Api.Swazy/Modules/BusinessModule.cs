@@ -38,6 +38,21 @@ public static class BusinessModule
             })
             .WithTags(SwazyConstants.BusinessModuleName);
         
+        endpoints.MapGet($"api/{SwazyConstants.BusinessModuleApi}/{{businessId:guid}}", async (
+                [FromServices] IBusinessService businessService,
+                [FromRoute] Guid businessId) =>
+            {
+                var response = await businessService.GetSingleEntityByIdAsync(businessId);
+
+                if (response.Result == CommonResult.Success)
+                {
+                    return Results.Ok(response.Value);
+                }
+
+                return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
+            })
+            .WithTags(SwazyConstants.BusinessModuleName);
+        
         endpoints.MapPut($"api/{SwazyConstants.BusinessModuleApi}", async (
                 [FromServices] IBusinessService businessService,
                 [FromBody] UpdateBusinessDto updateBusinessDto) =>

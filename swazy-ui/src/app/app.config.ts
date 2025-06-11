@@ -8,6 +8,7 @@ import { provideHttpClient, withFetch } from '@angular/common/http';
 
 import { ServiceService } from './services/service.service';
 import { BusinessService } from './services/business.service';
+import {provideAnimations} from '@angular/platform-browser/animations';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -15,6 +16,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch()),
+    provideAnimations(),
     ServiceService,
     BusinessService
   ]
