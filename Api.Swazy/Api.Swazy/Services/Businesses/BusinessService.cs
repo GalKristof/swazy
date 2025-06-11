@@ -49,7 +49,7 @@ public class BusinessService(
                 return response;
             }
 
-            business.Employees[userResult.Value.Id] = BusinessRole.Manager;
+            business.Employees[userResult.Value.Id] = dto.Role;
             
             await repository.UpdateAsync(business);
 
