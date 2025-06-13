@@ -8,6 +8,7 @@ import { provideHttpClient, withFetch } from '@angular/common/http';
 
 import { ServiceService } from './services/service.service';
 import { BusinessService } from './services/business.service';
+import { EmployeeService } from './services/employee.service'; // Import EmployeeService
 import {provideAnimations} from '@angular/platform-browser/animations';
 
 export const appConfig: ApplicationConfig = {
@@ -18,6 +19,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch()),
     provideAnimations(),
     ServiceService,
-    BusinessService
+    BusinessService,
+    EmployeeService // Add EmployeeService here
   ]
 };
