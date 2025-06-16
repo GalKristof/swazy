@@ -28,7 +28,7 @@ public static class FakeSeeder
             .RuleFor(b => b.PhoneNumber, f => f.GenerateHungarianPhoneNumber())
             .RuleFor(b => b.Email, f => f.Internet.Email())
             .RuleFor(b => b.BusinessType, f => f.PickRandom<BusinessType>())
-            .RuleFor(b => b.Employees, f => [])
+            // .RuleFor(b => b.Employees, f => []) // Commented out due to Employees property removal
             .RuleFor(b => b.WebsiteUrl, f => f.Internet.Url());
 
         return businessFaker.Generate(amount);

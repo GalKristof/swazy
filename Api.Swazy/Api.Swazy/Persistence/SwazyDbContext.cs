@@ -15,6 +15,7 @@ public class SwazyDbContext(DbContextOptions<SwazyDbContext> options) : DbContex
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<Service> Services { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<BusinessEmployee> BusinessEmployees { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,17 +25,6 @@ public class SwazyDbContext(DbContextOptions<SwazyDbContext> options) : DbContex
         {
             entity.SetTableName(entity.DisplayName().Pluralize());
         });
-
-        modelBuilder.Entity<Business>()
-                .Property(b => b.Employees)
-                .HasConversion(
-                    v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
-                    v => JsonSerializer.Deserialize<Dictionary<Guid, BusinessRole>>(v, new JsonSerializerOptions()) ?? new()
-                ).Metadata.SetValueComparer(new ValueComparer<Dictionary<Guid, BusinessRole>>(
-                    (c1, c2) => c1.SequenceEqual(c2), // Compare dictionaries
-                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.Key, v.Value.GetHashCode())), // Hashing for EF tracking
-                    c => c.ToDictionary(kvp => kvp.Key, kvp => kvp.Value) // Deep copy
-                ));
 
         modelBuilder.Entity<Business>()
             .HasMany(b => b.Services)
@@ -79,6 +69,32 @@ public class SwazyDbContext(DbContextOptions<SwazyDbContext> options) : DbContex
         modelBuilder.Entity<BusinessService>()
             .Property(bs => bs.Price)
             .HasPrecision(10, 2);
+
+        modelBuilder.Entity<BusinessEmployee>(entity =>
+        {
+            // Composite primary key
+            entity.HasKey(be => new { be.BusinessId, be.UserId });
+
+            // Relationship to Business
+            entity.HasOne(be => be.Business)
+                .WithMany(b => b.BusinessEmployees)
+                .HasForeignKey(be => be.BusinessId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Relationship to User (Employee)
+            entity.HasOne(be => be.User)
+                .WithMany(u => u.BusinessEmployments)
+                .HasForeignKey(be => be.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Relationship to User (HiredBy)
+            entity.HasOne(be => be.HiredByUser)
+                .WithMany(u => u.HiredEmployees)
+                .HasForeignKey(be => be.HiredBy)
+                .OnDelete(DeleteBehavior.Restrict); // Or NoAction, to prevent cycles
+
+            entity.Property(be => be.Role).HasConversion<int>();
+        });
 
         // Exclude Already Soft Deleted Files From Queries
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())

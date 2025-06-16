@@ -1,4 +1,5 @@
 ﻿using Api.Swazy.Models.Base;
+using Api.Swazy.Models.Entities;
 using Api.Swazy.Types;
 using System.Text.Json.Serialization;
 
@@ -15,4 +16,7 @@ public class User : BaseEntity
     public string HashedPassword { get; set; } = string.Empty;
     
     public UserRole Role { get; set; } = UserRole.Guest;
+
+    public virtual List<BusinessEmployee> BusinessEmployments { get; set; } = new();
+    public virtual List<BusinessEmployee> HiredEmployees { get; set; } = new();
 }
