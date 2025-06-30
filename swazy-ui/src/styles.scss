@@ -1,14 +1,23 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind base, components, and utilities have been removed. */
 
-@import '../node_modules/@syncfusion/ej2-base/styles/tailwind-dark.css';
-@import '../node_modules/@syncfusion/ej2-buttons/styles/tailwind-dark.css';
-@import '../node_modules/@syncfusion/ej2-calendars/styles/tailwind-dark.css';
-@import '../node_modules/@syncfusion/ej2-dropdowns/styles/tailwind-dark.css';
-@import '../node_modules/@syncfusion/ej2-inputs/styles/tailwind-dark.css';
-@import '../node_modules/@syncfusion/ej2-navigations/styles/tailwind-dark.css';
-@import '../node_modules/@syncfusion/ej2-popups/styles/tailwind-dark.css';
-@import '../node_modules/@syncfusion/ej2-splitbuttons/styles/tailwind-dark.css';
-@import '../node_modules/@syncfusion/ej2-grids/styles/tailwind-dark.css';
-@import '../node_modules/@syncfusion/ej2-schedule/styles/tailwind-dark.css';
+/*
+  Syncfusion themes updated to 'material.css' to align with PrimeNG's new look.
+  Ensure these files exist in your node_modules. Other options include:
+  - material.css / material3.css
+  - bootstrap5.css / bootstrap.css
+  - fabric.css / fluent.css
+  - highcontrast.css
+  Choose the one that best fits the selected PrimeNG theme.
+*/
+@import '../node_modules/@syncfusion/ej2-base/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-buttons/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-calendars/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-dropdowns/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-inputs/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-navigations/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-popups/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-splitbuttons/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-grids/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-schedule/styles/material.css';
+
+/* Add any global custom SCSS/CSS rules below this line */

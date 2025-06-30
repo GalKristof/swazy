@@ -1,51 +1,29 @@
-<!-- Navbar -->
-<div class="navbar bg-primary text-primary-content shadow-lg">
-  <div class="navbar-start">
-    <div class="dropdown">
-      <label tabindex="0" class="btn btn-ghost lg:hidden">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
-        </svg>
-      </label>
-      <!-- In the mobile dropdown menu -->
-      <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[100] p-2 shadow bg-base-100 rounded-box w-52 text-base-content">
-        <li><a routerLink="/services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Services Admin</a></li>
-        <li><a routerLink="/businesses" routerLinkActive="active">Businesses Admin</a></li>
-        <li><a routerLink="/business-services" routerLinkActive="active">Business Services</a></li>
-        <li><a routerLink="/booking" routerLinkActive="active">Booking</a></li>
-        <li><a routerLink="/bookings" routerLinkActive="active">Bookings</a></li>
-        <li><a routerLink="/scheduler" routerLinkActive="active">Scheduler</a></li>
-        <li><a routerLink="/employees" routerLinkActive="active">Employees</a></li>
-      </ul>
-    </div>
-    <a class="btn btn-ghost normal-case text-xl" routerLink="/">Swazy Console</a>
-  </div>
-  <div class="navbar-center hidden lg:flex">
-    <!-- In the desktop menu -->
-    <ul class="menu menu-horizontal px-1">
-      <li><a routerLink="/services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Services Admin</a></li>
-      <li><a routerLink="/businesses" routerLinkActive="active">Businesses Admin</a></li>
-      <li><a routerLink="/business-services" routerLinkActive="active">Business Services</a></li>
-      <li><a routerLink="/booking" routerLinkActive="active">Booking</a></li>
-      <li><a routerLink="/bookings" routerLinkActive="active">Bookings</a></li>
-      <li><a routerLink="/scheduler" routerLinkActive="active">Scheduler</a></li>
-      <li><a routerLink="/employees" routerLinkActive="active">Employees</a></li>
-    </ul>
-  </div>
-  <div class="navbar-end">
+<!-- PrimeNG Menubar -->
+<p-menubar [model]="menuItems">
+  <ng-template pTemplate="start">
+    <button pButton type="button" label="Swazy Console" icon="pi pi-home" class="p-button-text p-button-lg" routerLink="/"></button>
+  </ng-template>
+  <ng-template pTemplate="end">
     <!-- Placeholder for future items like user profile or logout -->
-    <!-- Example: <button class="btn btn-ghost btn-circle"><svg>...</svg></button> -->
-  </div>
-</div>
+    <!-- Example: <button pButton type="button" icon="pi pi-user" class="p-button-rounded p-button-text"></button> -->
+  </ng-template>
+</p-menubar>
 
 <!-- Main Content Area -->
-<div class="container mx-auto p-4 mt-4">
+<!-- We can use PrimeNG layout classes here if desired, or keep simple divs -->
+<div class="p-4 mt-2"> <!-- Replaced Tailwind padding/margin with PrimeFlex like classes for consistency, can adjust -->
   <main>
     <router-outlet></router-outlet>
   </main>
 </div>
 
-<footer class="mt-12 p-4 text-center text-xs text-gray-500">
+<!-- Footer -->
+<!-- Basic footer, can be styled further with PrimeNG utilities or custom CSS -->
+<footer class="mt-6 p-4 text-center text-sm text-gray-600 surface-ground"> <!-- Adjusted Tailwind-like classes, consider PrimeFlex or custom styling. Added surface-ground for theming. -->
   <p>&copy; 2025 Swazy Inc. All rights reserved.</p>
   <p>Swazy Management Console</p>
+  <div class="mt-2">
+    <button pButton type="button" label="Light Theme" (click)="changeTheme('lara-light-blue')" class="p-button-sm p-button-outlined mr-2"></button>
+    <button pButton type="button" label="Dark Theme" (click)="changeTheme('lara-dark-blue')" class="p-button-sm p-button-outlined"></button>
+  </div>
 </footer>
