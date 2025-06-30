@@ -1,0 +1,60 @@
+﻿<!-- Employees Management Section -->
+<div class="container mx-auto p-4">
+  <!-- Message when no business is selected (via TenantService) -->
+  <div *ngIf="!selectedBusinessId" class="text-center p-4 text-gray-500">
+    <!-- This message matches TenantService behavior in other components -->
+    No business context is currently set. Employees cannot be managed.
+  </div>
+
+  <div *ngIf="selectedBusinessId">
+    <!-- Invite Employee Form -->
+    <div class="mb-8 p-4 border rounded-lg shadow bg-base-200">
+      <h2 class="text-xl font-semibold mb-2">Invite New Employee</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="label"><span class="label-text">Email</span></label>
+          <input type="email" [(ngModel)]="newEmployee.userEmail" placeholder="Employee Email" class="input input-bordered w-full" />
+        </div>
+        <div>
+          <label class="label"><span class="label-text">Role</span></label>
+          <select [(ngModel)]="newEmployee.role" class="select select-bordered w-full">
+            <option *ngFor="let role of businessRoles" [ngValue]="role">{{ role }}</option>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <button (click)="inviteEmployee()" class="btn btn-primary w-full" [disabled]="!newEmployee.userEmail">
+            Invite Employee
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="text-center p-4">
+      <span class="loading loading-lg loading-spinner text-primary"></span>
+      <p>Loading employees...</p>
+    </div>
+
+    <!-- Employees List -->
+    <div *ngIf="!isLoading" class="overflow-x-auto mb-8">
+      <h2 class="text-xl font-semibold mb-2">Current Employees</h2>
+      <table class="table w-full table-zebra">
+        <thead>
+        <tr>
+          <th>Email</th>
+          <th>Role</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let entry of getEmployeeEntries()">
+          <td>{{ entry[0] }}</td>
+          <td>{{ entry[1] }}</td>
+        </tr>
+        <tr *ngIf="getEmployeeEntries().length === 0">
+          <td colspan="2" class="text-center">No employees found.</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

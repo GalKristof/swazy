@@ -37,6 +37,11 @@ export const routes: Routes = [
     data: { title: 'Scheduler' }
   },
   {
+    path: 'employees',
+    loadComponent: () => import('./employees/employees.component').then(m => m.EmployeesComponent),
+    data: { title: 'Employees Management' }
+  },
+  {
     path: '**', // Wildcard route for a 404 or redirect
     redirectTo: '' // Redirect wildcard to the new default route (landing page)
     // loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent) // Or a dedicated NotFoundComponent

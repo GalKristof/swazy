@@ -1,5 +1,5 @@
 ﻿export enum BusinessRole {
-  Guest = "Guest",
+  Employee = "Employee",
   Manager = "Manager",
   Owner = "Owner"
 }

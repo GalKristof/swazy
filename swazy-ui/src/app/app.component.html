@@ -7,6 +7,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
         </svg>
       </label>
+      <!-- In the mobile dropdown menu -->
       <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[100] p-2 shadow bg-base-100 rounded-box w-52 text-base-content">
         <li><a routerLink="/services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Services Admin</a></li>
         <li><a routerLink="/businesses" routerLinkActive="active">Businesses Admin</a></li>
@@ -14,11 +15,13 @@
         <li><a routerLink="/booking" routerLinkActive="active">Booking</a></li>
         <li><a routerLink="/bookings" routerLinkActive="active">Bookings</a></li>
         <li><a routerLink="/scheduler" routerLinkActive="active">Scheduler</a></li>
+        <li><a routerLink="/employees" routerLinkActive="active">Employees</a></li>
       </ul>
     </div>
     <a class="btn btn-ghost normal-case text-xl" routerLink="/">Swazy Console</a>
   </div>
   <div class="navbar-center hidden lg:flex">
+    <!-- In the desktop menu -->
     <ul class="menu menu-horizontal px-1">
       <li><a routerLink="/services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Services Admin</a></li>
       <li><a routerLink="/businesses" routerLinkActive="active">Businesses Admin</a></li>
@@ -26,6 +29,7 @@
       <li><a routerLink="/booking" routerLinkActive="active">Booking</a></li>
       <li><a routerLink="/bookings" routerLinkActive="active">Bookings</a></li>
       <li><a routerLink="/scheduler" routerLinkActive="active">Scheduler</a></li>
+      <li><a routerLink="/employees" routerLinkActive="active">Employees</a></li>
     </ul>
   </div>
   <div class="navbar-end">
