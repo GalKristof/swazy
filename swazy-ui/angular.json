@@ -54,10 +54,10 @@
               }
             ],
             "styles": [
-              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
-              "node_modules/primeng/resources/themes/lara-dark-blue/theme.css", # Added for switching
-              "node_modules/primeng/resources/primeng.min.css",
-              "node_modules/primeicons/primeicons.css",
+              "~/primeng/resources/themes/lara-light-blue/theme.css",
+              "~/primeng/resources/themes/lara-dark-blue/theme.css",
+              "~/primeng/resources/primeng.min.css",
+              "~/primeicons/primeicons.css",
               "src/styles.scss"
             ],
             "scripts": [],

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterOutlet, RouterLink } from '@angular/router'; // Removed RouterLinkActive
 
 import { MenubarModule } from 'primeng/menubar';
 import { MenuItem } from 'primeng/api';
@@ -15,7 +15,7 @@ import { ThemeService } from './services/theme.service'; // Import ThemeService
     CommonModule,
     RouterOutlet,
     RouterLink,
-    RouterLinkActive,
+    // RouterLinkActive, // Removed as it's not used in the template
     MenubarModule,
     ButtonModule
   ],
