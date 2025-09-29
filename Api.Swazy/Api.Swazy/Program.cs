@@ -5,7 +5,6 @@ using Api.Swazy.Extensions;
 using Api.Swazy.Modules;
 using Api.Swazy.Options;
 using Api.Swazy.Persistence;
-using Api.Swazy.Profiles;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
@@ -40,7 +39,6 @@ builder.Services.AddDbContext<SwazyDbContext>(options =>
         .UseLazyLoadingProxies()
         .UseNpgsql(builder.Configuration.GetConnectionString(SwazyConstants.DatabaseOptionsSectionName)));
 
-builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.InjectDependencies();
 
 var app = builder.Build();

@@ -13,7 +13,9 @@ public class Booking : BaseEntity
     
     public Guid BusinessServiceId { get; set; }
     public Guid? EmployeeId { get; set; }
+    public Guid? BookedByUserId { get; set; }
 
     public virtual BusinessService BusinessService { get; set; }
     public virtual User? Employee { get; set; }
+    public virtual User? BookedByUser { get; set; }
 }

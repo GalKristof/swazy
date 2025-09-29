@@ -1,102 +1,258 @@
 using Api.Swazy.Common;
 using Api.Swazy.Models.DTOs.BusinessServices;
-using Api.Swazy.Models.Results;
-using Api.Swazy.Services.BusinessServices;
+using Api.Swazy.Models.Entities;
+using Api.Swazy.Models.Responses;
+using Api.Swazy.Persistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.Net;
 
-namespace Api.Swazy.Modules
+namespace Api.Swazy.Modules;
+
+public static class BusinessServiceModule
 {
-    public static class BusinessServiceModule
+    public static void MapBusinessServiceEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        public static void MapBusinessServiceEndpoints(this IEndpointRouteBuilder endpoints)
-        {
-            endpoints.MapPost($"api/{SwazyConstants.BusinessServiceModuleApi}", async (
-                    [FromServices] IBusinessServiceService businessServiceService,
-                    [FromBody] CreateBusinessServiceDto createDto) =>
+        endpoints.MapPost($"api/{SwazyConstants.BusinessServiceModuleApi}", async (
+                [FromServices] SwazyDbContext db,
+                [FromBody] CreateBusinessServiceDto createDto) =>
+            {
+                Log.Verbose("[BusinessServiceModule - Create] Invoked.");
+
+                try
                 {
-                    var response = await businessServiceService.CreateEntityAsync(createDto);
-
-                    return response.Result switch
+                    var businessService = new BusinessService
                     {
-                        CommonResult.Success => Results.Ok(response.Value),
-                        _ => Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError)
+                        BusinessId = createDto.BusinessId,
+                        ServiceId = createDto.ServiceId,
+                        Price = createDto.Price,
+                        Duration = (ushort)createDto.Duration
                     };
-                })
-                .WithTags(SwazyConstants.BusinessServiceModuleName);
 
-            endpoints.MapGet($"api/{SwazyConstants.BusinessServiceModuleApi}/business/{{businessId:guid}}", async (
-                    [FromServices] IBusinessServiceService businessServiceService,
-                    [FromRoute] Guid businessId) =>
+                    db.BusinessServices.Add(businessService);
+                    await db.SaveChangesAsync();
+
+                    Log.Debug("[BusinessServiceModule - Create] Successfully created. {BusinessServiceId}", 
+                        businessService.Id);
+
+                    var response = new BusinessServiceResponse(
+                        businessService.Id,
+                        businessService.BusinessId,
+                        businessService.ServiceId,
+                        businessService.Price,
+                        businessService.Duration,
+                        businessService.CreatedAt
+                    );
+
+                    return Results.Ok(response);
+                }
+                catch (Exception ex)
                 {
-                    var response = await businessServiceService.GetBusinessServicesByBusinessIdAsync(businessId);
+                    Log.Error("[BusinessServiceModule - Create] Error occurred. Exception: {Exception}", ex);
+                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
+                }
+            })
+            .WithTags(SwazyConstants.BusinessServiceModuleName);
 
-                    return response.Result switch
-                    {
-                        CommonResult.Success => Results.Ok(response.Value),
-                        CommonResult.NotFound => Results.NotFound("No business services found for the specified business ID."),
-                        _ => Results.Problem(detail: "An error occurred while retrieving business services.", statusCode: (int)HttpStatusCode.InternalServerError)
-                    };
-                })
-                .WithTags(SwazyConstants.BusinessServiceModuleName);
+        endpoints.MapGet($"api/{SwazyConstants.BusinessServiceModuleApi}/business/{{businessId:guid}}", async (
+                [FromServices] SwazyDbContext db,
+                [FromRoute] Guid businessId) =>
+            {
+                Log.Verbose("[BusinessServiceModule - GetByBusinessId] Invoked. {BusinessId}", businessId);
 
-            endpoints.MapGet($"api/{SwazyConstants.BusinessServiceModuleApi}/all", async (
-                    [FromServices] IBusinessServiceService businessServiceService) =>
+                try
                 {
-                    var response = await businessServiceService.GetAllEntitiesAsync();
+                    var businessServices = await db.BusinessServices
+                        .Where(bs => bs.BusinessId == businessId)
+                        .ToListAsync();
 
-                    return response.Result switch
+                    if (!businessServices.Any())
                     {
-                        CommonResult.Success => Results.Ok(response.Value),
-                        _ => Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError)
-                    };
-                })
-                .WithTags(SwazyConstants.BusinessServiceModuleName);
+                        Log.Debug("[BusinessServiceModule - GetByBusinessId] No services found. {BusinessId}", 
+                            businessId);
+                        return Results.NotFound("No business services found for the specified business ID.");
+                    }
 
-            endpoints.MapGet($"api/{SwazyConstants.BusinessServiceModuleApi}/{{id:guid}}", async (
-                    [FromServices] IBusinessServiceService businessServiceService,
-                    [FromRoute] Guid id) =>
+                    var response = businessServices.Select(bs => new BusinessServiceResponse(
+                        bs.Id,
+                        bs.BusinessId,
+                        bs.ServiceId,
+                        bs.Price,
+                        bs.Duration,
+                        bs.CreatedAt
+                    )).ToList();
+
+                    Log.Debug("[BusinessServiceModule - GetByBusinessId] Returned {Count} services. {BusinessId}", 
+                        response.Count, businessId);
+
+                    return Results.Ok(response);
+                }
+                catch (Exception ex)
                 {
-                    var response = await businessServiceService.GetSingleEntityByIdAsync(id);
+                    Log.Error("[BusinessServiceModule - GetByBusinessId] Error occurred. {BusinessId} Exception: {Exception}", 
+                        businessId, ex);
+                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
+                }
+            })
+            .WithTags(SwazyConstants.BusinessServiceModuleName);
 
-                    return response.Result switch
-                    {
-                        CommonResult.Success => Results.Ok(response.Value),
-                        CommonResult.NotFound => Results.NotFound("BusinessService not found."),
-                        _ => Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError)
-                    };
-                })
-                .WithTags(SwazyConstants.BusinessServiceModuleName);
+        endpoints.MapGet($"api/{SwazyConstants.BusinessServiceModuleApi}/all", async (
+                [FromServices] SwazyDbContext db) =>
+            {
+                Log.Verbose("[BusinessServiceModule - GetAll] Invoked.");
 
-            endpoints.MapPut($"api/{SwazyConstants.BusinessServiceModuleApi}", async (
-                    [FromServices] IBusinessServiceService businessServiceService,
-                    [FromBody] UpdateBusinessServiceDto updateDto) =>
+                try
                 {
-                    var response = await businessServiceService.UpdateEntityAsync(updateDto);
+                    var businessServices = await db.BusinessServices.ToListAsync();
 
-                    return response.Result switch
-                    {
-                        CommonResult.Success => Results.Ok(response.Value),
-                        CommonResult.NotFound => Results.NotFound("BusinessService not found."),
-                        _ => Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError)
-                    };
-                })
-                .WithTags(SwazyConstants.BusinessServiceModuleName);
+                    var response = businessServices.Select(bs => new BusinessServiceResponse(
+                        bs.Id,
+                        bs.BusinessId,
+                        bs.ServiceId,
+                        bs.Price,
+                        bs.Duration,
+                        bs.CreatedAt
+                    )).ToList();
 
-            endpoints.MapDelete($"api/{SwazyConstants.BusinessServiceModuleApi}/{{id:guid}}", async (
-                    [FromServices] IBusinessServiceService businessServiceService,
-                    [FromRoute] Guid id) =>
+                    Log.Debug("[BusinessServiceModule - GetAll] Returned {Count} services.", response.Count);
+
+                    return Results.Ok(response);
+                }
+                catch (Exception ex)
                 {
-                    var response = await businessServiceService.DeleteEntityAsync(id);
+                    Log.Error("[BusinessServiceModule - GetAll] Error occurred. Exception: {Exception}", ex);
+                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
+                }
+            })
+            .WithTags(SwazyConstants.BusinessServiceModuleName);
 
-                    return response.Result switch
+        endpoints.MapGet($"api/{SwazyConstants.BusinessServiceModuleApi}/{{id:guid}}", async (
+                [FromServices] SwazyDbContext db,
+                [FromRoute] Guid id) =>
+            {
+                Log.Verbose("[BusinessServiceModule - GetById] Invoked. {BusinessServiceId}", id);
+
+                try
+                {
+                    var businessService = await db.BusinessServices.FindAsync(id);
+
+                    if (businessService == null)
                     {
-                        CommonResult.Success => Results.Ok(response.Value),
-                        CommonResult.NotFound => Results.NotFound("BusinessService not found."),
-                        _ => Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError)
-                    };
-                })
-                .WithTags(SwazyConstants.BusinessServiceModuleName);
-        }
+                        Log.Debug("[BusinessServiceModule - GetById] Not found. {BusinessServiceId}", id);
+                        return Results.NotFound("BusinessService not found.");
+                    }
+
+                    var response = new BusinessServiceResponse(
+                        businessService.Id,
+                        businessService.BusinessId,
+                        businessService.ServiceId,
+                        businessService.Price,
+                        businessService.Duration,
+                        businessService.CreatedAt
+                    );
+
+                    Log.Debug("[BusinessServiceModule - GetById] Successfully returned. {BusinessServiceId}", id);
+
+                    return Results.Ok(response);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("[BusinessServiceModule - GetById] Error occurred. {BusinessServiceId} Exception: {Exception}", 
+                        id, ex);
+                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
+                }
+            })
+            .WithTags(SwazyConstants.BusinessServiceModuleName);
+
+        endpoints.MapPut($"api/{SwazyConstants.BusinessServiceModuleApi}", async (
+                [FromServices] SwazyDbContext db,
+                [FromBody] UpdateBusinessServiceDto updateDto) =>
+            {
+                Log.Verbose("[BusinessServiceModule - Update] Invoked. {BusinessServiceId}", updateDto.Id);
+
+                try
+                {
+                    var businessService = await db.BusinessServices.FindAsync(updateDto.Id);
+
+                    if (businessService == null)
+                    {
+                        Log.Debug("[BusinessServiceModule - Update] Not found. {BusinessServiceId}", updateDto.Id);
+                        return Results.NotFound("BusinessService not found.");
+                    }
+
+                    if (updateDto.Price.HasValue)
+                        businessService.Price = updateDto.Price.Value;
+
+                    if (updateDto.Duration.HasValue)
+                        businessService.Duration = (ushort)updateDto.Duration.Value;
+
+                    await db.SaveChangesAsync();
+
+                    Log.Debug("[BusinessServiceModule - Update] Successfully updated. {BusinessServiceId}", 
+                        businessService.Id);
+
+                    var response = new BusinessServiceResponse(
+                        businessService.Id,
+                        businessService.BusinessId,
+                        businessService.ServiceId,
+                        businessService.Price,
+                        businessService.Duration,
+                        businessService.CreatedAt
+                    );
+
+                    return Results.Ok(response);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("[BusinessServiceModule - Update] Error occurred. {BusinessServiceId} Exception: {Exception}", 
+                        updateDto.Id, ex);
+                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
+                }
+            })
+            .WithTags(SwazyConstants.BusinessServiceModuleName);
+
+        endpoints.MapDelete($"api/{SwazyConstants.BusinessServiceModuleApi}/{{id:guid}}", async (
+                [FromServices] SwazyDbContext db,
+                [FromRoute] Guid id) =>
+            {
+                Log.Verbose("[BusinessServiceModule - Delete] Invoked. {BusinessServiceId}", id);
+
+                try
+                {
+                    var businessService = await db.BusinessServices.FindAsync(id);
+
+                    if (businessService == null)
+                    {
+                        Log.Debug("[BusinessServiceModule - Delete] Not found. {BusinessServiceId}", id);
+                        return Results.NotFound("BusinessService not found.");
+                    }
+
+                    businessService.IsDeleted = true;
+                    businessService.DeletedAt = DateTimeOffset.UtcNow;
+
+                    await db.SaveChangesAsync();
+
+                    Log.Debug("[BusinessServiceModule - Delete] Successfully soft deleted. {BusinessServiceId}", id);
+
+                    var response = new BusinessServiceResponse(
+                        businessService.Id,
+                        businessService.BusinessId,
+                        businessService.ServiceId,
+                        businessService.Price,
+                        businessService.Duration,
+                        businessService.CreatedAt
+                    );
+
+                    return Results.Ok(response);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("[BusinessServiceModule - Delete] Error occurred. {BusinessServiceId} Exception: {Exception}", 
+                        id, ex);
+                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
+                }
+            })
+            .WithTags(SwazyConstants.BusinessServiceModuleName);
     }
 }

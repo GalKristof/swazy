@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Api.Swazy.Migrations
 {
     [DbContext(typeof(SwazyDbContext))]
-    [Migration("20250601115957_removeBookedByUser")]
-    partial class removeBookedByUser
+    [Migration("20250929215037_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,6 +32,9 @@ namespace Api.Swazy.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BookedByUserId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("BookingDate")
@@ -73,6 +76,8 @@ namespace Api.Swazy.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BookedByUserId");
+
                     b.HasIndex("BusinessServiceId");
 
                     b.HasIndex("EmployeeId");
@@ -100,10 +105,6 @@ namespace Api.Swazy.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Employees")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -230,7 +231,7 @@ namespace Api.Swazy.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Role")
+                    b.Property<int>("SystemRole")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -241,8 +242,47 @@ namespace Api.Swazy.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Api.Swazy.Models.Entities.UserBusinessAccess", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId");
+
+                    b.HasIndex("UserId", "BusinessId")
+                        .IsUnique();
+
+                    b.ToTable("UserBusinessAccesses");
+                });
+
             modelBuilder.Entity("Api.Swazy.Models.Entities.Booking", b =>
                 {
+                    b.HasOne("Api.Swazy.Models.Entities.User", "BookedByUser")
+                        .WithMany()
+                        .HasForeignKey("BookedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Api.Swazy.Models.Entities.BusinessService", "BusinessService")
                         .WithMany()
                         .HasForeignKey("BusinessServiceId")
@@ -253,6 +293,8 @@ namespace Api.Swazy.Migrations
                         .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("BookedByUser");
 
                     b.Navigation("BusinessService");
 
@@ -278,9 +320,35 @@ namespace Api.Swazy.Migrations
                     b.Navigation("Service");
                 });
 
+            modelBuilder.Entity("Api.Swazy.Models.Entities.UserBusinessAccess", b =>
+                {
+                    b.HasOne("Api.Swazy.Models.Entities.Business", "Business")
+                        .WithMany("UserAccesses")
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Api.Swazy.Models.Entities.User", "User")
+                        .WithMany("BusinessAccesses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Business");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Api.Swazy.Models.Entities.Business", b =>
                 {
                     b.Navigation("Services");
+
+                    b.Navigation("UserAccesses");
+                });
+
+            modelBuilder.Entity("Api.Swazy.Models.Entities.User", b =>
+                {
+                    b.Navigation("BusinessAccesses");
                 });
 #pragma warning restore 612, 618
         }

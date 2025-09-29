@@ -1,6 +1,6 @@
-﻿namespace Api.Swazy.Models.DTOs.Bookings;
+﻿namespace Api.Swazy.Models.Responses;
 
-public class GetBookingDto(
+public record BookingResponse(
     Guid Id,
     DateTimeOffset BookingDate,
     string? Notes,
@@ -9,4 +9,7 @@ public class GetBookingDto(
     string Email,
     string PhoneNumber,
     Guid BusinessServiceId,
-    Guid? EmployeeId);
+    Guid? EmployeeId,
+    Guid? BookedByUserId,
+    DateTimeOffset CreatedAt
+);
