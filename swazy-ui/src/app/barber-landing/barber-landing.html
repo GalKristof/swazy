@@ -1,0 +1,210 @@
+<div class="min-h-screen bg-base-100">
+  <!-- Navigation -->
+  <div class="navbar bg-base-300 sticky top-0 z-50 shadow-lg">
+    <div class="navbar-start">
+      <div class="dropdown">
+        <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
+          </svg>
+        </div>
+        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-300 rounded-box w-52">
+          <li><a href="#hero">Kezdőlap</a></li>
+          <li><a href="#services">Szolgáltatások</a></li>
+          <li><a href="#barbers">Fodrászok</a></li>
+          <li><a href="#about">Rólunk</a></li>
+          <li><a href="#contact">Kapcsolat</a></li>
+        </ul>
+      </div>
+      <a class="btn btn-ghost text-xl lg:text-2xl font-bold">{{ (business$ | async)?.name || 'Swazy' }}</a>
+    </div>
+    <div class="navbar-center hidden lg:flex">
+      <ul class="menu menu-horizontal px-1 text-base">
+        <li><a href="#hero">Kezdőlap</a></li>
+        <li><a href="#services">Szolgáltatások</a></li>
+        <li><a href="#barbers">Fodrászok</a></li>
+        <li><a href="#about">Rólunk</a></li>
+        <li><a href="#contact">Kapcsolat</a></li>
+      </ul>
+    </div>
+    <div class="navbar-end">
+      <a href="#book" class="btn btn-primary btn-sm lg:btn-md">Foglalás</a>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section id="hero" class="hero min-h-[70vh] lg:min-h-screen bg-gradient-to-r from-neutral to-base-300">
+    <div class="hero-content text-center px-4">
+      <div class="max-w-2xl">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
+          Stílus. Hagyomány. Tökéletesség.
+        </h1>
+        <p class="text-lg md:text-xl mb-6 md:mb-8 text-base-content/80">
+          Professzionális férfi hajvágás és szakáll ápolás a belvárosban
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
+          <a href="#book" class="btn btn-primary btn-md lg:btn-lg w-full sm:w-auto">
+            Időpontfoglalás
+          </a>
+          <a href="#services" class="btn btn-outline btn-md lg:btn-lg w-full sm:w-auto">
+            Szolgáltatások
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services" class="py-12 md:py-16 lg:py-20 bg-base-200">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12 md:mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-3 md:mb-4">Szolgáltatásaink</h2>
+        <p class="text-base md:text-lg text-base-content/70">
+          Válassz a professzionális kezeléseink közül
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-6xl mx-auto">
+        @for (service of services; track service.name) {
+          <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+            <div class="card-body items-center text-center p-4 md:p-6">
+              <h3 class="card-title text-lg md:text-xl">{{ service.name }}</h3>
+              <div class="divider my-2"></div>
+              <p class="text-2xl md:text-3xl font-bold text-primary">{{ service.price }}</p>
+              <p class="text-xs md:text-sm text-base-content/60">{{ service.duration }}</p>
+              <div class="card-actions mt-3 md:mt-4 w-full">
+                <a href="#book" class="btn btn-primary btn-sm w-full">Foglalás</a>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Barbers Section -->
+  <section id="barbers" class="py-12 md:py-16 lg:py-20 bg-base-100">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12 md:mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-3 md:mb-4">Csapatunk</h2>
+        <p class="text-base md:text-lg text-base-content/70">
+          Tapasztalt szakembereink garantálják a tökéletes eredményt
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
+        @for (barber of barbers; track barber.name) {
+          <div class="card bg-base-200 shadow-xl">
+            <figure class="px-4 pt-4">
+              <img
+                [src]="barber.image"
+                [alt]="barber.name"
+                class="rounded-xl h-64 md:h-80 w-full object-cover"
+              />
+            </figure>
+            <div class="card-body items-center text-center p-4 md:p-6">
+              <h3 class="card-title text-lg md:text-xl">{{ barber.name }}</h3>
+              <p class="text-sm md:text-base text-base-content/70">{{ barber.title }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-12 md:py-16 bg-primary text-primary-content">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4 md:mb-6">Készen állsz az új megjelenésre?</h2>
+      <p class="text-lg md:text-xl mb-6 md:mb-8 opacity-90">
+        Foglalj időpontot még ma és tapasztald meg a különbséget!
+      </p>
+      <a href="#book" class="btn btn-secondary btn-md lg:btn-lg">
+        Foglalj most
+      </a>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-12 md:py-16 lg:py-20 bg-base-200">
+    <div class="container mx-auto px-4 max-w-4xl">
+      <div class="text-center mb-8 md:mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold mb-3 md:mb-4">Rólunk</h2>
+      </div>
+
+      <div class="prose prose-sm md:prose-lg mx-auto">
+        <p class="text-base md:text-lg text-center text-base-content/80 leading-relaxed">
+          A ClassicCut fodrászat 2015 óta szolgálja ki vendégeit a hagyományos
+          férfi fodrászat és a modern styling ötvözésével. Tapasztalt szakembereink
+          minden vendéget egyedi igényei szerint kezelnek, garantálva a tökéletes
+          eredményt és a kiváló kiszolgálást. Nálunk nem csak hajat vágunk -
+          egy élményt nyújtunk, ahol a stílus találkozik a hagyománnyal.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-12 md:py-16 lg:py-20 bg-base-100">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12 md:mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-3 md:mb-4">Kapcsolat</h2>
+        <p class="text-base md:text-lg text-base-content/70">
+          Látogass el hozzánk vagy hívj minket!
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
+        <div class="card bg-base-200 shadow-xl">
+          <div class="card-body items-center text-center p-6">
+            <div class="text-3xl md:text-4xl mb-3 md:mb-4">📍</div>
+            <h3 class="card-title text-lg md:text-xl">Cím</h3>
+            @if ((business$ | async); as business) {
+              <p class="text-sm md:text-base text-base-content/70">
+                {{ business.address }}
+              </p>
+            }
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow-xl">
+          <div class="card-body items-center text-center p-6">
+            <div class="text-3xl md:text-4xl mb-3 md:mb-4">📞</div>
+            <h3 class="card-title text-lg md:text-xl">Telefon</h3>
+            <p class="text-sm md:text-base text-base-content/70">
+              @if ((business$ | async); as business) {
+                <a [href]="'tel:' + business!.phoneNumber" class="link link-hover">
+                  {{ business!.phoneNumber }}
+                </a>
+              }
+            </p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow-xl">
+          <div class="card-body items-center text-center p-6">
+            <div class="text-3xl md:text-4xl mb-3 md:mb-4">⏰</div>
+            <h3 class="card-title text-lg md:text-xl">Nyitvatartás</h3>
+            <p class="text-sm md:text-base text-base-content/70">
+              H-P: 9:00 - 19:00<br />
+              Szo: 10:00 - 16:00
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer footer-center p-6 md:p-10 bg-base-300 text-base-content">
+    <aside>
+      <p class="font-bold text-lg md:text-xl">{{ (business$ | async)!.name }}</p>
+      <p class="text-sm md:text-base text-base-content/70">
+        Professzionális férfi hajvágás 2015 óta
+      </p>
+      <p class="text-xs md:text-sm text-base-content/60">
+        © 2025 ClassicCut - Minden jog fenntartva
+      </p>
+    </aside>
+  </footer>
+</div>

@@ -1,0 +1,465 @@
+<div class="min-h-screen bg-base-200">
+  <!-- Header -->
+  <div class="navbar bg-base-300 shadow-lg">
+    <div class="flex-1">
+      <a class="btn btn-ghost text-lg md:text-xl lg:text-2xl font-bold">{{ business()!.name }}</a>
+    </div>
+    <div class="flex-none gap-2">
+      <button class="btn btn-ghost btn-circle btn-sm md:btn-md">
+        <div class="indicator">
+          <span class="badge badge-xs md:badge-sm indicator-item">3</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        </div>
+      </button>
+      <a href="/" class="btn btn-ghost btn-sm md:btn-md">
+        <span class="hidden sm:inline">Vissza</span>
+        <span class="sm:hidden">🏠</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="container mx-auto p-3 md:p-6">
+    <!-- Tabs -->
+    <div class="tabs tabs-boxed bg-base-100 mb-4 md:mb-6 shadow-lg overflow-x-auto flex-nowrap">
+      <a
+        class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
+        [class.tab-active]="activeTab() === 'info'"
+        (click)="setActiveTab('info')">
+        <span class="hidden sm:inline">📋 Üzlet adatai</span>
+        <span class="sm:hidden">📋</span>
+      </a>
+      <a
+        class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
+        [class.tab-active]="activeTab() === 'employees'"
+        (click)="setActiveTab('employees')">
+        <span class="hidden sm:inline">👥 Dolgozók</span>
+        <span class="sm:hidden">👥</span>
+      </a>
+      <a
+        class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
+        [class.tab-active]="activeTab() === 'services'"
+        (click)="setActiveTab('services')">
+        <span class="hidden sm:inline">💼 Szolgáltatások</span>
+        <span class="sm:hidden">💼</span>
+      </a>
+      <a
+        class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
+        [class.tab-active]="activeTab() === 'bookings'"
+        (click)="setActiveTab('bookings')">
+        <span class="hidden sm:inline">📅 Foglalások</span>
+        <span class="sm:hidden">📅</span>
+      </a>
+    </div>
+
+    <!-- Business Info Tab -->
+    @if (activeTab() === 'info') {
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body p-4 md:p-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+            <h2 class="card-title text-xl md:text-2xl">Üzlet információi</h2>
+            @if (!isEditingBusiness()) {
+              <button class="btn btn-primary btn-sm md:btn-md w-full sm:w-auto" (click)="startEditingBusiness()">
+                Szerkesztés
+              </button>
+            }
+          </div>
+
+          @if (!isEditingBusiness()) {
+            <!-- View Mode -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+              <div class="form-control">
+                <label class="label"><span class="label-text font-bold text-sm md:text-base">Név</span></label>
+                <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()!.name }}</div>
+              </div>
+              <div class="form-control">
+                <label class="label"><span class="label-text font-bold text-sm md:text-base">Típus</span></label>
+                <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()!.businessType }}</div>
+              </div>
+              <div class="form-control">
+                <label class="label"><span class="label-text font-bold text-sm md:text-base">Cím</span></label>
+                <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()!.address }}</div>
+              </div>
+              <div class="form-control">
+                <label class="label"><span class="label-text font-bold text-sm md:text-base">Telefon</span></label>
+                <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()!.phoneNumber }}</div>
+              </div>
+              <div class="form-control">
+                <label class="label"><span class="label-text font-bold text-sm md:text-base">Email</span></label>
+                <div class="p-3 bg-base-200 rounded text-sm md:text-base break-all">{{ business()!.email }}</div>
+              </div>
+              <div class="form-control">
+                <label class="label"><span class="label-text font-bold text-sm md:text-base">Weboldal</span></label>
+                <div class="p-3 bg-base-200 rounded text-sm md:text-base break-all">{{ business()!.websiteUrl }}</div>
+              </div>
+            </div>
+          } @else {
+            <!-- Edit Mode -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+              <div class="form-control">
+                <label class="label"><span class="label-text text-sm md:text-base">Név</span></label>
+                <input
+                  type="text"
+                  [(ngModel)]="editBusinessForm()!.name"
+                  class="input input-bordered input-sm md:input-md" />
+              </div>
+              <div class="form-control">
+                <label class="label"><span class="label-text text-sm md:text-base">Típus</span></label>
+                <select
+                  [(ngModel)]="editBusinessForm()!.businessType"
+                  class="select select-bordered select-sm md:select-md">
+                  @for (type of businessTypes; track type) {
+                    <option [value]="type">{{ type }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-control">
+                <label class="label"><span class="label-text text-sm md:text-base">Cím</span></label>
+                <input
+                  type="text"
+                  [(ngModel)]="editBusinessForm()!.address"
+                  class="input input-bordered input-sm md:input-md" />
+              </div>
+              <div class="form-control">
+                <label class="label"><span class="label-text text-sm md:text-base">Telefon</span></label>
+                <input
+                  type="text"
+                  [(ngModel)]="editBusinessForm()!.phoneNumber"
+                  class="input input-bordered input-sm md:input-md" />
+              </div>
+              <div class="form-control">
+                <label class="label"><span class="label-text text-sm md:text-base">Email</span></label>
+                <input
+                  type="email"
+                  [(ngModel)]="editBusinessForm()!.email"
+                  class="input input-bordered input-sm md:input-md" />
+              </div>
+              <div class="form-control">
+                <label class="label"><span class="label-text text-sm md:text-base">Weboldal</span></label>
+                <input
+                  type="url"
+                  [(ngModel)]="editBusinessForm()!.websiteUrl"
+                  class="input input-bordered input-sm md:input-md" />
+              </div>
+            </div>
+            <div class="card-actions justify-end mt-4 md:mt-6 gap-2">
+              <button class="btn btn-ghost btn-sm md:btn-md" (click)="cancelEditingBusiness()">
+                Mégse
+              </button>
+              <button class="btn btn-primary btn-sm md:btn-md" (click)="saveBusinessInfo()">
+                Mentés
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Employees Tab -->
+    @if (activeTab() === 'employees') {
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body p-4 md:p-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+            <h2 class="card-title text-xl md:text-2xl">Dolgozók</h2>
+            <button class="btn btn-primary btn-sm md:btn-md w-full sm:w-auto" (click)="showAddEmployeeForm()">
+              + Dolgozó hozzáadása
+            </button>
+          </div>
+
+          <!-- Add Employee Form -->
+          @if (isAddingEmployee()) {
+            <div class="card bg-base-200 shadow-md mb-4">
+              <div class="card-body p-4">
+                <h3 class="font-bold mb-3 md:mb-4 text-base md:text-lg">Új dolgozó</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  <div class="form-control">
+                    <label class="label"><span class="label-text text-sm md:text-base">Keresztnév</span></label>
+                    <input
+                      type="text"
+                      [(ngModel)]="newEmployee().firstName"
+                      class="input input-bordered input-sm md:input-md" />
+                  </div>
+                  <div class="form-control">
+                    <label class="label"><span class="label-text text-sm md:text-base">Vezetéknév</span></label>
+                    <input
+                      type="text"
+                      [(ngModel)]="newEmployee().lastName"
+                      class="input input-bordered input-sm md:input-md" />
+                  </div>
+                  <div class="form-control">
+                    <label class="label"><span class="label-text text-sm md:text-base">Email</span></label>
+                    <input
+                      type="email"
+                      [(ngModel)]="newEmployee().email"
+                      class="input input-bordered input-sm md:input-md" />
+                  </div>
+                  <div class="form-control">
+                    <label class="label"><span class="label-text text-sm md:text-base">Szerepkör</span></label>
+                    <select
+                      [(ngModel)]="newEmployee().role"
+                      class="select select-bordered select-sm md:select-md">
+                      <option value="Employee">Dolgozó</option>
+                      <option value="Manager">Menedzser</option>
+                      <option value="Owner">Tulajdonos</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="card-actions justify-end mt-3 md:mt-4 gap-2">
+                  <button class="btn btn-ghost btn-sm md:btn-md" (click)="cancelAddEmployee()">Mégse</button>
+                  <button class="btn btn-primary btn-sm md:btn-md" (click)="addEmployee()">Hozzáadás</button>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Employee List -->
+          <div class="overflow-x-auto -mx-4 md:mx-0">
+            <table class="table table-sm md:table-md">
+              <thead>
+              <tr>
+                <th class="text-xs md:text-sm">Név</th>
+                <th class="text-xs md:text-sm hidden sm:table-cell">Email</th>
+                <th class="text-xs md:text-sm">Szerepkör</th>
+                <th class="text-xs md:text-sm">Műveletek</th>
+              </tr>
+              </thead>
+              <tbody>
+                @for (employee of employees(); track employee.id) {
+                  <tr>
+                    <td class="text-xs md:text-sm">
+                      <div>{{ employee.firstName }} {{ employee.lastName }}</div>
+                      <div class="text-xs text-base-content/60 sm:hidden">{{ employee.email }}</div>
+                    </td>
+                    <td class="text-xs md:text-sm hidden sm:table-cell">{{ employee.email }}</td>
+                    <td>
+                      <span class="badge badge-xs md:badge-sm"
+                            [class.badge-primary]="employee.role === 'Owner'"
+                            [class.badge-secondary]="employee.role === 'Manager'"
+                            [class.badge-ghost]="employee.role === 'Employee'">
+                        {{ employee.role }}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        class="btn btn-error btn-xs md:btn-sm"
+                        [disabled]="employee.role === 'Owner'"
+                        (click)="removeEmployee(employee.id)">
+                        Eltávolítás
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Services Tab -->
+    @if (activeTab() === 'services') {
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body p-4 md:p-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+            <h2 class="card-title text-xl md:text-2xl">Szolgáltatások</h2>
+            <button class="btn btn-primary btn-sm md:btn-md w-full sm:w-auto" (click)="showAddServiceForm()">
+              + Szolgáltatás hozzáadása
+            </button>
+          </div>
+
+          <!-- Add Service Form -->
+          @if (isAddingService()) {
+            <div class="card bg-base-200 shadow-md mb-4">
+              <div class="card-body p-4">
+                <h3 class="font-bold mb-3 md:mb-4 text-base md:text-lg">Új szolgáltatás</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                  <div class="form-control">
+                    <label class="label"><span class="label-text text-sm md:text-base">Szolgáltatás neve</span></label>
+                    <input
+                      type="text"
+                      [(ngModel)]="newService().serviceName"
+                      class="input input-bordered input-sm md:input-md" />
+                  </div>
+                  <div class="form-control">
+                    <label class="label"><span class="label-text text-sm md:text-base">Ár (Ft)</span></label>
+                    <input
+                      type="number"
+                      [(ngModel)]="newService().price"
+                      class="input input-bordered input-sm md:input-md" />
+                  </div>
+                  <div class="form-control">
+                    <label class="label"><span class="label-text text-sm md:text-base">Időtartam (perc)</span></label>
+                    <input
+                      type="number"
+                      [(ngModel)]="newService().duration"
+                      class="input input-bordered input-sm md:input-md" />
+                  </div>
+                </div>
+                <div class="card-actions justify-end mt-3 md:mt-4 gap-2">
+                  <button class="btn btn-ghost btn-sm md:btn-md" (click)="cancelAddService()">Mégse</button>
+                  <button class="btn btn-primary btn-sm md:btn-md" (click)="addService()">Hozzáadás</button>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Service List -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+            @for (service of services(); track service.id) {
+              <div class="card bg-base-200 shadow-md">
+                <div class="card-body p-4">
+                  @if (editingServiceId() !== service.id) {
+                    <!-- View Mode -->
+                    <h3 class="card-title text-base md:text-lg">{{ service.serviceName }}</h3>
+                    <div class="flex justify-between items-center">
+                      <div>
+                        <p class="text-xl md:text-2xl font-bold text-primary">{{ service.price }} Ft</p>
+                        <p class="text-xs md:text-sm text-base-content/60">{{ service.duration }} perc</p>
+                      </div>
+                      <div class="card-actions flex-col sm:flex-row gap-1 md:gap-2">
+                        <button
+                          class="btn btn-xs md:btn-sm btn-ghost"
+                          (click)="startEditingService(service)">
+                          Szerkesztés
+                        </button>
+                        <button
+                          class="btn btn-xs md:btn-sm btn-error"
+                          (click)="removeService(service.id)">
+                          Törlés
+                        </button>
+                      </div>
+                    </div>
+                  } @else {
+                    <!-- Edit Mode -->
+                    <div class="form-control">
+                      <label class="label"><span class="label-text text-sm">Név</span></label>
+                      <input
+                        type="text"
+                        [(ngModel)]="newService().serviceName"
+                        class="input input-bordered input-xs md:input-sm" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                      <div class="form-control">
+                        <label class="label"><span class="label-text text-sm">Ár (Ft)</span></label>
+                        <input
+                          type="number"
+                          [(ngModel)]="newService().price"
+                          class="input input-bordered input-xs md:input-sm" />
+                      </div>
+                      <div class="form-control">
+                        <label class="label"><span class="label-text text-sm">Időtartam</span></label>
+                        <input
+                          type="number"
+                          [(ngModel)]="newService().duration"
+                          class="input input-bordered input-xs md:input-sm" />
+                      </div>
+                    </div>
+                    <div class="card-actions justify-end mt-2 gap-1">
+                      <button
+                        class="btn btn-xs md:btn-sm btn-ghost"
+                        (click)="cancelServiceEdit()">
+                        Mégse
+                      </button>
+                      <button
+                        class="btn btn-xs md:btn-sm btn-primary"
+                        (click)="saveServiceEdit(service.id)">
+                        Mentés
+                      </button>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Bookings Tab -->
+    @if (activeTab() === 'bookings') {
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body p-4 md:p-6">
+          <h2 class="card-title text-xl md:text-2xl mb-4">Foglalások</h2>
+
+          <!-- Mobile Cards View (sm and below) -->
+          <div class="block md:hidden space-y-3">
+            @for (booking of bookings(); track booking.id) {
+              <div class="card bg-base-200 shadow-md">
+                <div class="card-body p-4">
+                  <div class="flex justify-between items-start mb-2">
+                    <div>
+                      <h3 class="font-bold text-base">{{ booking.customerName }}</h3>
+                      <p class="text-xs text-base-content/70">{{ booking.customerEmail }}</p>
+                      <p class="text-xs text-base-content/70">{{ booking.customerPhone }}</p>
+                    </div>
+                    <button
+                      class="btn btn-error btn-xs"
+                      (click)="cancelBooking(booking.id)">
+                      Lemondás
+                    </button>
+                  </div>
+                  <div class="divider my-2"></div>
+                  <div class="space-y-1">
+                    <p class="text-sm"><span class="font-semibold">Szolgáltatás:</span> {{ booking.serviceName }}</p>
+                    <p class="text-sm"><span class="font-semibold">Fodrász:</span> {{ booking.employeeName }}</p>
+                    <p class="text-sm"><span class="font-semibold">Időpont:</span> {{ formatDate(booking.bookingDate) }}</p>
+                    @if (booking.notes) {
+                      <p class="text-sm"><span class="font-semibold">Megjegyzés:</span> {{ booking.notes }}</p>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Desktop Table View (md and above) -->
+          <div class="hidden md:block overflow-x-auto">
+            <table class="table">
+              <thead>
+              <tr>
+                <th>Ügyfél</th>
+                <th>Szolgáltatás</th>
+                <th>Fodrász</th>
+                <th>Időpont</th>
+                <th>Megjegyzés</th>
+                <th>Műveletek</th>
+              </tr>
+              </thead>
+              <tbody>
+                @for (booking of bookings(); track booking.id) {
+                  <tr>
+                    <td>
+                      <div>
+                        <div class="font-bold">{{ booking.customerName }}</div>
+                        <div class="text-sm opacity-50">{{ booking.customerEmail }}</div>
+                        <div class="text-sm opacity-50">{{ booking.customerPhone }}</div>
+                      </div>
+                    </td>
+                    <td>{{ booking.serviceName }}</td>
+                    <td>{{ booking.employeeName }}</td>
+                    <td>{{ formatDate(booking.bookingDate) }}</td>
+                    <td>
+                      @if (booking.notes) {
+                        <span class="badge badge-ghost">{{ booking.notes }}</span>
+                      } @else {
+                        <span class="text-base-content/50">-</span>
+                      }
+                    </td>
+                    <td>
+                      <button
+                        class="btn btn-error btn-sm"
+                        (click)="cancelBooking(booking.id)">
+                        Lemondás
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

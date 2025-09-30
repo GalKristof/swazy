@@ -1,17 +1,12 @@
-<div class="min-h-screen bg-base-100">
-  <div class="navbar bg-base-300">
-    <div class="flex-1">
-      <a class="btn btn-ghost text-xl">Swazy</a>
+@if (isLoading()) {
+  <div class="fixed inset-0 bg-base-100 flex items-center justify-center z-50">
+    <div class="text-center">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+      <p class="mt-4 text-lg font-semibold">Betöltés...</p>
     </div>
   </div>
+}
 
-  <div class="hero min-h-screen">
-    <div class="hero-content text-center">
-      <div class="max-w-md">
-        <h1 class="text-5xl font-bold">Hello Swazy!</h1>
-        <p class="py-6">Your SaaS booking platform with SSR, Tailwind, and DaisyUI is ready!</p>
-        <button class="btn btn-primary">Get Started</button>
-      </div>
-    </div>
-  </div>
-</div>
+@if (!isLoading()) {
+  <router-outlet></router-outlet>
+}
