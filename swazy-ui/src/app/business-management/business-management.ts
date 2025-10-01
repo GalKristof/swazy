@@ -2,6 +2,7 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TenantService } from '../services/tenant.service';
+import { BusinessService } from '../services/business.service';
 import { Business } from '../models/business';
 import { Employee } from '../models/employee';
 import { Service } from '../models/service';
@@ -17,6 +18,7 @@ import { ServiceDetails } from '../models/service.details';
 })
 export class BusinessManagementComponent implements OnInit {
   private tenantService = inject(TenantService);
+  private businessService = inject(BusinessService);
 
   activeTab = signal<'info' | 'employees' | 'services' | 'bookings'>('info');
 
@@ -81,9 +83,11 @@ export class BusinessManagementComponent implements OnInit {
   saveBusinessInfo() {
     const formData = this.editBusinessForm();
     if (formData && this.business()) {
-      this.tenantService.updateBusiness(formData).subscribe({
+      this.businessService.updateBusiness(formData).subscribe({
         next: (updatedBusiness) => {
           this.business.set(updatedBusiness);
+          this.employees.set(updatedBusiness.employees || []);
+          this.services.set(updatedBusiness.services || []);
           this.isEditingBusiness.set(false);
         },
         error: (error) => {
@@ -113,7 +117,7 @@ export class BusinessManagementComponent implements OnInit {
     const businessId = this.business()?.id;
 
     if (employee.email && businessId) {
-      this.tenantService.addEmployeeToBusiness(
+      this.businessService.addEmployeeToBusiness(
         businessId,
         employee.email,
         employee.role as string
@@ -121,6 +125,7 @@ export class BusinessManagementComponent implements OnInit {
         next: (updatedBusiness) => {
           this.business.set(updatedBusiness);
           this.employees.set(updatedBusiness.employees || []);
+          this.services.set(updatedBusiness.services || []);
           this.isAddingEmployee.set(false);
         },
         error: (error) => {
@@ -134,7 +139,7 @@ export class BusinessManagementComponent implements OnInit {
   updateEmployeeRole(userId: string, role: string) {
     const businessId = this.business()?.id;
     if (businessId) {
-      this.tenantService.updateEmployeeRole(businessId, userId, role).subscribe({
+      this.businessService.updateEmployeeRole(businessId, userId, role).subscribe({
         next: () => {
           console.log('Employee role updated successfully');
         },
@@ -152,9 +157,11 @@ export class BusinessManagementComponent implements OnInit {
     if (confirm('Biztosan el szeretnéd távolítani ezt a dolgozót az üzletből?')) {
       const businessId = this.business()?.id;
       if (businessId) {
-        this.tenantService.removeEmployeeFromBusiness(businessId, userId).subscribe({
+        this.businessService.removeEmployeeFromBusiness(businessId, userId).subscribe({
           next: () => {
             console.log('Employee removed successfully');
+            // Reload business data to refresh employee list
+            this.tenantService.loadBusinessData().subscribe();
           },
           error: (error) => {
             console.error('Error removing employee:', error);
@@ -185,7 +192,7 @@ export class BusinessManagementComponent implements OnInit {
     const businessId = this.business()?.id;
 
     if (service.serviceId && businessId) {
-      this.tenantService.createBusinessService(
+      this.businessService.createBusinessService(
         businessId,
         service.serviceId,
         service.price || 0,
@@ -216,7 +223,7 @@ export class BusinessManagementComponent implements OnInit {
   saveServiceEdit(serviceId: string) {
     const service = this.newService();
 
-    this.tenantService.updateBusinessService(
+    this.businessService.updateBusinessService(
       serviceId,
       service.price,
       service.duration
@@ -238,7 +245,7 @@ export class BusinessManagementComponent implements OnInit {
 
   removeService(id: string) {
     if (confirm('Biztosan törölni szeretnéd ezt a szolgáltatást?')) {
-      this.tenantService.deleteBusinessService(id).subscribe({
+      this.businessService.deleteBusinessService(id).subscribe({
         next: () => {
           this.loadBusinessServices();
         },
@@ -252,7 +259,7 @@ export class BusinessManagementComponent implements OnInit {
 
   cancelBooking(id: string) {
     if (confirm('Biztosan törölni szeretnéd ezt a foglalást?')) {
-      this.tenantService.cancelBooking(id).subscribe({
+      this.businessService.cancelBooking(id).subscribe({
         next: () => {
           this.loadBusinessBookings();
         },
@@ -291,7 +298,7 @@ export class BusinessManagementComponent implements OnInit {
   private loadBusinessServices() {
     const businessId = this.business()?.id;
     if (businessId) {
-      this.tenantService.loadBusinessServices(businessId).subscribe({
+      this.businessService.loadBusinessServices(businessId).subscribe({
         next: (services) => {
           this.services.set(services);
         },
@@ -305,7 +312,7 @@ export class BusinessManagementComponent implements OnInit {
   private loadBusinessBookings() {
     const businessId = this.business()?.id;
     if (businessId) {
-      this.tenantService.loadBusinessBookings(businessId).subscribe({
+      this.businessService.loadBusinessBookings(businessId).subscribe({
         next: (bookings) => {
           this.bookings.set(bookings);
         },
@@ -317,7 +324,7 @@ export class BusinessManagementComponent implements OnInit {
   }
 
   private loadAvailableServices() {
-    this.tenantService.loadAllServices().subscribe({
+    this.businessService.loadAllServices().subscribe({
       next: (services) => {
         this.availableServices.set(services);
       },

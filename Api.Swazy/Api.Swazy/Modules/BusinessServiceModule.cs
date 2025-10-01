@@ -33,13 +33,18 @@ public static class BusinessServiceModule
                     db.BusinessServices.Add(businessService);
                     await db.SaveChangesAsync();
 
-                    Log.Debug("[BusinessServiceModule - Create] Successfully created. {BusinessServiceId}", 
+                    Log.Debug("[BusinessServiceModule - Create] Successfully created. {BusinessServiceId}",
                         businessService.Id);
+
+                    await db.Entry(businessService)
+                        .Reference(bs => bs.Service)
+                        .LoadAsync();
 
                     var response = new BusinessServiceResponse(
                         businessService.Id,
                         businessService.BusinessId,
                         businessService.ServiceId,
+                        businessService.Service.Value,
                         businessService.Price,
                         businessService.Duration,
                         businessService.CreatedAt
@@ -64,12 +69,13 @@ public static class BusinessServiceModule
                 try
                 {
                     var businessServices = await db.BusinessServices
+                        .Include(bs => bs.Service)
                         .Where(bs => bs.BusinessId == businessId)
                         .ToListAsync();
 
                     if (!businessServices.Any())
                     {
-                        Log.Debug("[BusinessServiceModule - GetByBusinessId] No services found. {BusinessId}", 
+                        Log.Debug("[BusinessServiceModule - GetByBusinessId] No services found. {BusinessId}",
                             businessId);
                         return Results.NotFound("No business services found for the specified business ID.");
                     }
@@ -78,6 +84,7 @@ public static class BusinessServiceModule
                         bs.Id,
                         bs.BusinessId,
                         bs.ServiceId,
+                        bs.Service.Value,
                         bs.Price,
                         bs.Duration,
                         bs.CreatedAt
@@ -104,12 +111,15 @@ public static class BusinessServiceModule
 
                 try
                 {
-                    var businessServices = await db.BusinessServices.ToListAsync();
+                    var businessServices = await db.BusinessServices
+                        .Include(bs => bs.Service)
+                        .ToListAsync();
 
                     var response = businessServices.Select(bs => new BusinessServiceResponse(
                         bs.Id,
                         bs.BusinessId,
                         bs.ServiceId,
+                        bs.Service.Value,
                         bs.Price,
                         bs.Duration,
                         bs.CreatedAt
@@ -135,7 +145,9 @@ public static class BusinessServiceModule
 
                 try
                 {
-                    var businessService = await db.BusinessServices.FindAsync(id);
+                    var businessService = await db.BusinessServices
+                        .Include(bs => bs.Service)
+                        .FirstOrDefaultAsync(bs => bs.Id == id);
 
                     if (businessService == null)
                     {
@@ -147,6 +159,7 @@ public static class BusinessServiceModule
                         businessService.Id,
                         businessService.BusinessId,
                         businessService.ServiceId,
+                        businessService.Service.Value,
                         businessService.Price,
                         businessService.Duration,
                         businessService.CreatedAt
@@ -173,7 +186,9 @@ public static class BusinessServiceModule
 
                 try
                 {
-                    var businessService = await db.BusinessServices.FindAsync(updateDto.Id);
+                    var businessService = await db.BusinessServices
+                        .Include(bs => bs.Service)
+                        .FirstOrDefaultAsync(bs => bs.Id == updateDto.Id);
 
                     if (businessService == null)
                     {
@@ -189,13 +204,14 @@ public static class BusinessServiceModule
 
                     await db.SaveChangesAsync();
 
-                    Log.Debug("[BusinessServiceModule - Update] Successfully updated. {BusinessServiceId}", 
+                    Log.Debug("[BusinessServiceModule - Update] Successfully updated. {BusinessServiceId}",
                         businessService.Id);
 
                     var response = new BusinessServiceResponse(
                         businessService.Id,
                         businessService.BusinessId,
                         businessService.ServiceId,
+                        businessService.Service.Value,
                         businessService.Price,
                         businessService.Duration,
                         businessService.CreatedAt
@@ -220,7 +236,9 @@ public static class BusinessServiceModule
 
                 try
                 {
-                    var businessService = await db.BusinessServices.FindAsync(id);
+                    var businessService = await db.BusinessServices
+                        .Include(bs => bs.Service)
+                        .FirstOrDefaultAsync(bs => bs.Id == id);
 
                     if (businessService == null)
                     {
@@ -239,6 +257,7 @@ public static class BusinessServiceModule
                         businessService.Id,
                         businessService.BusinessId,
                         businessService.ServiceId,
+                        businessService.Service.Value,
                         businessService.Price,
                         businessService.Duration,
                         businessService.CreatedAt

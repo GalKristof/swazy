@@ -71,6 +71,7 @@ public static class BusinessModule
                         .Include(b => b.UserAccesses)
                             .ThenInclude(ua => ua.User)
                         .Include(b => b.Services)
+                            .ThenInclude(s => s.Service)
                         .ToListAsync();
 
                     var response = businesses.Select(b => new BusinessResponse(
@@ -91,6 +92,7 @@ public static class BusinessModule
                             s.Id,
                             s.BusinessId,
                             s.ServiceId,
+                            s.Service.Value,
                             s.Price,
                             s.Duration,
                             s.CreatedAt
@@ -123,6 +125,7 @@ public static class BusinessModule
                         .Include(b => b.UserAccesses)
                             .ThenInclude(ua => ua.User)
                         .Include(b => b.Services)
+                            .ThenInclude(s => s.Service)
                         .FirstOrDefaultAsync(b => b.Id == businessId);
 
                     if (business == null)
@@ -149,6 +152,7 @@ public static class BusinessModule
                             s.Id,
                             s.BusinessId,
                             s.ServiceId,
+                            s.Service.Value,
                             s.Price,
                             s.Duration,
                             s.CreatedAt
@@ -225,6 +229,7 @@ public static class BusinessModule
                             s.Id,
                             s.BusinessId,
                             s.ServiceId,
+                            s.Service.Value,
                             s.Price,
                             s.Duration,
                             s.CreatedAt
@@ -324,6 +329,7 @@ public static class BusinessModule
                             s.Id,
                             s.BusinessId,
                             s.ServiceId,
+                            s.Service.Value,
                             s.Price,
                             s.Duration,
                             s.CreatedAt

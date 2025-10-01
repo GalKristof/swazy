@@ -4,6 +4,7 @@ public record BusinessServiceResponse(
     Guid Id,
     Guid BusinessId,
     Guid ServiceId,
+    string ServiceName,
     decimal Price,
     int Duration,
     DateTimeOffset CreatedAt
