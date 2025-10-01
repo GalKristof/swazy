@@ -1,0 +1,93 @@
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-4 md:p-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+      <h2 class="card-title text-xl md:text-2xl">Üzlet információi</h2>
+      @if (!isEditing) {
+        <button class="btn btn-primary btn-sm md:btn-md w-full sm:w-auto" (click)="startEditing()">
+          Szerkesztés
+        </button>
+      }
+    </div>
+
+    @if (!isEditing) {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+        <div class="form-control">
+          <label class="label"><span class="label-text font-bold text-sm md:text-base">Név</span></label>
+          <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()?.name }}</div>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text font-bold text-sm md:text-base">Típus</span></label>
+          <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()?.businessType }}</div>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text font-bold text-sm md:text-base">Cím</span></label>
+          <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()?.address }}</div>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text font-bold text-sm md:text-base">Telefon</span></label>
+          <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()?.phoneNumber }}</div>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text font-bold text-sm md:text-base">Email</span></label>
+          <div class="p-3 bg-base-200 rounded text-sm md:text-base break-all">{{ business()?.email }}</div>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text font-bold text-sm md:text-base">Weboldal</span></label>
+          <div class="p-3 bg-base-200 rounded text-sm md:text-base break-all">{{ business()?.websiteUrl }}</div>
+        </div>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+        <div class="form-control">
+          <label class="block mb-2">
+            <span class="label-text text-sm md:text-base font-medium">Név</span>
+          </label>
+          <input type="text" [(ngModel)]="editForm!.name" class="input input-bordered input-sm md:input-md w-full" />
+        </div>
+        <div class="form-control">
+          <label class="block mb-2">
+            <span class="label-text text-sm md:text-base font-medium">Típus</span>
+          </label>
+          <select [(ngModel)]="editForm!.businessType" class="select select-bordered select-sm md:select-md w-full">
+            @for (type of businessTypes; track type) {
+              <option [value]="type">{{ type }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-control">
+          <label class="block mb-2">
+            <span class="label-text text-sm md:text-base font-medium">Cím</span>
+          </label>
+          <input type="text" [(ngModel)]="editForm!.address" class="input input-bordered input-sm md:input-md w-full" />
+        </div>
+        <div class="form-control">
+          <label class="block mb-2">
+            <span class="label-text text-sm md:text-base font-medium">Telefon</span>
+          </label>
+          <input type="text" [(ngModel)]="editForm!.phoneNumber" class="input input-bordered input-sm md:input-md w-full" />
+        </div>
+        <div class="form-control">
+          <label class="block mb-2">
+            <span class="label-text text-sm md:text-base font-medium">Email</span>
+          </label>
+          <input type="email" [(ngModel)]="editForm!.email" class="input input-bordered input-sm md:input-md w-full" />
+        </div>
+        <div class="form-control">
+          <label class="block mb-2">
+            <span class="label-text text-sm md:text-base font-medium">Weboldal</span>
+          </label>
+          <input type="url" [(ngModel)]="editForm!.websiteUrl" class="input input-bordered input-sm md:input-md w-full" />
+        </div>
+      </div>
+      <div class="card-actions justify-end mt-4 md:mt-6 gap-2">
+        <button class="btn btn-ghost btn-sm md:btn-md" (click)="cancelEditing()" [disabled]="isSaving">Mégse</button>
+        <button class="btn btn-primary btn-sm md:btn-md" (click)="save()" [disabled]="isSaving">
+          @if (isSaving) {
+            <span class="loading loading-spinner loading-sm"></span>
+          }
+          Mentés
+        </button>
+      </div>
+    }
+  </div>
+</div>

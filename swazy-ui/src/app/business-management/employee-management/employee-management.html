@@ -1,0 +1,94 @@
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-4 md:p-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+      <h2 class="card-title text-xl md:text-2xl">Dolgozók</h2>
+      <button class="btn btn-primary btn-sm md:btn-md w-full sm:w-auto" (click)="showAddForm()">
+        + Dolgozó hozzáadása
+      </button>
+    </div>
+
+    @if (isAddingEmployee) {
+      <div class="card bg-base-200 shadow-md mb-4">
+        <div class="card-body p-4">
+          <h3 class="font-bold mb-3 md:mb-4 text-base md:text-lg">Új dolgozó</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+            <div class="form-control md:col-span-2">
+              <label class="block mb-2">
+                <span class="label-text text-sm md:text-base font-medium">Email (regisztrált felhasználó)</span>
+              </label>
+              <input
+                type="email"
+                [(ngModel)]="newEmployee.email"
+                placeholder="pelda@email.com"
+                class="input input-bordered input-sm md:input-md w-full" />
+            </div>
+            <div class="form-control md:col-span-2">
+              <label class="block mb-2">
+                <span class="label-text text-sm md:text-base font-medium">Szerepkör</span>
+              </label>
+              <select [(ngModel)]="newEmployee.role" class="select select-bordered select-sm md:select-md w-full">
+                <option value="Employee">Dolgozó</option>
+                <option value="Manager">Menedzser</option>
+                <option value="Owner">Tulajdonos</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-actions justify-end mt-3 md:mt-4 gap-2">
+            <button class="btn btn-ghost btn-sm md:btn-md" (click)="cancelAdd()" [disabled]="isAdding">Mégse</button>
+            <button class="btn btn-primary btn-sm md:btn-md" (click)="addEmployee()" [disabled]="isAdding">
+              @if (isAdding) {
+                <span class="loading loading-spinner loading-sm"></span>
+              }
+              Hozzáadás
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="overflow-x-auto -mx-4 md:mx-0">
+      <table class="table table-sm md:table-md">
+        <thead>
+          <tr>
+            <th class="text-xs md:text-sm">Név</th>
+            <th class="text-xs md:text-sm hidden sm:table-cell">Email</th>
+            <th class="text-xs md:text-sm">Szerepkör</th>
+            <th class="text-xs md:text-sm">Műveletek</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (employee of employees(); track employee.userId) {
+            <tr>
+              <td class="text-xs md:text-sm">
+                <div>{{ employee.firstName }} {{ employee.lastName }}</div>
+                <div class="text-xs text-base-content/60 sm:hidden">{{ employee.email }}</div>
+              </td>
+              <td class="text-xs md:text-sm hidden sm:table-cell">{{ employee.email }}</td>
+              <td>
+                <select
+                  [ngModel]="employee.role"
+                  (ngModelChange)="updateRole(employee.userId, $event)"
+                  [disabled]="isUpdating[employee.userId]"
+                  class="select select-bordered select-xs md:select-sm">
+                  <option value="Employee">Dolgozó</option>
+                  <option value="Manager">Menedzser</option>
+                  <option value="Owner">Tulajdonos</option>
+                </select>
+              </td>
+              <td>
+                <button class="btn btn-error btn-xs md:btn-sm"
+                        (click)="removeEmployee(employee.userId)"
+                        [disabled]="isRemoving[employee.userId]">
+                  @if (isRemoving[employee.userId]) {
+                    <span class="loading loading-spinner loading-xs"></span>
+                  }
+                  Eltávolítás
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

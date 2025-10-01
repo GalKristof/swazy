@@ -1,20 +1,32 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { TenantService } from '../services/tenant.service';
 import { BusinessService } from '../services/business.service';
 import { EmployeeScheduleService } from '../services/employee-schedule.service';
+import { ToastService } from '../services/toast.service';
 import { Business } from '../models/business';
 import { Employee } from '../models/employee';
 import { Service } from '../models/service';
 import { BookingDetails } from '../models/booking.details';
 import { ServiceDetails } from '../models/service.details';
-import { EmployeeSchedule, DaySchedule } from '../models/employee-schedule';
+import { EmployeeSchedule } from '../models/employee-schedule';
+import { BusinessInfoComponent } from './business-info/business-info';
+import { EmployeeManagementComponent } from './employee-management/employee-management';
+import { ServiceManagementComponent } from './service-management/service-management';
+import { BookingListComponent } from './booking-list/booking-list';
+import { ScheduleManagementComponent } from './schedule-management/schedule-management';
 
 @Component({
   selector: 'app-business-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    BusinessInfoComponent,
+    EmployeeManagementComponent,
+    ServiceManagementComponent,
+    BookingListComponent,
+    ScheduleManagementComponent
+  ],
   templateUrl: './business-management.html',
   styleUrls: ['./business-management.scss']
 })
@@ -22,298 +34,277 @@ export class BusinessManagementComponent implements OnInit {
   private tenantService = inject(TenantService);
   private businessService = inject(BusinessService);
   private scheduleService = inject(EmployeeScheduleService);
+  private toastService = inject(ToastService);
+
+  businessInfoComponent = viewChild(BusinessInfoComponent);
+  employeeComponent = viewChild(EmployeeManagementComponent);
+  serviceComponent = viewChild(ServiceManagementComponent);
+  bookingComponent = viewChild(BookingListComponent);
+  scheduleComponent = viewChild(ScheduleManagementComponent);
 
   activeTab = signal<'info' | 'employees' | 'services' | 'bookings' | 'schedules'>('info');
 
   business = signal<Business | null>(null);
-  isEditingBusiness = signal(false);
-  editBusinessForm = signal<Business | null>(null);
-
   employees = signal<Employee[]>([]);
-  isAddingEmployee = signal(false);
-  newEmployee = signal<Partial<Employee>>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    role: 'Employee'
-  });
-
   services = signal<Service[]>([]);
   availableServices = signal<ServiceDetails[]>([]);
-  isAddingService = signal(false);
-  editingServiceId = signal<string | null>(null);
-  newService = signal<Partial<Service>>({
-    serviceId: '',
-    serviceName: '',
-    price: 0,
-    duration: 0
-  });
-
   bookings = signal<BookingDetails[]>([]);
-
-  // Schedule management
   schedules = signal<EmployeeSchedule[]>([]);
-  selectedEmployeeForSchedule = signal<Employee | null>(null);
-  currentSchedule = signal<EmployeeSchedule | null>(null);
-  isEditingSchedule = signal(false);
-  editScheduleForm = signal<DaySchedule[]>([]);
-  bufferTimeMinutes = signal(15);
-  bufferTimeMinutesValue = 15; // For two-way binding
-  isOnVacation = false; // For two-way binding
-
-  dayNames = ['Vasárnap', 'Hétfő', 'Kedd', 'Szerda', 'Csütörtök', 'Péntek', 'Szombat'];
-  dayOrder = [1, 2, 3, 4, 5, 6, 0]; // Monday to Sunday
-
-  businessTypes = [
-    'BarberSalon',
-    'HairSalon',
-    'MassageSalon',
-    'BeautySalon',
-    'NailSalon',
-    'Trainer',
-    'ServiceProvider',
-    'Restaurant',
-    'Other'
-  ];
 
   setActiveTab(tab: 'info' | 'employees' | 'services' | 'bookings' | 'schedules') {
     this.activeTab.set(tab);
 
-    // Lazy load bookings only when the bookings tab is opened
     if (tab === 'bookings' && this.bookings().length === 0) {
       this.loadBusinessBookings();
     }
 
-    // Lazy load schedules only when the schedules tab is opened
     if (tab === 'schedules' && this.schedules().length === 0) {
       this.loadBusinessSchedules();
     }
   }
 
-  startEditingBusiness() {
-    if (this.business()) {
-      this.editBusinessForm.set({ ...this.business() } as Business);
-      this.isEditingBusiness.set(true);
-    }
-  }
-
-  cancelEditingBusiness() {
-    this.isEditingBusiness.set(false);
-  }
-
-  saveBusinessInfo() {
-    const formData = this.editBusinessForm();
-    if (formData && this.business()) {
-      this.businessService.updateBusiness(formData).subscribe({
-        next: (updatedBusiness) => {
-          this.business.set(updatedBusiness);
-          this.employees.set(updatedBusiness.employees || []);
-          this.services.set(updatedBusiness.services || []);
-          this.isEditingBusiness.set(false);
-        },
-        error: (error) => {
-          console.error('Error updating business:', error);
-          alert('Hiba történt az üzlet adatainak mentése során.');
-        }
-      });
-    }
-  }
-
-  showAddEmployeeForm() {
-    this.newEmployee.set({
-      firstName: '',
-      lastName: '',
-      email: '',
-      role: 'Employee'
+  onBusinessUpdated(updatedBusiness: Business) {
+    this.businessService.updateBusiness(updatedBusiness).subscribe({
+      next: (business) => {
+        this.business.set(business);
+        this.employees.set(business.employees || []);
+        this.services.set(business.services || []);
+        this.businessInfoComponent()?.onSaveComplete();
+        this.toastService.success('Üzlet adatai sikeresen frissítve!');
+      },
+      error: (error) => {
+        console.error('Error updating business:', error);
+        this.businessInfoComponent()?.onSaveError();
+        this.toastService.error('Hiba történt az üzlet adatainak mentése során.');
+      }
     });
-    this.isAddingEmployee.set(true);
   }
 
-  cancelAddEmployee() {
-    this.isAddingEmployee.set(false);
-  }
-
-  addEmployee() {
-    const employee = this.newEmployee();
+  onEmployeeAdded(data: { email: string; role: string }) {
     const businessId = this.business()?.id;
-
-    if (employee.email && businessId) {
-      this.businessService.addEmployeeToBusiness(
-        businessId,
-        employee.email,
-        employee.role as string
-      ).subscribe({
+    if (businessId) {
+      this.businessService.addEmployeeToBusiness(businessId, data.email, data.role).subscribe({
         next: (updatedBusiness) => {
           this.business.set(updatedBusiness);
           this.employees.set(updatedBusiness.employees || []);
           this.services.set(updatedBusiness.services || []);
-          this.isAddingEmployee.set(false);
+          this.employeeComponent()?.onAddComplete();
+          this.toastService.success('Dolgozó sikeresen hozzáadva!');
         },
         error: (error) => {
           console.error('Error adding employee:', error);
-          alert('Hiba történt a dolgozó hozzáadása során. Ellenőrizd, hogy az email cím helyes-e.');
+          this.employeeComponent()?.onAddError();
+          this.toastService.error('Hiba történt a dolgozó hozzáadása során. Ellenőrizd, hogy az email cím helyes-e.');
         }
       });
     }
   }
 
-  updateEmployeeRole(userId: string, role: string) {
+  onEmployeeRoleUpdated(data: { userId: string; role: string }) {
     const businessId = this.business()?.id;
     if (businessId) {
-      this.businessService.updateEmployeeRole(businessId, userId, role).subscribe({
+      this.businessService.updateEmployeeRole(businessId, data.userId, data.role).subscribe({
         next: () => {
-          console.log('Employee role updated successfully');
+          this.employeeComponent()?.onUpdateComplete(data.userId);
+          this.toastService.success('Szerepkör sikeresen frissítve!');
         },
         error: (error) => {
           console.error('Error updating employee role:', error);
-          alert('Hiba történt a szerepkör frissítése során.');
-          // Reload to revert the change
+          this.employeeComponent()?.onUpdateError(data.userId);
+          this.toastService.error('Hiba történt a szerepkör frissítése során.');
           this.tenantService.loadBusinessData().subscribe();
         }
       });
     }
   }
 
-  removeEmployee(userId: string) {
+  onEmployeeRemoved(userId: string) {
     if (confirm('Biztosan el szeretnéd távolítani ezt a dolgozót az üzletből?')) {
       const businessId = this.business()?.id;
       if (businessId) {
         this.businessService.removeEmployeeFromBusiness(businessId, userId).subscribe({
           next: () => {
-            console.log('Employee removed successfully');
-            // Reload business data to refresh employee list
+            this.employeeComponent()?.onRemoveComplete(userId);
+            this.toastService.success('Dolgozó sikeresen eltávolítva!');
             this.tenantService.loadBusinessData().subscribe();
           },
           error: (error) => {
             console.error('Error removing employee:', error);
-            alert('Hiba történt a dolgozó eltávolítása során.');
+            this.employeeComponent()?.onRemoveError(userId);
+            this.toastService.error('Hiba történt a dolgozó eltávolítása során.');
           }
         });
       }
     }
   }
 
-  showAddServiceForm() {
-    this.newService.set({
-      serviceId: '',
-      serviceName: '',
-      price: 0,
-      duration: 0
-    });
-    this.isAddingService.set(true);
-  }
-
-  cancelAddService() {
-    this.isAddingService.set(false);
-    this.editingServiceId.set(null);
-  }
-
-  addService() {
-    const service = this.newService();
+  onServiceAdded(data: { serviceId: string; price: number; duration: number }) {
     const businessId = this.business()?.id;
-
-    if (service.serviceId && businessId) {
-      this.businessService.createBusinessService(
-        businessId,
-        service.serviceId,
-        service.price || 0,
-        service.duration || 0
-      ).subscribe({
+    if (businessId) {
+      this.businessService.createBusinessService(businessId, data.serviceId, data.price, data.duration).subscribe({
         next: () => {
           this.loadBusinessServices();
-          this.isAddingService.set(false);
+          this.serviceComponent()?.onAddComplete();
+          this.toastService.success('Szolgáltatás sikeresen hozzáadva!');
         },
         error: (error) => {
           console.error('Error creating service:', error);
-          alert('Hiba történt a szolgáltatás hozzáadása során.');
+          this.serviceComponent()?.onAddError();
+          this.toastService.error('Hiba történt a szolgáltatás hozzáadása során.');
         }
       });
     }
   }
 
-  startEditingService(service: Service) {
-    this.editingServiceId.set(service.id);
-    this.newService.set({
-      serviceId: service.serviceId,
-      serviceName: service.serviceName,
-      price: service.price,
-      duration: service.duration
-    });
-  }
-
-  saveServiceEdit(serviceId: string) {
-    const service = this.newService();
-
-    this.businessService.updateBusinessService(
-      serviceId,
-      service.price,
-      service.duration
-    ).subscribe({
+  onServiceUpdated(data: { id: string; price: number; duration: number }) {
+    this.businessService.updateBusinessService(data.id, data.price, data.duration).subscribe({
       next: () => {
         this.loadBusinessServices();
-        this.editingServiceId.set(null);
+        this.serviceComponent()?.onUpdateComplete(data.id);
+        this.toastService.success('Szolgáltatás sikeresen frissítve!');
       },
       error: (error) => {
         console.error('Error updating service:', error);
-        alert('Hiba történt a szolgáltatás frissítése során.');
+        this.serviceComponent()?.onUpdateError(data.id);
+        this.toastService.error('Hiba történt a szolgáltatás frissítése során.');
       }
     });
   }
 
-  cancelServiceEdit() {
-    this.editingServiceId.set(null);
-  }
-
-  removeService(id: string) {
+  onServiceRemoved(id: string) {
     if (confirm('Biztosan törölni szeretnéd ezt a szolgáltatást?')) {
       this.businessService.deleteBusinessService(id).subscribe({
         next: () => {
           this.loadBusinessServices();
+          this.serviceComponent()?.onRemoveComplete(id);
+          this.toastService.success('Szolgáltatás sikeresen törölve!');
         },
         error: (error) => {
           console.error('Error deleting service:', error);
-          alert('Hiba történt a szolgáltatás törlése során.');
+          this.serviceComponent()?.onRemoveError(id);
+          this.toastService.error('Hiba történt a szolgáltatás törlése során.');
         }
       });
     }
   }
 
-  cancelBooking(id: string) {
+  onBookingCancelled(id: string) {
     if (confirm('Biztosan törölni szeretnéd ezt a foglalást?')) {
       this.businessService.cancelBooking(id).subscribe({
         next: () => {
           this.loadBusinessBookings();
+          this.bookingComponent()?.onCancelComplete(id);
+          this.toastService.success('Foglalás sikeresen lemondva!');
         },
         error: (error) => {
           console.error('Error canceling booking:', error);
-          alert('Hiba történt a foglalás törlése során.');
+          this.bookingComponent()?.onCancelError(id);
+          this.toastService.error('Hiba történt a foglalás törlése során.');
         }
       });
     }
   }
 
-  formatDate(date: string | Date): string {
-    return new Date(date).toLocaleDateString('hu-HU', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  onEmployeeSelected(employee: Employee) {
+    const businessId = this.business()?.id;
+    if (businessId) {
+      this.scheduleService.getScheduleByEmployee(employee.userId, businessId).subscribe({
+        next: (schedule) => {
+          this.scheduleComponent()?.setScheduleData(schedule);
+        },
+        error: () => {
+          this.scheduleComponent()?.setScheduleData(null);
+        }
+      });
+    }
   }
 
-  getServiceName(serviceId: string): string {
-    const service = this.availableServices().find(s => s.id === serviceId);
-    return service?.value || serviceId;
+  onScheduleSaved(data: any) {
+    const businessId = this.business()?.id;
+    if (!businessId) return;
+
+    const scheduleData = {
+      bufferTimeMinutes: data.bufferTimeMinutes,
+      isOnVacation: data.isOnVacation,
+      daySchedules: data.daySchedules
+    };
+
+    if (data.currentSchedule) {
+      this.scheduleService.updateSchedule({
+        id: data.currentSchedule.id,
+        ...scheduleData
+      }).subscribe({
+        next: (updated) => {
+          this.scheduleComponent()?.setScheduleData(updated);
+          this.loadBusinessSchedules();
+          this.scheduleComponent()?.onSaveComplete();
+          this.toastService.success('Munkaidő sikeresen frissítve!');
+        },
+        error: (error) => {
+          console.error('Error updating schedule:', error);
+          this.scheduleComponent()?.onSaveError();
+          this.toastService.error('Hiba történt a munkaidő frissítése során.');
+        }
+      });
+    } else {
+      this.scheduleService.createSchedule({
+        userId: data.employee.userId,
+        businessId: businessId,
+        ...scheduleData
+      }).subscribe({
+        next: (created) => {
+          this.scheduleComponent()?.setScheduleData(created);
+          this.loadBusinessSchedules();
+          this.scheduleComponent()?.onSaveComplete();
+          this.toastService.success('Munkaidő sikeresen létrehozva!');
+        },
+        error: (error) => {
+          console.error('Error creating schedule:', error);
+          this.scheduleComponent()?.onSaveError();
+          this.toastService.error('Hiba történt a munkaidő létrehozása során.');
+        }
+      });
+    }
   }
 
-  onServiceSelect(serviceId: string) {
-    const current = this.newService();
-    this.newService.set({
-      ...current,
-      serviceId: serviceId,
-      serviceName: this.getServiceName(serviceId)
+  onScheduleCopied(data: any) {
+    if (!confirm('Biztosan szeretnéd az aktuális munkaidőt másolni az összes dolgozóra?')) {
+      this.scheduleComponent()?.onCopyError();
+      return;
+    }
+
+    const businessId = this.business()?.id;
+    const employees = this.employees();
+    if (!businessId) return;
+
+    employees.forEach(employee => {
+      const existingSchedule = this.schedules().find(s => s.userId === employee.userId);
+
+      if (existingSchedule) {
+        this.scheduleService.updateSchedule({
+          id: existingSchedule.id,
+          ...data
+        }).subscribe({
+          next: () => console.log(`Schedule updated for ${employee.firstName}`),
+          error: (err) => console.error(`Error updating schedule for ${employee.firstName}:`, err)
+        });
+      } else {
+        this.scheduleService.createSchedule({
+          userId: employee.userId,
+          businessId: businessId,
+          ...data
+        }).subscribe({
+          next: () => console.log(`Schedule created for ${employee.firstName}`),
+          error: (err) => console.error(`Error creating schedule for ${employee.firstName}:`, err)
+        });
+      }
     });
+
+    setTimeout(() => {
+      this.loadBusinessSchedules();
+      this.scheduleComponent()?.onCopyComplete();
+      this.toastService.success('Munkaidők sikeresen másolva!');
+    }, 1000);
   }
 
   private loadBusinessServices() {
@@ -369,201 +360,12 @@ export class BusinessManagementComponent implements OnInit {
     }
   }
 
-  selectEmployeeForSchedule(employee: Employee) {
-    this.selectedEmployeeForSchedule.set(employee);
-    const businessId = this.business()?.id;
-
-    if (businessId) {
-      this.scheduleService.getScheduleByEmployee(employee.userId, businessId).subscribe({
-        next: (schedule) => {
-          this.currentSchedule.set(schedule);
-          this.bufferTimeMinutes.set(schedule.bufferTimeMinutes);
-          this.bufferTimeMinutesValue = schedule.bufferTimeMinutes;
-          this.isOnVacation = schedule.isOnVacation;
-          this.editScheduleForm.set([...schedule.daySchedules]);
-        },
-        error: (error) => {
-          // Schedule doesn't exist, create a default one
-          this.currentSchedule.set(null);
-          this.bufferTimeMinutes.set(15);
-          this.bufferTimeMinutesValue = 15;
-          this.isOnVacation = false;
-          this.editScheduleForm.set(this.createDefaultWeekSchedule());
-        }
-      });
-    }
-  }
-
-  hasSchedule(userId: string): boolean {
-    return this.schedules().some(s => s.userId === userId);
-  }
-
-  isEmployeeOnVacation(userId: string): boolean {
-    return this.schedules().find(s => s.userId === userId)?.isOnVacation || false;
-  }
-
-  calculateAvailableMinutes(userId: string): number {
-    const schedule = this.schedules().find(s => s.userId === userId);
-    if (!schedule || schedule.isOnVacation) return 0;
-
-    return schedule.daySchedules
-      .filter(day => day.isWorkingDay)
-      .reduce((total, day) => {
-        const start = this.parseTime(day.startTime);
-        const end = this.parseTime(day.endTime);
-        return total + (end - start);
-      }, 0);
-  }
-
-  private parseTime(timeStr: string | null): number {
-    if (!timeStr) return 0;
-    const [hours, minutes] = timeStr.split(':').map(Number);
-    return hours * 60 + minutes;
-  }
-
-  getSortedEmployees(): Employee[] {
-    const employees = this.employees();
-    return [...employees].sort((a, b) => {
-      const aOnVacation = this.isEmployeeOnVacation(a.userId);
-      const bOnVacation = this.isEmployeeOnVacation(b.userId);
-
-      // Vacation employees go last
-      if (aOnVacation && !bOnVacation) return 1;
-      if (!aOnVacation && bOnVacation) return -1;
-
-      // For non-vacation employees, sort by available time (most first)
-      const aMinutes = this.calculateAvailableMinutes(a.userId);
-      const bMinutes = this.calculateAvailableMinutes(b.userId);
-      return bMinutes - aMinutes;
-    });
-  }
-
-  createDefaultWeekSchedule(): DaySchedule[] {
-    return Array.from({ length: 7 }, (_, i) => ({
-      dayOfWeek: i,
-      isWorkingDay: i >= 1 && i <= 5, // Monday to Friday
-      startTime: '09:00:00',
-      endTime: '17:00:00'
-    }));
-  }
-
-  toggleWorkingDay(daySchedule: DaySchedule) {
-    // Toggle is already handled by ngModel, no need to manually toggle
-    // Just ensure the form is updated
-    const form = this.editScheduleForm();
-    this.editScheduleForm.set([...form]);
-  }
-
-  getOrderedDaySchedules(): DaySchedule[] {
-    const schedules = this.editScheduleForm();
-    return this.dayOrder.map(dayIndex =>
-      schedules.find(s => s.dayOfWeek === dayIndex)!
-    ).filter(s => s !== undefined);
-  }
-
-  saveSchedule() {
-    const employee = this.selectedEmployeeForSchedule();
-    const businessId = this.business()?.id;
-    const currentSched = this.currentSchedule();
-
-    if (!employee || !businessId) return;
-
-    const scheduleData = {
-      bufferTimeMinutes: this.bufferTimeMinutesValue,
-      isOnVacation: this.isOnVacation,
-      daySchedules: this.editScheduleForm()
-    };
-
-    if (currentSched) {
-      // Update existing schedule
-      this.scheduleService.updateSchedule({
-        id: currentSched.id,
-        ...scheduleData
-      }).subscribe({
-        next: (updated) => {
-          this.currentSchedule.set(updated);
-          this.loadBusinessSchedules();
-          alert('Munkaidő sikeresen frissítve!');
-        },
-        error: (error) => {
-          console.error('Error updating schedule:', error);
-          alert('Hiba történt a munkaidő frissítése során.');
-        }
-      });
-    } else {
-      // Create new schedule
-      this.scheduleService.createSchedule({
-        userId: employee.userId,
-        businessId: businessId,
-        ...scheduleData
-      }).subscribe({
-        next: (created) => {
-          this.currentSchedule.set(created);
-          this.loadBusinessSchedules();
-          alert('Munkaidő sikeresen létrehozva!');
-        },
-        error: (error) => {
-          console.error('Error creating schedule:', error);
-          alert('Hiba történt a munkaidő létrehozása során.');
-        }
-      });
-    }
-  }
-
-  copyToAllEmployees() {
-    if (!confirm('Biztosan szeretnéd az aktuális munkaidőt másolni az összes dolgozóra?')) {
-      return;
-    }
-
-    const businessId = this.business()?.id;
-    const employees = this.employees();
-    const scheduleData = {
-      bufferTimeMinutes: this.bufferTimeMinutesValue,
-      isOnVacation: this.isOnVacation,
-      daySchedules: this.editScheduleForm()
-    };
-
-    if (!businessId) return;
-
-    // Create/update schedules for all employees
-    employees.forEach(employee => {
-      const existingSchedule = this.schedules().find(s => s.userId === employee.userId);
-
-      if (existingSchedule) {
-        this.scheduleService.updateSchedule({
-          id: existingSchedule.id,
-          ...scheduleData
-        }).subscribe({
-          next: () => console.log(`Schedule updated for ${employee.firstName}`),
-          error: (err) => console.error(`Error updating schedule for ${employee.firstName}:`, err)
-        });
-      } else {
-        this.scheduleService.createSchedule({
-          userId: employee.userId,
-          businessId: businessId,
-          ...scheduleData
-        }).subscribe({
-          next: () => console.log(`Schedule created for ${employee.firstName}`),
-          error: (err) => console.error(`Error creating schedule for ${employee.firstName}:`, err)
-        });
-      }
-    });
-
-    setTimeout(() => {
-      this.loadBusinessSchedules();
-      alert('Munkaidők sikeresen másolva!');
-    }, 1000);
-  }
-
   ngOnInit() {
     this.tenantService.business$.subscribe(business => {
       if (business) {
         this.business.set(business as Business);
         this.employees.set(business.employees || []);
         this.services.set(business.services || []);
-        this.editBusinessForm.set({ ...business } as Business);
-
-        // Load only available services catalog and bookings will be lazy loaded
         this.loadAvailableServices();
       }
     });

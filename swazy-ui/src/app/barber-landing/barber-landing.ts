@@ -28,16 +28,19 @@ export class BarberLandingComponent implements OnInit {
     return business?.services || [];
   });
 
-  // Only show employees with schedules
+  // Only show employees with schedules, sorted by availability
   employees = computed(() => {
     const business = this.tenantService.getCurrentBusiness();
     const allEmployees = business?.employees || [];
     const currentSchedules = this.schedules();
 
     // Filter to only include employees who have schedules
-    return allEmployees.filter(emp =>
+    const employeesWithSchedules = allEmployees.filter(emp =>
       currentSchedules.some(sched => sched.userId === emp.userId)
     );
+
+    // Sort by availability (vacation employees last)
+    return this.sortEmployeesByAvailability(employeesWithSchedules);
   });
 
   ngOnInit() {
@@ -63,6 +66,41 @@ export class BarberLandingComponent implements OnInit {
   isEmployeeOnVacation(employeeUserId: string): boolean {
     const schedule = this.schedules().find(s => s.userId === employeeUserId);
     return schedule?.isOnVacation || false;
+  }
+
+  private calculateAvailableMinutes(userId: string): number {
+    const schedule = this.schedules().find(s => s.userId === userId);
+    if (!schedule || schedule.isOnVacation) return 0;
+
+    return schedule.daySchedules
+      .filter(day => day.isWorkingDay)
+      .reduce((total, day) => {
+        const start = this.parseTime(day.startTime);
+        const end = this.parseTime(day.endTime);
+        return total + (end - start);
+      }, 0);
+  }
+
+  private parseTime(timeStr: string | null): number {
+    if (!timeStr) return 0;
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours * 60 + minutes;
+  }
+
+  private sortEmployeesByAvailability(employees: any[]): any[] {
+    return [...employees].sort((a, b) => {
+      const aOnVacation = this.isEmployeeOnVacation(a.userId);
+      const bOnVacation = this.isEmployeeOnVacation(b.userId);
+
+      // Vacation employees go last
+      if (aOnVacation && !bOnVacation) return 1;
+      if (!aOnVacation && bOnVacation) return -1;
+
+      // For non-vacation employees, sort by available time (most first)
+      const aMinutes = this.calculateAvailableMinutes(a.userId);
+      const bMinutes = this.calculateAvailableMinutes(b.userId);
+      return bMinutes - aMinutes;
+    });
   }
 
   // Mock images for employees (can be replaced with real images later)

@@ -1,0 +1,84 @@
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-4 md:p-6">
+    <h2 class="card-title text-xl md:text-2xl mb-4">Foglalások</h2>
+
+    <!-- Mobile view -->
+    <div class="block md:hidden space-y-3">
+      @for (booking of bookings(); track booking.id) {
+        <div class="card bg-base-200 shadow-md">
+          <div class="card-body p-4">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h3 class="font-bold text-base">{{ booking.firstName }} {{ booking.lastName }}</h3>
+                <p class="text-xs text-base-content/70">{{ booking.email }}</p>
+                <p class="text-xs text-base-content/70">{{ booking.phoneNumber }}</p>
+              </div>
+              <button class="btn btn-error btn-xs" (click)="cancelBooking(booking.id)" [disabled]="isCancelling[booking.id]">
+                @if (isCancelling[booking.id]) {
+                  <span class="loading loading-spinner loading-xs"></span>
+                }
+                Lemondás
+              </button>
+            </div>
+            <div class="divider my-2"></div>
+            <div class="space-y-1">
+              <p class="text-sm"><span class="font-semibold">Szolgáltatás:</span> {{ booking.serviceName }}</p>
+              <p class="text-sm"><span class="font-semibold">Kezdés:</span> {{ formatDate(booking.startTime) }}</p>
+              <p class="text-sm"><span class="font-semibold">Befejezés:</span> {{ formatDate(booking.endTime) }}</p>
+              @if (booking.notes) {
+                <p class="text-sm"><span class="font-semibold">Megjegyzés:</span> {{ booking.notes }}</p>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Desktop view -->
+    <div class="hidden md:block overflow-x-auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Ügyfél</th>
+            <th>Szolgáltatás</th>
+            <th>Kezdés</th>
+            <th>Befejezés</th>
+            <th>Megjegyzés</th>
+            <th>Műveletek</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (booking of bookings(); track booking.id) {
+            <tr>
+              <td>
+                <div>
+                  <div class="font-bold">{{ booking.firstName }} {{ booking.lastName }}</div>
+                  <div class="text-sm opacity-50">{{ booking.email }}</div>
+                  <div class="text-sm opacity-50">{{ booking.phoneNumber }}</div>
+                </div>
+              </td>
+              <td>{{ booking.serviceName }}</td>
+              <td>{{ formatDate(booking.startTime) }}</td>
+              <td>{{ formatDate(booking.endTime) }}</td>
+              <td>
+                @if (booking.notes) {
+                  <span class="badge badge-ghost">{{ booking.notes }}</span>
+                } @else {
+                  <span class="text-base-content/50">-</span>
+                }
+              </td>
+              <td>
+                <button class="btn btn-error btn-sm" (click)="cancelBooking(booking.id)" [disabled]="isCancelling[booking.id]">
+                  @if (isCancelling[booking.id]) {
+                    <span class="loading loading-spinner loading-sm"></span>
+                  }
+                  Lemondás
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,109 @@
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-4 md:p-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+      <h2 class="card-title text-xl md:text-2xl">Szolgáltatások</h2>
+      <button class="btn btn-primary btn-sm md:btn-md w-full sm:w-auto" (click)="showAddForm()">
+        + Szolgáltatás hozzáadása
+      </button>
+    </div>
+
+    @if (isAddingService) {
+      <div class="card bg-base-200 shadow-md mb-4">
+        <div class="card-body p-4">
+          <h3 class="font-bold mb-3 md:mb-4 text-base md:text-lg">Új szolgáltatás</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+            <div class="form-control md:col-span-3">
+              <label class="block mb-2">
+                <span class="label-text text-sm md:text-base font-medium">Szolgáltatás kiválasztása</span>
+              </label>
+              <select
+                [ngModel]="serviceForm.serviceId"
+                (ngModelChange)="onServiceSelect($event)"
+                class="select select-bordered select-sm md:select-md w-full">
+                <option value="">Válassz szolgáltatást...</option>
+                @for (service of availableServices(); track service.id) {
+                  <option [value]="service.id">{{ service.value }} ({{ service.tag }})</option>
+                }
+              </select>
+            </div>
+            <div class="form-control">
+              <label class="block mb-2">
+                <span class="label-text text-sm md:text-base font-medium">Ár (Ft)</span>
+              </label>
+              <input type="number" [(ngModel)]="serviceForm.price" class="input input-bordered input-sm md:input-md w-full" />
+            </div>
+            <div class="form-control">
+              <label class="block mb-2">
+                <span class="label-text text-sm md:text-base font-medium">Időtartam (perc)</span>
+              </label>
+              <input type="number" [(ngModel)]="serviceForm.duration" class="input input-bordered input-sm md:input-md w-full" />
+            </div>
+          </div>
+          <div class="card-actions justify-end mt-3 md:mt-4 gap-2">
+            <button class="btn btn-ghost btn-sm md:btn-md" (click)="cancelAdd()" [disabled]="isAdding">Mégse</button>
+            <button class="btn btn-primary btn-sm md:btn-md" (click)="addService()" [disabled]="isAdding">
+              @if (isAdding) {
+                <span class="loading loading-spinner loading-sm"></span>
+              }
+              Hozzáadás
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+      @for (service of services(); track service.id) {
+        <div class="card bg-base-200 shadow-md">
+          <div class="card-body p-4">
+            @if (editingServiceId !== service.id) {
+              <h3 class="card-title text-base md:text-lg">{{ getServiceName(service.serviceId) }}</h3>
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="text-xl md:text-2xl font-bold text-primary">{{ service.price }} Ft</p>
+                  <p class="text-xs md:text-sm text-base-content/60">{{ service.duration }} perc</p>
+                </div>
+                <div class="card-actions flex-col sm:flex-row gap-1 md:gap-2">
+                  <button class="btn btn-xs md:btn-sm btn-ghost" (click)="startEditing(service)" [disabled]="isRemoving[service.id]">Szerkesztés</button>
+                  <button class="btn btn-xs md:btn-sm btn-error" (click)="removeService(service.id)" [disabled]="isRemoving[service.id]">
+                    @if (isRemoving[service.id]) {
+                      <span class="loading loading-spinner loading-xs"></span>
+                    }
+                    Törlés
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="space-y-2">
+                <div class="font-bold mb-3">{{ getServiceName(service.serviceId) }}</div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="form-control">
+                    <label class="block mb-2">
+                      <span class="label-text text-sm font-medium">Ár (Ft)</span>
+                    </label>
+                    <input type="number" [(ngModel)]="serviceForm.price" class="input input-bordered input-xs md:input-sm w-full" />
+                  </div>
+                  <div class="form-control">
+                    <label class="block mb-2">
+                      <span class="label-text text-sm font-medium">Időtartam (perc)</span>
+                    </label>
+                    <input type="number" [(ngModel)]="serviceForm.duration" class="input input-bordered input-xs md:input-sm w-full" />
+                  </div>
+                </div>
+                <div class="card-actions justify-end mt-2 gap-1">
+                  <button class="btn btn-xs md:btn-sm btn-ghost" (click)="cancelEdit()" [disabled]="isUpdating[service.id]">Mégse</button>
+                  <button class="btn btn-xs md:btn-sm btn-primary" (click)="saveEdit(service.id)" [disabled]="isUpdating[service.id]">
+                    @if (isUpdating[service.id]) {
+                      <span class="loading loading-spinner loading-xs"></span>
+                    }
+                    Mentés
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
