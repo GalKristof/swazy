@@ -398,6 +398,46 @@ export class BusinessManagementComponent implements OnInit {
     return this.schedules().some(s => s.userId === userId);
   }
 
+  isEmployeeOnVacation(userId: string): boolean {
+    return this.schedules().find(s => s.userId === userId)?.isOnVacation || false;
+  }
+
+  calculateAvailableMinutes(userId: string): number {
+    const schedule = this.schedules().find(s => s.userId === userId);
+    if (!schedule || schedule.isOnVacation) return 0;
+
+    return schedule.daySchedules
+      .filter(day => day.isWorkingDay)
+      .reduce((total, day) => {
+        const start = this.parseTime(day.startTime);
+        const end = this.parseTime(day.endTime);
+        return total + (end - start);
+      }, 0);
+  }
+
+  private parseTime(timeStr: string | null): number {
+    if (!timeStr) return 0;
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours * 60 + minutes;
+  }
+
+  getSortedEmployees(): Employee[] {
+    const employees = this.employees();
+    return [...employees].sort((a, b) => {
+      const aOnVacation = this.isEmployeeOnVacation(a.userId);
+      const bOnVacation = this.isEmployeeOnVacation(b.userId);
+
+      // Vacation employees go last
+      if (aOnVacation && !bOnVacation) return 1;
+      if (!aOnVacation && bOnVacation) return -1;
+
+      // For non-vacation employees, sort by available time (most first)
+      const aMinutes = this.calculateAvailableMinutes(a.userId);
+      const bMinutes = this.calculateAvailableMinutes(b.userId);
+      return bMinutes - aMinutes;
+    });
+  }
+
   createDefaultWeekSchedule(): DaySchedule[] {
     return Array.from({ length: 7 }, (_, i) => ({
       dayOfWeek: i,
