@@ -15,6 +15,7 @@ import { EmployeeManagementComponent } from './employee-management/employee-mana
 import { ServiceManagementComponent } from './service-management/service-management';
 import { BookingListComponent } from './booking-list/booking-list';
 import { ScheduleManagementComponent } from './schedule-management/schedule-management';
+import { BookingCalendarComponent } from './booking-calendar/booking-calendar';
 
 @Component({
   selector: 'app-business-management',
@@ -25,7 +26,8 @@ import { ScheduleManagementComponent } from './schedule-management/schedule-mana
     EmployeeManagementComponent,
     ServiceManagementComponent,
     BookingListComponent,
-    ScheduleManagementComponent
+    ScheduleManagementComponent,
+    BookingCalendarComponent
   ],
   templateUrl: './business-management.html',
   styleUrls: ['./business-management.scss']
@@ -42,7 +44,7 @@ export class BusinessManagementComponent implements OnInit {
   bookingComponent = viewChild(BookingListComponent);
   scheduleComponent = viewChild(ScheduleManagementComponent);
 
-  activeTab = signal<'info' | 'employees' | 'services' | 'bookings' | 'schedules'>('info');
+  activeTab = signal<'info' | 'employees' | 'services' | 'bookings' | 'schedules' | 'calendar'>('info');
 
   business = signal<Business | null>(null);
   employees = signal<Employee[]>([]);
@@ -51,7 +53,7 @@ export class BusinessManagementComponent implements OnInit {
   bookings = signal<BookingDetails[]>([]);
   schedules = signal<EmployeeSchedule[]>([]);
 
-  setActiveTab(tab: 'info' | 'employees' | 'services' | 'bookings' | 'schedules') {
+  setActiveTab(tab: 'info' | 'employees' | 'services' | 'bookings' | 'schedules' | 'calendar') {
     this.activeTab.set(tab);
 
     if (tab === 'bookings' && this.bookings().length === 0) {
@@ -60,6 +62,16 @@ export class BusinessManagementComponent implements OnInit {
 
     if (tab === 'schedules' && this.schedules().length === 0) {
       this.loadBusinessSchedules();
+    }
+
+    if (tab === 'calendar') {
+      // Load both bookings and schedules for calendar
+      if (this.bookings().length === 0) {
+        this.loadBusinessBookings();
+      }
+      if (this.schedules().length === 0) {
+        this.loadBusinessSchedules();
+      }
     }
   }
 

@@ -22,6 +22,7 @@
             </div>
             <div class="divider my-2"></div>
             <div class="space-y-1">
+              <p class="text-sm"><span class="font-semibold">Fodrász:</span> {{ getEmployeeName(booking.employeeId) }}</p>
               <p class="text-sm"><span class="font-semibold">Szolgáltatás:</span> {{ booking.serviceName }}</p>
               <p class="text-sm"><span class="font-semibold">Kezdés:</span> {{ formatDate(booking.startTime) }}</p>
               <p class="text-sm"><span class="font-semibold">Befejezés:</span> {{ formatDate(booking.endTime) }}</p>
@@ -40,6 +41,7 @@
         <thead>
           <tr>
             <th>Ügyfél</th>
+            <th>Fodrász</th>
             <th>Szolgáltatás</th>
             <th>Kezdés</th>
             <th>Befejezés</th>
@@ -57,6 +59,7 @@
                   <div class="text-sm opacity-50">{{ booking.phoneNumber }}</div>
                 </div>
               </td>
+              <td>{{ getEmployeeName(booking.employeeId) }}</td>
               <td>{{ booking.serviceName }}</td>
               <td>{{ formatDate(booking.startTime) }}</td>
               <td>{{ formatDate(booking.endTime) }}</td>

@@ -56,6 +56,13 @@
         <span class="hidden sm:inline">🕒 Munkaidő</span>
         <span class="sm:hidden">🕒</span>
       </a>
+      <a
+        class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
+        [class.tab-active]="activeTab() === 'calendar'"
+        (click)="setActiveTab('calendar')">
+        <span class="hidden sm:inline">📆 Naptár</span>
+        <span class="sm:hidden">📆</span>
+      </a>
     </div>
 
     @if (activeTab() === 'info') {
@@ -87,6 +94,7 @@
     @if (activeTab() === 'bookings') {
       <app-booking-list
         [bookings]="bookings()"
+        [employees]="employees()"
         (bookingCancelled)="onBookingCancelled($event)">
       </app-booking-list>
     }
@@ -99,6 +107,14 @@
         (scheduleSaved)="onScheduleSaved($event)"
         (scheduleCopied)="onScheduleCopied($event)">
       </app-schedule-management>
+    }
+
+    @if (activeTab() === 'calendar') {
+      <app-booking-calendar
+        [bookings]="bookings()"
+        [employees]="employees()"
+        [schedules]="schedules()">
+      </app-booking-calendar>
     }
   </div>
 </div>

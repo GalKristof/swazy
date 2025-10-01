@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { TenantService } from '../services/tenant.service';
 import { BusinessService } from '../services/business.service';
 import { EmployeeScheduleService } from '../services/employee-schedule.service';
@@ -10,7 +11,7 @@ import { EmployeeSchedule } from '../models/employee-schedule';
 @Component({
   selector: 'app-barber-landing',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './barber-landing.html',
   styleUrls: ['./barber-landing.scss']
 })

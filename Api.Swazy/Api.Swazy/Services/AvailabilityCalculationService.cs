@@ -47,14 +47,17 @@ public class AvailabilityCalculationService : IAvailabilityCalculationService
             return new List<DateTimeOffset>();
 
         // Get existing bookings for this employee on this date
-        var startOfDay = date.Date;
+        // Convert to UTC to ensure PostgreSQL compatibility
+        var startOfDay = date.UtcDateTime.Date;
         var endOfDay = startOfDay.AddDays(1);
+        var startOfDayUtc = new DateTimeOffset(startOfDay, TimeSpan.Zero);
+        var endOfDayUtc = new DateTimeOffset(endOfDay, TimeSpan.Zero);
 
         var bookings = await _db.Bookings
             .Include(b => b.BusinessService)
             .Where(b => b.EmployeeId == employeeId &&
-                       b.BookingDate >= startOfDay &&
-                       b.BookingDate < endOfDay)
+                       b.BookingDate >= startOfDayUtc &&
+                       b.BookingDate < endOfDayUtc)
             .OrderBy(b => b.BookingDate)
             .ToListAsync();
 

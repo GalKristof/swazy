@@ -1,0 +1,243 @@
+// Booking flow specific styles
+.steps {
+  .step {
+    &::before {
+      transition: all 0.3s ease;
+    }
+  }
+}
+
+// Smooth transitions for step changes
+.card-body {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Syncfusion calendar styling - MODERN DESIGN
+::ng-deep {
+  .e-calendar {
+    background-color: #2a2a2a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .e-calendar .e-header {
+    background-color: transparent;
+    border: none;
+    padding: 0.875rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .e-calendar .e-header .e-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #ffffff !important;
+    letter-spacing: 0.01em;
+  }
+
+  .e-calendar .e-header .e-icon-container .e-btn {
+    color: #e0e0e0 !important;
+    font-size: 1.3rem;
+    border-radius: 10px;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .e-calendar .e-header .e-icon-container .e-btn:hover {
+    background-color: rgba(16, 185, 129, 0.15) !important;
+    color: #ffffff !important;
+  }
+
+  .e-calendar .e-content {
+    background-color: transparent;
+  }
+
+  .e-calendar .e-content table {
+    background-color: transparent;
+  }
+
+  // Day headers (H, K, Sz, Cs, P, Sz, V) - MODERN TYPOGRAPHY
+  .e-calendar .e-content table thead tr th,
+  .e-calendar .e-content table thead th {
+    color: #9ca3af !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    padding: 0.5rem 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    text-align: center !important;
+    background-color: transparent !important;
+    border: none !important;
+  }
+
+  // Date cells - NO BORDERS, just spacing
+  .e-calendar .e-content td {
+    background-color: transparent;
+    border: none !important;
+    padding: 0.375rem;
+    text-align: center !important;
+    vertical-align: middle;
+  }
+
+  .e-calendar .e-content td span,
+  .e-calendar .e-content td .e-day {
+    color: #e0e0e0 !important;
+    font-size: 16px;
+    font-weight: 500;
+    border: none !important;
+    background-color: transparent !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .e-calendar .e-content td.e-disabled {
+    opacity: 0.25;
+    pointer-events: none;
+    background-color: rgba(255, 255, 255, 0.01);
+  }
+
+  .e-calendar .e-content td.e-disabled span,
+  .e-calendar .e-content td.e-disabled .e-day {
+    text-decoration: line-through;
+    color: #666666 !important;
+  }
+
+  .e-calendar .e-content td.e-other-month {
+    opacity: 0.35;
+  }
+
+  .e-calendar .e-content td.e-other-month span,
+  .e-calendar .e-content td.e-other-month .e-day {
+    color: #999999 !important;
+  }
+
+  // Today styling - perfect circle ring
+  .e-calendar .e-content td.e-today span,
+  .e-calendar .e-content td.e-today .e-day {
+    color: #10b981 !important;
+    font-weight: 600 !important;
+    border: 2px solid rgba(16, 185, 129, 0.6) !important;
+    border-radius: 50% !important;
+    background-color: rgba(16, 185, 129, 0.08) !important;
+  }
+
+  // KILL THE WHITE CIRCLE
+  .e-calendar .e-content td.e-today *::before,
+  .e-calendar .e-content td.e-today *::after {
+    display: none !important;
+  }
+
+  // Selected date - modern rounded with shadow
+  .e-calendar .e-content td.e-selected span,
+  .e-calendar .e-content td.e-selected .e-day,
+  .e-calendar .e-content td.e-selected.e-focused-date span,
+  .e-calendar .e-content td.e-selected.e-focused-date .e-day {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border: none !important;
+    background-color: #10b981 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3) !important;
+  }
+
+  // KILL white circle on selected
+  .e-calendar .e-content td.e-selected *::before,
+  .e-calendar .e-content td.e-selected *::after,
+  .e-calendar .e-content td.e-selected.e-today *::before,
+  .e-calendar .e-content td.e-selected.e-today *::after {
+    display: none !important;
+  }
+
+  // Hover state - soft rounded with shadow
+  .e-calendar .e-content td:not(.e-disabled):not(.e-selected):hover span,
+  .e-calendar .e-content td:not(.e-disabled):not(.e-selected):hover .e-day {
+    color: #ffffff !important;
+    border: none !important;
+    background-color: rgba(16, 185, 129, 0.15) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1) !important;
+    cursor: pointer;
+  }
+
+  // Force override pink border from material.css
+  .e-calendar .e-content .e-day {
+    border-color: transparent !important;
+  }
+
+  // Override focused date pink color
+  .e-calendar .e-content .e-focused-date .e-day {
+    border-color: #10b981 !important;
+    background-color: #10b981 !important;
+  }
+
+  .e-calendar .e-footer-container {
+    background-color: transparent !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .e-calendar .e-footer-container .e-today {
+    color: #10b981 !important;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .e-calendar .e-footer-container .e-today:hover {
+    color: #059669 !important;
+  }
+
+  .e-calendar .e-btn {
+    color: #e0e0e0 !important;
+  }
+
+  // Increase calendar size on larger screens
+  @media (min-width: 768px) {
+    .e-calendar {
+      max-width: 480px;
+      padding: 2rem;
+    }
+
+    .e-calendar .e-content table thead tr th,
+    .e-calendar .e-content table thead th {
+      font-size: 0.9rem;
+      padding: 0.625rem 0.875rem;
+    }
+
+    .e-calendar .e-content td {
+      padding: 0.5rem;
+    }
+
+    .e-calendar .e-content td span,
+    .e-calendar .e-content td .e-day {
+      width: 48px;
+      height: 48px;
+      font-size: 17px;
+    }
+  }
+}
+
+// Mobile responsive adjustments
+@media (max-width: 640px) {
+  .steps-horizontal .step {
+    font-size: 0.75rem;
+  }
+}

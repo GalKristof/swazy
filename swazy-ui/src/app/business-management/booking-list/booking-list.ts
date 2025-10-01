@@ -1,6 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BookingDetails } from '../../models/booking.details';
+import { Employee } from '../../models/employee';
 
 @Component({
   selector: 'app-booking-list',
@@ -10,6 +11,7 @@ import { BookingDetails } from '../../models/booking.details';
 })
 export class BookingListComponent {
   bookings = input.required<BookingDetails[]>();
+  employees = input.required<Employee[]>();
 
   bookingCancelled = output<string>();
 
@@ -36,7 +38,14 @@ export class BookingListComponent {
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: false
     });
+  }
+
+  getEmployeeName(employeeId: string | undefined): string {
+    if (!employeeId) return '-';
+    const employee = this.employees().find(e => e.userId === employeeId);
+    return employee ? `${employee.firstName} ${employee.lastName}` : '-';
   }
 }

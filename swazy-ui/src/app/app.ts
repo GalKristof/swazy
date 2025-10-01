@@ -1,8 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { registerLicense } from '@syncfusion/ej2-base';
 import { TenantService } from './services/tenant.service';
 import { ToastService } from './services/toast.service';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +19,10 @@ export class App implements OnInit {
 
   isLoading = signal(true);
   title = 'swazy-ui';
+
+  constructor() {
+    registerLicense(environment.syncfusionKey);
+  }
 
   ngOnInit() {
     this.tenantService.loadBusinessData().subscribe({

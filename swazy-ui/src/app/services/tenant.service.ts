@@ -1,4 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -14,6 +15,7 @@ import { Business } from '../models/business';
 })
 export class TenantService {
   private http = inject(HttpClient);
+  private platformId = inject(PLATFORM_ID);
 
   private businessSubject = new BehaviorSubject<Business | null>(null);
   public business$ = this.businessSubject.asObservable();
@@ -26,7 +28,7 @@ export class TenantService {
   loadBusinessData(): Observable<Business> {
     let url: string;
 
-    if (environment.fromDomain) {
+    if (environment.fromDomain && isPlatformBrowser(this.platformId)) {
       // PRODUCTION: Get domain from URL (not implemented in backend yet)
       const domain = window.location.hostname;
       console.log('[TenantService] Loading business by domain:', domain);

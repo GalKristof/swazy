@@ -1,0 +1,170 @@
+.calendar-container {
+  width: 100%;
+  overflow-x: auto;
+
+  /* Syncfusion Schedule styling overrides for DaisyUI dark theme compatibility */
+  ::ng-deep {
+    .e-schedule {
+      font-family: inherit;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      background-color: hsl(var(--b1));
+      color: hsl(var(--bc));
+    }
+
+    /* Toolbar styling */
+    .e-schedule .e-schedule-toolbar {
+      background-color: hsl(var(--b2));
+      border-bottom: 1px solid hsl(var(--bc) / 0.1);
+    }
+
+    .e-schedule .e-toolbar-item {
+      color: hsl(var(--bc));
+    }
+
+    .e-schedule .e-tbar-btn:hover {
+      background-color: hsl(var(--b3));
+    }
+
+    /* Header cells */
+    .e-schedule .e-timeline-view .e-date-header-wrap table tbody td,
+    .e-schedule .e-header-cells {
+      background-color: hsl(var(--b2));
+      color: hsl(var(--bc));
+      border-color: hsl(var(--bc) / 0.1);
+      font-weight: 600;
+    }
+
+    /* Resource (employee) column headers */
+    .e-schedule .e-timeline-view .e-resource-left-td {
+      background-color: hsl(var(--b2));
+      color: hsl(var(--bc));
+      font-weight: 600;
+      border-color: hsl(var(--bc) / 0.1);
+    }
+
+    /* Work cells (time slots) */
+    .e-schedule .e-vertical-view .e-time-cells-wrap table td,
+    .e-schedule .e-timeline-view .e-work-cells {
+      background-color: hsl(var(--b1));
+      border-color: hsl(var(--bc) / 0.1);
+      color: hsl(var(--bc));
+    }
+
+    /* Alternate work cells for better readability */
+    .e-schedule .e-timeline-view .e-work-cells.e-alternate-cells {
+      background-color: hsl(var(--b1) / 0.5);
+    }
+
+    /* Resource cells */
+    .e-schedule .e-timeline-view .e-resource-cells {
+      background-color: hsl(var(--b2));
+      border-color: hsl(var(--bc) / 0.1);
+    }
+
+    /* Current time indicator */
+    .e-schedule .e-current-timeline {
+      border-color: hsl(var(--p));
+    }
+
+    /* Appointment/Event styling */
+    .e-schedule .e-appointment {
+      border-radius: 0.375rem;
+      border: none;
+      font-size: 0.875rem;
+      padding: 4px 8px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .e-schedule .e-appointment .e-subject {
+      color: white;
+      font-weight: 500;
+    }
+
+    .e-schedule .e-appointment .e-time {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Time labels */
+    .e-schedule .e-timeline-view .e-time-slots {
+      color: hsl(var(--bc) / 0.7);
+    }
+
+    /* More events indicator */
+    .e-schedule .e-more-indicator {
+      background-color: hsl(var(--p));
+      color: hsl(var(--pc));
+    }
+
+    /* Popup styling */
+    .e-schedule .e-quick-popup-wrapper {
+      background-color: hsl(var(--b2));
+      color: hsl(var(--bc));
+      border-color: hsl(var(--bc) / 0.2);
+    }
+
+    /* Date navigation */
+    .e-schedule .e-date-range {
+      color: hsl(var(--bc));
+    }
+
+    /* Icons */
+    .e-schedule .e-icons {
+      color: hsl(var(--bc));
+    }
+
+    /* Scrollbar styling for dark theme */
+    .e-schedule .e-content-wrap::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    .e-schedule .e-content-wrap::-webkit-scrollbar-track {
+      background: hsl(var(--b2));
+    }
+
+    .e-schedule .e-content-wrap::-webkit-scrollbar-thumb {
+      background: hsl(var(--bc) / 0.3);
+      border-radius: 5px;
+    }
+
+    .e-schedule .e-content-wrap::-webkit-scrollbar-thumb:hover {
+      background: hsl(var(--bc) / 0.5);
+    }
+
+    /* Mobile responsive adjustments */
+    @media (max-width: 768px) {
+      .e-schedule {
+        font-size: 0.75rem;
+      }
+
+      .e-schedule .e-timeline-view .e-resource-left-td {
+        min-width: 80px;
+        font-size: 0.75rem;
+        padding: 4px;
+      }
+
+      .e-schedule .e-appointment {
+        font-size: 0.7rem;
+        padding: 2px 4px;
+      }
+
+      .e-schedule .e-date-header-wrap table tbody td {
+        font-size: 0.75rem;
+        padding: 4px;
+      }
+    }
+
+    /* Hover effects */
+    .e-schedule .e-work-cells:hover {
+      background-color: hsl(var(--b2) / 0.5);
+    }
+
+    /* Selected cell */
+    .e-schedule .e-selected-cell {
+      background-color: hsl(var(--p) / 0.1);
+    }
+  }
+}

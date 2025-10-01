@@ -1,0 +1,340 @@
+<div class="min-h-screen bg-base-200 py-8">
+  <div class="container mx-auto px-4 max-w-4xl">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl md:text-4xl font-bold mb-2">Időpontfoglalás</h1>
+      <p class="text-base-content/70">Válassz szolgáltatást, fodrászt és időpontot</p>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="mb-8">
+      <ul class="steps steps-horizontal w-full">
+        <li class="step" [class.step-primary]="currentStep() === 'service' || currentStep() === 'employee' || currentStep() === 'datetime' || currentStep() === 'customer'">
+          Szolgáltatás
+        </li>
+        <li class="step" [class.step-primary]="currentStep() === 'employee' || currentStep() === 'datetime' || currentStep() === 'customer'">
+          Fodrász
+        </li>
+        <li class="step" [class.step-primary]="currentStep() === 'datetime' || currentStep() === 'customer'">
+          Időpont
+        </li>
+        <li class="step" [class.step-primary]="currentStep() === 'customer'">
+          Adatok
+        </li>
+      </ul>
+    </div>
+
+    <!-- Step Content -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <!-- Step 1: Select Service -->
+        @if (currentStep() === 'service') {
+          <h2 class="card-title text-2xl mb-4">Válassz szolgáltatást</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @for (service of services(); track service.id) {
+              <button
+                class="btn btn-outline h-auto flex-col items-start p-4 hover:btn-primary transition-colors"
+                (click)="selectService(service)">
+                <div class="w-full text-left">
+                  <div class="font-bold text-lg mb-1">{{ service.serviceName }}</div>
+                  <div class="flex justify-between items-center w-full mt-2">
+                    <span class="text-2xl font-bold text-primary">{{ service.price }} Ft</span>
+                    <span class="text-sm opacity-70">{{ service.duration }} perc</span>
+                  </div>
+                </div>
+              </button>
+            }
+          </div>
+        }
+
+        <!-- Step 2: Select Employee -->
+        @if (currentStep() === 'employee') {
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="card-title text-2xl">Válassz fodrászt</h2>
+            <button class="btn btn-ghost btn-sm" (click)="goBack()">
+              ← Vissza
+            </button>
+          </div>
+
+          <!-- Selected service badge -->
+          <div class="card bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-2 border-emerald-500/30 mb-4">
+            <div class="card-body p-4">
+              <div class="flex items-start gap-3">
+                <div class="text-2xl">✂️</div>
+                <div>
+                  <div class="text-xs opacity-70 uppercase tracking-wide text-emerald-400">Kiválasztott szolgáltatás</div>
+                  <div class="font-bold text-lg">{{ selectedService()?.serviceName }}</div>
+                  <div class="text-sm opacity-70 mt-1">{{ selectedService()?.price }} Ft • {{ selectedService()?.duration }} perc</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @for (employee of availableEmployees(); track employee.userId) {
+              <button
+                class="btn btn-outline h-auto flex-col items-start p-4 hover:btn-primary transition-colors"
+                (click)="selectEmployee(employee)">
+                <div class="w-full text-left">
+                  <div class="font-bold text-lg">{{ employee.firstName }} {{ employee.lastName }}</div>
+                  <div class="text-sm opacity-70 mt-1">{{ employee.email }}</div>
+                </div>
+              </button>
+            }
+          </div>
+
+          @if (availableEmployees().length === 0) {
+            <div class="alert alert-warning">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>Jelenleg nincs elérhető fodrász.</span>
+            </div>
+          }
+        }
+
+        <!-- Step 3: Select Date & Time -->
+        @if (currentStep() === 'datetime') {
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="card-title text-2xl">Válassz dátumot és időpontot</h2>
+            <button class="btn btn-ghost btn-sm" (click)="goBack()">
+              ← Vissza
+            </button>
+          </div>
+
+          <!-- Selected service and employee -->
+          <div class="card bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-2 border-emerald-500/30 mb-4">
+            <div class="card-body p-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-start gap-3">
+                  <div class="text-2xl">✂️</div>
+                  <div>
+                    <div class="text-xs opacity-70 uppercase tracking-wide text-emerald-400">Szolgáltatás</div>
+                    <div class="font-bold text-lg">{{ selectedService()?.serviceName }}</div>
+                    <div class="text-sm opacity-70 mt-1">{{ selectedService()?.price }} Ft • {{ selectedService()?.duration }} perc</div>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <div class="text-2xl">👤</div>
+                  <div>
+                    <div class="text-xs opacity-70 uppercase tracking-wide text-emerald-400">Fodrász</div>
+                    <div class="font-bold text-lg">{{ selectedEmployee()?.firstName }} {{ selectedEmployee()?.lastName }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Date Selection -->
+          <h3 class="font-bold text-lg mb-3">Válassz napot</h3>
+
+          @if (isLoadingDates()) {
+            <div class="flex justify-center py-8">
+              <span class="loading loading-spinner loading-lg"></span>
+              <span class="ml-3">Elérhető napok betöltése...</span>
+            </div>
+          } @else {
+            <div class="flex justify-center mb-6">
+              <ejs-calendar
+                #calendar
+                [min]="minDate"
+                [max]="maxDate()"
+                [value]="selectedDate()"
+                [firstDayOfWeek]="1"
+                locale="hu"
+                (change)="onCalendarChange($event)"
+                (renderDayCell)="onRenderDayCell($event)">
+              </ejs-calendar>
+            </div>
+            <div class="text-sm text-center text-base-content/70 mb-4">
+              💡 A szürke napok nem elérhetőek foglalásra
+            </div>
+          }
+
+          <!-- Time Selection -->
+          @if (selectedDate()) {
+            <h3 class="font-bold text-lg mb-3">Válassz időpontot</h3>
+
+            @if (isLoadingSlots()) {
+              <div class="flex justify-center py-8">
+                <span class="loading loading-spinner loading-lg"></span>
+              </div>
+            } @else if (availableSlots().length === 0) {
+              <div class="alert alert-warning">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span>Ezen a napon nincs szabad időpont. Válassz másik napot.</span>
+              </div>
+            } @else {
+              <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-4">
+                @for (slot of availableSlots(); track slot) {
+                  <button
+                    class="btn btn-outline btn-md h-auto py-3"
+                    [class.btn-primary]="selectedTime() === formatTime(slot)"
+                    (click)="selectTime(formatTime(slot))">
+                    <span class="text-base font-semibold">{{ formatTime(slot) }}</span>
+                  </button>
+                }
+              </div>
+
+              <div class="flex justify-end mt-6">
+                <button
+                  class="btn btn-primary"
+                  [disabled]="!selectedTime()"
+                  (click)="goToCustomerInfo()">
+                  Tovább →
+                </button>
+              </div>
+            }
+          }
+        }
+
+        <!-- Step 4: Customer Information -->
+        @if (currentStep() === 'customer') {
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="card-title text-2xl">Adatok megadása</h2>
+            <button class="btn btn-ghost btn-sm" (click)="goBack()">
+              ← Vissza
+            </button>
+          </div>
+
+          <!-- Booking Summary - EMERALD STYLE -->
+          <div class="card bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-2 border-emerald-500/30 mb-6">
+            <div class="card-body">
+              <h3 class="card-title text-xl mb-4 text-emerald-400">📋 Foglalás összegzése</h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Left column -->
+                <div class="space-y-3">
+                  <div class="flex items-start gap-3">
+                    <div class="text-2xl">✂️</div>
+                    <div>
+                      <div class="text-xs opacity-70 uppercase tracking-wide">Szolgáltatás</div>
+                      <div class="font-bold text-lg">{{ selectedService()?.serviceName }}</div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-start gap-3">
+                    <div class="text-2xl">👤</div>
+                    <div>
+                      <div class="text-xs opacity-70 uppercase tracking-wide">Fodrász</div>
+                      <div class="font-bold text-lg">{{ selectedEmployee()?.firstName }} {{ selectedEmployee()?.lastName }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right column -->
+                <div class="space-y-3">
+                  <div class="flex items-start gap-3">
+                    <div class="text-2xl">📅</div>
+                    <div>
+                      <div class="text-xs opacity-70 uppercase tracking-wide">Dátum</div>
+                      <div class="font-bold text-lg">{{ selectedDate() ? formatDate(selectedDate()!) : '' }}</div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-start gap-3">
+                    <div class="text-2xl">🕒</div>
+                    <div>
+                      <div class="text-xs opacity-70 uppercase tracking-wide">Időpont</div>
+                      <div class="font-bold text-lg">{{ selectedTime() }} - {{ getBookingEndTime() }}</div>
+                      <div class="text-sm opacity-70">({{ selectedService()?.duration }} perc)</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="flex items-center justify-between">
+                <span class="text-lg font-semibold">Fizetendő összeg:</span>
+                <span class="text-3xl font-bold text-emerald-400">{{ selectedService()?.price }} Ft</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer Form -->
+          <form (ngSubmit)="submitBooking()">
+            <div class="form-control w-full mb-4">
+              <label class="label">
+                <span class="label-text font-semibold">Vezetéknév *</span>
+              </label>
+              <input
+                type="text"
+                class="input input-bordered w-full"
+                placeholder="Kovács"
+                [value]="customerLastName()"
+                (input)="customerLastName.set($any($event.target).value)"
+                required />
+            </div>
+
+            <div class="form-control w-full mb-4">
+              <label class="label">
+                <span class="label-text font-semibold">Keresztnév *</span>
+              </label>
+              <input
+                type="text"
+                class="input input-bordered w-full"
+                placeholder="János"
+                [value]="customerFirstName()"
+                (input)="customerFirstName.set($any($event.target).value)"
+                required />
+            </div>
+
+            <div class="form-control w-full mb-4">
+              <label class="label">
+                <span class="label-text font-semibold">Email cím *</span>
+              </label>
+              <input
+                type="email"
+                class="input input-bordered w-full"
+                placeholder="kovacs.janos@example.com"
+                [value]="customerEmail()"
+                (input)="customerEmail.set($any($event.target).value)"
+                required />
+            </div>
+
+            <div class="form-control w-full mb-4">
+              <label class="label">
+                <span class="label-text font-semibold">Telefonszám *</span>
+              </label>
+              <input
+                type="tel"
+                class="input input-bordered w-full"
+                placeholder="+36 30 123 4567"
+                [value]="customerPhone()"
+                (input)="customerPhone.set($any($event.target).value)"
+                required />
+            </div>
+
+            <div class="form-control w-full mb-6">
+              <label class="label">
+                <span class="label-text font-semibold">Megjegyzések (opcionális)</span>
+              </label>
+              <textarea
+                class="textarea textarea-bordered w-full h-24"
+                placeholder="Speciális kérések vagy megjegyzések..."
+                [value]="customerNotes()"
+                (input)="customerNotes.set($any($event.target).value)"></textarea>
+            </div>
+
+            <div class="flex justify-end">
+              <button
+                type="submit"
+                class="btn btn-primary btn-lg"
+                [disabled]="isSubmitting()">
+                @if (isSubmitting()) {
+                  <span class="loading loading-spinner"></span>
+                  Foglalás...
+                } @else {
+                  Foglalás megerősítése
+                }
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+    </div>
+  </div>
+</div>
