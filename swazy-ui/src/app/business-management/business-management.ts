@@ -60,6 +60,11 @@ export class BusinessManagementComponent implements OnInit {
 
   setActiveTab(tab: 'info' | 'employees' | 'services' | 'bookings') {
     this.activeTab.set(tab);
+
+    // Lazy load bookings only when the bookings tab is opened
+    if (tab === 'bookings' && this.bookings().length === 0) {
+      this.loadBusinessBookings();
+    }
   }
 
   startEditingBusiness() {
@@ -126,10 +131,37 @@ export class BusinessManagementComponent implements OnInit {
     }
   }
 
-  removeEmployee(id: string) {
-    if (confirm('Biztosan törölni szeretnéd ezt a dolgozót?')) {
-      console.log('Remove employee not yet implemented in backend');
-      alert('A dolgozó eltávolítása funkció még nem elérhető.');
+  updateEmployeeRole(userId: string, role: string) {
+    const businessId = this.business()?.id;
+    if (businessId) {
+      this.tenantService.updateEmployeeRole(businessId, userId, role).subscribe({
+        next: () => {
+          console.log('Employee role updated successfully');
+        },
+        error: (error) => {
+          console.error('Error updating employee role:', error);
+          alert('Hiba történt a szerepkör frissítése során.');
+          // Reload to revert the change
+          this.tenantService.loadBusinessData().subscribe();
+        }
+      });
+    }
+  }
+
+  removeEmployee(userId: string) {
+    if (confirm('Biztosan el szeretnéd távolítani ezt a dolgozót az üzletből?')) {
+      const businessId = this.business()?.id;
+      if (businessId) {
+        this.tenantService.removeEmployeeFromBusiness(businessId, userId).subscribe({
+          next: () => {
+            console.log('Employee removed successfully');
+          },
+          error: (error) => {
+            console.error('Error removing employee:', error);
+            alert('Hiba történt a dolgozó eltávolítása során.');
+          }
+        });
+      }
     }
   }
 
@@ -300,10 +332,10 @@ export class BusinessManagementComponent implements OnInit {
       if (business) {
         this.business.set(business as Business);
         this.employees.set(business.employees || []);
+        this.services.set(business.services || []);
         this.editBusinessForm.set({ ...business } as Business);
 
-        this.loadBusinessServices();
-        this.loadBusinessBookings();
+        // Load only available services catalog and bookings will be lazy loaded
         this.loadAvailableServices();
       }
     });

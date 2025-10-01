@@ -1,4 +1,5 @@
 ﻿import {Employee} from './employee';
+import {Service} from './service';
 
 export interface Business {
   id: string;
@@ -9,4 +10,5 @@ export interface Business {
   businessType: string;
   websiteUrl: string;
   employees?: Employee[];
+  services?: Service[];
 }

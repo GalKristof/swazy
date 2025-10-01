@@ -2,4 +2,4 @@
 
 namespace Api.Swazy.Models.DTOs.Businesses;
 
-public record AddEmployeeToBusinessDto(Guid BusinessId, string UserEmail, BusinessRole Role);
+public record AddEmployeeToBusinessDto(string UserEmail, BusinessRole Role);

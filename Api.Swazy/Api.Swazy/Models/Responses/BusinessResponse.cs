@@ -8,6 +8,7 @@ public record BusinessResponse(
     string Email,
     string BusinessType,
     List<BusinessEmployeeResponse> Employees,
+    List<BusinessServiceResponse> Services,
     string WebsiteUrl,
     DateTimeOffset CreatedAt
 );

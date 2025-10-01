@@ -98,17 +98,16 @@ export class TenantService {
 
   /**
    * Add employee to business
-   * Calls PUT /api/business/add-employee
+   * Calls POST /api/business/{businessId}/employee
    */
   addEmployeeToBusiness(businessId: string, userEmail: string, role: string): Observable<Business> {
-    const url = `${environment.apiUrl}/business/add-employee`;
+    const url = `${environment.apiUrl}/business/${businessId}/employee`;
     const payload = {
-      businessId,
       userEmail,
       role
     };
     console.log('[TenantService] Adding employee to business:', payload);
-    return this.http.put<Business>(url, payload).pipe(
+    return this.http.post<Business>(url, payload).pipe(
       tap(updatedBusiness => {
         this.businessSubject.next(updatedBusiness);
       })
@@ -164,5 +163,36 @@ export class TenantService {
     const url = `${environment.apiUrl}/booking/${id}`;
     console.log('[TenantService] Canceling booking:', id);
     return this.http.delete(url);
+  }
+
+  /**
+   * Update employee role
+   * Calls PATCH /api/business/{businessId}/employee/{userId}
+   */
+  updateEmployeeRole(businessId: string, userId: string, role: string): Observable<any> {
+    const url = `${environment.apiUrl}/business/${businessId}/employee/${userId}`;
+    const payload = { role };
+    console.log('[TenantService] Updating employee role:', { businessId, userId, role });
+    return this.http.patch(url, payload).pipe(
+      tap(() => {
+        // Reload business data to refresh employee list
+        this.loadBusinessData().subscribe();
+      })
+    );
+  }
+
+  /**
+   * Remove employee from business
+   * Calls DELETE /api/business/{businessId}/employee/{userId}
+   */
+  removeEmployeeFromBusiness(businessId: string, userId: string): Observable<any> {
+    const url = `${environment.apiUrl}/business/${businessId}/employee/${userId}`;
+    console.log('[TenantService] Removing employee from business:', { businessId, userId });
+    return this.http.delete(url).pipe(
+      tap(() => {
+        // Reload business data to refresh employee list
+        this.loadBusinessData().subscribe();
+      })
+    );
   }
 }

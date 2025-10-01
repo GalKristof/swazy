@@ -93,49 +93,61 @@
           } @else {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               <div class="form-control">
-                <label class="label"><span class="label-text text-sm md:text-base">Név</span></label>
+                <label class="block mb-2">
+                  <span class="label-text text-sm md:text-base font-medium">Név</span>
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="editBusinessForm()!.name"
-                  class="input input-bordered input-sm md:input-md" />
+                  class="input input-bordered input-sm md:input-md w-full" />
               </div>
               <div class="form-control">
-                <label class="label"><span class="label-text text-sm md:text-base">Típus</span></label>
+                <label class="block mb-2">
+                  <span class="label-text text-sm md:text-base font-medium">Típus</span>
+                </label>
                 <select
                   [(ngModel)]="editBusinessForm()!.businessType"
-                  class="select select-bordered select-sm md:select-md">
+                  class="select select-bordered select-sm md:select-md w-full">
                   @for (type of businessTypes; track type) {
                     <option [value]="type">{{ type }}</option>
                   }
                 </select>
               </div>
               <div class="form-control">
-                <label class="label"><span class="label-text text-sm md:text-base">Cím</span></label>
+                <label class="block mb-2">
+                  <span class="label-text text-sm md:text-base font-medium">Cím</span>
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="editBusinessForm()!.address"
-                  class="input input-bordered input-sm md:input-md" />
+                  class="input input-bordered input-sm md:input-md w-full" />
               </div>
               <div class="form-control">
-                <label class="label"><span class="label-text text-sm md:text-base">Telefon</span></label>
+                <label class="block mb-2">
+                  <span class="label-text text-sm md:text-base font-medium">Telefon</span>
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="editBusinessForm()!.phoneNumber"
-                  class="input input-bordered input-sm md:input-md" />
+                  class="input input-bordered input-sm md:input-md w-full" />
               </div>
               <div class="form-control">
-                <label class="label"><span class="label-text text-sm md:text-base">Email</span></label>
+                <label class="block mb-2">
+                  <span class="label-text text-sm md:text-base font-medium">Email</span>
+                </label>
                 <input
                   type="email"
                   [(ngModel)]="editBusinessForm()!.email"
-                  class="input input-bordered input-sm md:input-md" />
+                  class="input input-bordered input-sm md:input-md w-full" />
               </div>
               <div class="form-control">
-                <label class="label"><span class="label-text text-sm md:text-base">Weboldal</span></label>
+                <label class="block mb-2">
+                  <span class="label-text text-sm md:text-base font-medium">Weboldal</span>
+                </label>
                 <input
                   type="url"
                   [(ngModel)]="editBusinessForm()!.websiteUrl"
-                  class="input input-bordered input-sm md:input-md" />
+                  class="input input-bordered input-sm md:input-md w-full" />
               </div>
             </div>
             <div class="card-actions justify-end mt-4 md:mt-6 gap-2">
@@ -167,18 +179,22 @@
                 <h3 class="font-bold mb-3 md:mb-4 text-base md:text-lg">Új dolgozó</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                   <div class="form-control md:col-span-2">
-                    <label class="label"><span class="label-text text-sm md:text-base">Email (regisztrált felhasználó)</span></label>
+                    <label class="block mb-2">
+                      <span class="label-text text-sm md:text-base font-medium">Email (regisztrált felhasználó)</span>
+                    </label>
                     <input
                       type="email"
                       [(ngModel)]="newEmployee().email"
                       placeholder="pelda@email.com"
-                      class="input input-bordered input-sm md:input-md" />
+                      class="input input-bordered input-sm md:input-md w-full" />
                   </div>
                   <div class="form-control md:col-span-2">
-                    <label class="label"><span class="label-text text-sm md:text-base">Szerepkör</span></label>
+                    <label class="block mb-2">
+                      <span class="label-text text-sm md:text-base font-medium">Szerepkör</span>
+                    </label>
                     <select
                       [(ngModel)]="newEmployee().role"
-                      class="select select-bordered select-sm md:select-md">
+                      class="select select-bordered select-sm md:select-md w-full">
                       <option value="Employee">Dolgozó</option>
                       <option value="Manager">Menedzser</option>
                       <option value="Owner">Tulajdonos</option>
@@ -204,7 +220,7 @@
               </tr>
               </thead>
               <tbody>
-                @for (employee of employees(); track employee.id) {
+                @for (employee of employees(); track employee.userId) {
                   <tr>
                     <td class="text-xs md:text-sm">
                       <div>{{ employee.firstName }} {{ employee.lastName }}</div>
@@ -212,18 +228,19 @@
                     </td>
                     <td class="text-xs md:text-sm hidden sm:table-cell">{{ employee.email }}</td>
                     <td>
-                      <span class="badge badge-xs md:badge-sm"
-                            [class.badge-primary]="employee.role === 'Owner'"
-                            [class.badge-secondary]="employee.role === 'Manager'"
-                            [class.badge-ghost]="employee.role === 'Employee'">
-                        {{ employee.role }}
-                      </span>
+                      <select
+                        [(ngModel)]="employee.role"
+                        (change)="updateEmployeeRole(employee.userId, employee.role)"
+                        class="select select-bordered select-xs md:select-sm">
+                        <option value="Employee">Dolgozó</option>
+                        <option value="Manager">Menedzser</option>
+                        <option value="Owner">Tulajdonos</option>
+                      </select>
                     </td>
                     <td>
                       <button
                         class="btn btn-error btn-xs md:btn-sm"
-                        [disabled]="employee.role === 'Owner'"
-                        (click)="removeEmployee(employee.id)">
+                        (click)="removeEmployee(employee.userId)">
                         Eltávolítás
                       </button>
                     </td>
@@ -252,11 +269,13 @@
                 <h3 class="font-bold mb-3 md:mb-4 text-base md:text-lg">Új szolgáltatás</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                   <div class="form-control md:col-span-3">
-                    <label class="label"><span class="label-text text-sm md:text-base">Szolgáltatás kiválasztása</span></label>
+                    <label class="block mb-2">
+                      <span class="label-text text-sm md:text-base font-medium">Szolgáltatás kiválasztása</span>
+                    </label>
                     <select
                       [ngModel]="newService().serviceId"
                       (ngModelChange)="onServiceSelect($event)"
-                      class="select select-bordered select-sm md:select-md">
+                      class="select select-bordered select-sm md:select-md w-full">
                       <option value="">Válassz szolgáltatást...</option>
                       @for (service of availableServices(); track service.id) {
                         <option [value]="service.id">{{ service.value }} ({{ service.tag }})</option>
@@ -264,18 +283,22 @@
                     </select>
                   </div>
                   <div class="form-control">
-                    <label class="label"><span class="label-text text-sm md:text-base">Ár (Ft)</span></label>
+                    <label class="block mb-2">
+                      <span class="label-text text-sm md:text-base font-medium">Ár (Ft)</span>
+                    </label>
                     <input
                       type="number"
                       [(ngModel)]="newService().price"
-                      class="input input-bordered input-sm md:input-md" />
+                      class="input input-bordered input-sm md:input-md w-full" />
                   </div>
                   <div class="form-control">
-                    <label class="label"><span class="label-text text-sm md:text-base">Időtartam (perc)</span></label>
+                    <label class="block mb-2">
+                      <span class="label-text text-sm md:text-base font-medium">Időtartam (perc)</span>
+                    </label>
                     <input
                       type="number"
                       [(ngModel)]="newService().duration"
-                      class="input input-bordered input-sm md:input-md" />
+                      class="input input-bordered input-sm md:input-md w-full" />
                   </div>
                 </div>
                 <div class="card-actions justify-end mt-3 md:mt-4 gap-2">
@@ -312,21 +335,25 @@
                     </div>
                   } @else {
                     <div class="space-y-2">
-                      <div class="font-bold">{{ getServiceName(service.serviceId) }}</div>
+                      <div class="font-bold mb-3">{{ getServiceName(service.serviceId) }}</div>
                       <div class="grid grid-cols-2 gap-2">
                         <div class="form-control">
-                          <label class="label"><span class="label-text text-sm">Ár (Ft)</span></label>
+                          <label class="block mb-2">
+                            <span class="label-text text-sm font-medium">Ár (Ft)</span>
+                          </label>
                           <input
                             type="number"
                             [(ngModel)]="newService().price"
-                            class="input input-bordered input-xs md:input-sm" />
+                            class="input input-bordered input-xs md:input-sm w-full" />
                         </div>
                         <div class="form-control">
-                          <label class="label"><span class="label-text text-sm">Időtartam</span></label>
+                          <label class="block mb-2">
+                            <span class="label-text text-sm font-medium">Időtartam</span>
+                          </label>
                           <input
                             type="number"
                             [(ngModel)]="newService().duration"
-                            class="input input-bordered input-xs md:input-sm" />
+                            class="input input-bordered input-xs md:input-sm w-full" />
                         </div>
                       </div>
                       <div class="card-actions justify-end mt-2 gap-1">
