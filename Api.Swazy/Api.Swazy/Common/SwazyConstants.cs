@@ -25,4 +25,7 @@ public static class SwazyConstants
 
     public const string BusinessServiceModuleName = "BusinessService";
     public static readonly string BusinessServiceModuleApi = BusinessServiceModuleName.ToLower();
+
+    public const string EmployeeScheduleModuleName = "EmployeeSchedule";
+    public static readonly string EmployeeScheduleModuleApi = EmployeeScheduleModuleName.ToLower();
 }

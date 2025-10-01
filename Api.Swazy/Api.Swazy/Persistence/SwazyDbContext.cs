@@ -13,6 +13,8 @@ public class SwazyDbContext(DbContextOptions<SwazyDbContext> options) : DbContex
     public DbSet<Service> Services { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<UserBusinessAccess> UserBusinessAccesses { get; set; }
+    public DbSet<EmployeeWeeklySchedule> EmployeeWeeklySchedules { get; set; }
+    public DbSet<EmployeeDaySchedule> EmployeeDaySchedules { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -88,6 +90,32 @@ public class SwazyDbContext(DbContextOptions<SwazyDbContext> options) : DbContex
 
         modelBuilder.Entity<UserBusinessAccess>()
             .HasIndex(uba => new { uba.UserId, uba.BusinessId })
+            .IsUnique();
+
+        modelBuilder.Entity<EmployeeWeeklySchedule>()
+            .HasOne(ews => ews.User)
+            .WithMany()
+            .HasForeignKey(ews => ews.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<EmployeeWeeklySchedule>()
+            .HasOne(ews => ews.Business)
+            .WithMany()
+            .HasForeignKey(ews => ews.BusinessId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<EmployeeWeeklySchedule>()
+            .HasIndex(ews => new { ews.UserId, ews.BusinessId })
+            .IsUnique();
+
+        modelBuilder.Entity<EmployeeDaySchedule>()
+            .HasOne(eds => eds.EmployeeWeeklySchedule)
+            .WithMany(ews => ews.DaySchedules)
+            .HasForeignKey(eds => eds.EmployeeWeeklyScheduleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<EmployeeDaySchedule>()
+            .HasIndex(eds => new { eds.EmployeeWeeklyScheduleId, eds.DayOfWeek })
             .IsUnique();
 
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())

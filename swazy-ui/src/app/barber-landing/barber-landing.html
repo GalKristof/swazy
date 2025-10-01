@@ -94,18 +94,26 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
         @for (employee of employees(); track employee.userId; let i = $index) {
-          <div class="card bg-base-200 shadow-xl">
+          <div class="card bg-base-200 shadow-xl"
+               [class.opacity-75]="isEmployeeOnVacation(employee.userId)">
             <figure class="px-4 pt-4">
               <img
                 [src]="getEmployeeImage(i)"
                 [alt]="employee.firstName + ' ' + employee.lastName"
                 class="rounded-xl h-64 md:h-80 w-full object-cover"
               />
+              @if (isEmployeeOnVacation(employee.userId)) {
+                <div class="badge badge-warning absolute top-6 right-6">🏖️ Szabadságon</div>
+              }
             </figure>
             <div class="card-body items-center text-center p-4 md:p-6">
               <h3 class="card-title text-lg md:text-xl">{{ employee.firstName }} {{ employee.lastName }}</h3>
               <div class="card-actions mt-3 md:mt-4 w-full">
-                <a href="#book" class="btn btn-primary btn-sm w-full">Foglalás</a>
+                @if (isEmployeeOnVacation(employee.userId)) {
+                  <p class="text-sm italic text-base-content/60">Szabadságon</p>
+                } @else {
+                  <a href="#book" class="btn btn-primary btn-sm w-full">Foglalás</a>
+                }
               </div>
             </div>
           </div>

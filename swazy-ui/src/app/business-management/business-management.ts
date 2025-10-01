@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TenantService } from '../services/tenant.service';
 import { BusinessService } from '../services/business.service';
+import { EmployeeScheduleService } from '../services/employee-schedule.service';
 import { Business } from '../models/business';
 import { Employee } from '../models/employee';
 import { Service } from '../models/service';
 import { BookingDetails } from '../models/booking.details';
 import { ServiceDetails } from '../models/service.details';
+import { EmployeeSchedule, DaySchedule } from '../models/employee-schedule';
 
 @Component({
   selector: 'app-business-management',
@@ -19,8 +21,9 @@ import { ServiceDetails } from '../models/service.details';
 export class BusinessManagementComponent implements OnInit {
   private tenantService = inject(TenantService);
   private businessService = inject(BusinessService);
+  private scheduleService = inject(EmployeeScheduleService);
 
-  activeTab = signal<'info' | 'employees' | 'services' | 'bookings'>('info');
+  activeTab = signal<'info' | 'employees' | 'services' | 'bookings' | 'schedules'>('info');
 
   business = signal<Business | null>(null);
   isEditingBusiness = signal(false);
@@ -48,6 +51,19 @@ export class BusinessManagementComponent implements OnInit {
 
   bookings = signal<BookingDetails[]>([]);
 
+  // Schedule management
+  schedules = signal<EmployeeSchedule[]>([]);
+  selectedEmployeeForSchedule = signal<Employee | null>(null);
+  currentSchedule = signal<EmployeeSchedule | null>(null);
+  isEditingSchedule = signal(false);
+  editScheduleForm = signal<DaySchedule[]>([]);
+  bufferTimeMinutes = signal(15);
+  bufferTimeMinutesValue = 15; // For two-way binding
+  isOnVacation = false; // For two-way binding
+
+  dayNames = ['Vasárnap', 'Hétfő', 'Kedd', 'Szerda', 'Csütörtök', 'Péntek', 'Szombat'];
+  dayOrder = [1, 2, 3, 4, 5, 6, 0]; // Monday to Sunday
+
   businessTypes = [
     'BarberSalon',
     'HairSalon',
@@ -60,12 +76,17 @@ export class BusinessManagementComponent implements OnInit {
     'Other'
   ];
 
-  setActiveTab(tab: 'info' | 'employees' | 'services' | 'bookings') {
+  setActiveTab(tab: 'info' | 'employees' | 'services' | 'bookings' | 'schedules') {
     this.activeTab.set(tab);
 
     // Lazy load bookings only when the bookings tab is opened
     if (tab === 'bookings' && this.bookings().length === 0) {
       this.loadBusinessBookings();
+    }
+
+    // Lazy load schedules only when the schedules tab is opened
+    if (tab === 'schedules' && this.schedules().length === 0) {
+      this.loadBusinessSchedules();
     }
   }
 
@@ -332,6 +353,166 @@ export class BusinessManagementComponent implements OnInit {
         console.error('Error loading available services:', error);
       }
     });
+  }
+
+  private loadBusinessSchedules() {
+    const businessId = this.business()?.id;
+    if (businessId) {
+      this.scheduleService.getSchedulesByBusiness(businessId).subscribe({
+        next: (schedules) => {
+          this.schedules.set(schedules);
+        },
+        error: (error) => {
+          console.error('Error loading schedules:', error);
+        }
+      });
+    }
+  }
+
+  selectEmployeeForSchedule(employee: Employee) {
+    this.selectedEmployeeForSchedule.set(employee);
+    const businessId = this.business()?.id;
+
+    if (businessId) {
+      this.scheduleService.getScheduleByEmployee(employee.userId, businessId).subscribe({
+        next: (schedule) => {
+          this.currentSchedule.set(schedule);
+          this.bufferTimeMinutes.set(schedule.bufferTimeMinutes);
+          this.bufferTimeMinutesValue = schedule.bufferTimeMinutes;
+          this.isOnVacation = schedule.isOnVacation;
+          this.editScheduleForm.set([...schedule.daySchedules]);
+        },
+        error: (error) => {
+          // Schedule doesn't exist, create a default one
+          this.currentSchedule.set(null);
+          this.bufferTimeMinutes.set(15);
+          this.bufferTimeMinutesValue = 15;
+          this.isOnVacation = false;
+          this.editScheduleForm.set(this.createDefaultWeekSchedule());
+        }
+      });
+    }
+  }
+
+  hasSchedule(userId: string): boolean {
+    return this.schedules().some(s => s.userId === userId);
+  }
+
+  createDefaultWeekSchedule(): DaySchedule[] {
+    return Array.from({ length: 7 }, (_, i) => ({
+      dayOfWeek: i,
+      isWorkingDay: i >= 1 && i <= 5, // Monday to Friday
+      startTime: '09:00:00',
+      endTime: '17:00:00'
+    }));
+  }
+
+  toggleWorkingDay(daySchedule: DaySchedule) {
+    // Toggle is already handled by ngModel, no need to manually toggle
+    // Just ensure the form is updated
+    const form = this.editScheduleForm();
+    this.editScheduleForm.set([...form]);
+  }
+
+  getOrderedDaySchedules(): DaySchedule[] {
+    const schedules = this.editScheduleForm();
+    return this.dayOrder.map(dayIndex =>
+      schedules.find(s => s.dayOfWeek === dayIndex)!
+    ).filter(s => s !== undefined);
+  }
+
+  saveSchedule() {
+    const employee = this.selectedEmployeeForSchedule();
+    const businessId = this.business()?.id;
+    const currentSched = this.currentSchedule();
+
+    if (!employee || !businessId) return;
+
+    const scheduleData = {
+      bufferTimeMinutes: this.bufferTimeMinutesValue,
+      isOnVacation: this.isOnVacation,
+      daySchedules: this.editScheduleForm()
+    };
+
+    if (currentSched) {
+      // Update existing schedule
+      this.scheduleService.updateSchedule({
+        id: currentSched.id,
+        ...scheduleData
+      }).subscribe({
+        next: (updated) => {
+          this.currentSchedule.set(updated);
+          this.loadBusinessSchedules();
+          alert('Munkaidő sikeresen frissítve!');
+        },
+        error: (error) => {
+          console.error('Error updating schedule:', error);
+          alert('Hiba történt a munkaidő frissítése során.');
+        }
+      });
+    } else {
+      // Create new schedule
+      this.scheduleService.createSchedule({
+        userId: employee.userId,
+        businessId: businessId,
+        ...scheduleData
+      }).subscribe({
+        next: (created) => {
+          this.currentSchedule.set(created);
+          this.loadBusinessSchedules();
+          alert('Munkaidő sikeresen létrehozva!');
+        },
+        error: (error) => {
+          console.error('Error creating schedule:', error);
+          alert('Hiba történt a munkaidő létrehozása során.');
+        }
+      });
+    }
+  }
+
+  copyToAllEmployees() {
+    if (!confirm('Biztosan szeretnéd az aktuális munkaidőt másolni az összes dolgozóra?')) {
+      return;
+    }
+
+    const businessId = this.business()?.id;
+    const employees = this.employees();
+    const scheduleData = {
+      bufferTimeMinutes: this.bufferTimeMinutesValue,
+      isOnVacation: this.isOnVacation,
+      daySchedules: this.editScheduleForm()
+    };
+
+    if (!businessId) return;
+
+    // Create/update schedules for all employees
+    employees.forEach(employee => {
+      const existingSchedule = this.schedules().find(s => s.userId === employee.userId);
+
+      if (existingSchedule) {
+        this.scheduleService.updateSchedule({
+          id: existingSchedule.id,
+          ...scheduleData
+        }).subscribe({
+          next: () => console.log(`Schedule updated for ${employee.firstName}`),
+          error: (err) => console.error(`Error updating schedule for ${employee.firstName}:`, err)
+        });
+      } else {
+        this.scheduleService.createSchedule({
+          userId: employee.userId,
+          businessId: businessId,
+          ...scheduleData
+        }).subscribe({
+          next: () => console.log(`Schedule created for ${employee.firstName}`),
+          error: (err) => console.error(`Error creating schedule for ${employee.firstName}:`, err)
+        });
+      }
+    });
+
+    setTimeout(() => {
+      this.loadBusinessSchedules();
+      alert('Munkaidők sikeresen másolva!');
+    }, 1000);
   }
 
   ngOnInit() {

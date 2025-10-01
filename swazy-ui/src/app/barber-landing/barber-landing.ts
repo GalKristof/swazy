@@ -1,9 +1,11 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TenantService } from '../services/tenant.service';
 import { BusinessService } from '../services/business.service';
+import { EmployeeScheduleService } from '../services/employee-schedule.service';
 import { Service } from '../models/service';
 import { ServiceDetails } from '../models/service.details';
+import { EmployeeSchedule } from '../models/employee-schedule';
 
 @Component({
   selector: 'app-barber-landing',
@@ -12,11 +14,13 @@ import { ServiceDetails } from '../models/service.details';
   templateUrl: './barber-landing.html',
   styleUrls: ['./barber-landing.scss']
 })
-export class BarberLandingComponent {
+export class BarberLandingComponent implements OnInit {
   private tenantService = inject(TenantService);
   private businessService = inject(BusinessService);
+  private scheduleService = inject(EmployeeScheduleService);
 
   business$ = this.tenantService.business$;
+  schedules = signal<EmployeeSchedule[]>([]);
 
   // Computed properties to get real data from business
   services = computed(() => {
@@ -24,10 +28,42 @@ export class BarberLandingComponent {
     return business?.services || [];
   });
 
+  // Only show employees with schedules
   employees = computed(() => {
     const business = this.tenantService.getCurrentBusiness();
-    return business?.employees || [];
+    const allEmployees = business?.employees || [];
+    const currentSchedules = this.schedules();
+
+    // Filter to only include employees who have schedules
+    return allEmployees.filter(emp =>
+      currentSchedules.some(sched => sched.userId === emp.userId)
+    );
   });
+
+  ngOnInit() {
+    // Load schedules when business is available
+    this.tenantService.business$.subscribe(business => {
+      if (business?.id) {
+        this.loadSchedules(business.id);
+      }
+    });
+  }
+
+  private loadSchedules(businessId: string) {
+    this.scheduleService.getSchedulesByBusiness(businessId).subscribe({
+      next: (schedules) => {
+        this.schedules.set(schedules);
+      },
+      error: (error) => {
+        console.error('Error loading schedules:', error);
+      }
+    });
+  }
+
+  isEmployeeOnVacation(employeeUserId: string): boolean {
+    const schedule = this.schedules().find(s => s.userId === employeeUserId);
+    return schedule?.isOnVacation || false;
+  }
 
   // Mock images for employees (can be replaced with real images later)
   getEmployeeImage(index: number): string {
