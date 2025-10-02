@@ -58,15 +58,36 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(SwazyCorsPolicy);
 Log.Information($"[Swazy] CORS Policy: '{SwazyCorsPolicy}' has been applied...");
-Log.Information($"[Swazy] Endpoints mapping...");
+Log.Information("[Swazy] Endpoints mapping...");
 app.MapBusinessEndpoints();
 app.MapServiceEndpoints();
 app.MapBookingEndpoints();
 app.MapUserEndpoints();
 app.MapBusinessServiceEndpoints();
 app.MapEmployeeScheduleEndpoints();
-Log.Information($"[Swazy] Endpoints mapped, setting up HTTPS Redirection...");
+Log.Information("[Swazy] Endpoints mapped, setting up HTTPS Redirection...");
 app.UseHttpsRedirection();
+Log.Information("[Swazy] Migrating database...");
+    
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<SwazyDbContext>();
+    db.Database.Migrate();
+}
+    
 Log.Information("[Swazy] Everything is setup, the app starts to run!");
 Log.Information("[------] Swazy Building Process [------]");
-app.Run();
+
+try 
+{
+
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
