@@ -14,104 +14,7 @@ public static class BusinessModule
 {
     public static void MapBusinessEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost($"api/{SwazyConstants.BusinessModuleApi}", async (
-                [FromServices] SwazyDbContext db,
-                [FromBody] CreateBusinessDto createBusinessDto) =>
-            {
-                Log.Verbose("[BusinessModule - Create] Invoked.");
 
-                try
-                {
-                    var business = new Business
-                    {
-                        Name = createBusinessDto.Name,
-                        Address = createBusinessDto.Address,
-                        PhoneNumber = createBusinessDto.PhoneNumber,
-                        Email = createBusinessDto.Email,
-                        BusinessType = createBusinessDto.BusinessType,
-                        WebsiteUrl = createBusinessDto.WebsiteUrl
-                    };
-
-                    db.Businesses.Add(business);
-                    await db.SaveChangesAsync();
-
-                    Log.Debug("[BusinessModule - Create] Successfully created. {BusinessId}", business.Id);
-
-                    var response = new BusinessResponse(
-                        business.Id,
-                        business.Name,
-                        business.Address,
-                        business.PhoneNumber,
-                        business.Email,
-                        business.BusinessType.ToString(),
-                        new List<BusinessEmployeeResponse>(),
-                        new List<BusinessServiceResponse>(),
-                        business.WebsiteUrl,
-                        business.CreatedAt
-                    );
-
-                    return Results.Ok(response);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("[BusinessModule - Create] Error occurred. Exception: {Exception}", ex);
-                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
-                }
-            })
-            .WithTags(SwazyConstants.BusinessModuleName);
-
-        endpoints.MapGet($"api/{SwazyConstants.BusinessModuleApi}/all", async (
-                [FromServices] SwazyDbContext db) =>
-            {
-                Log.Verbose("[BusinessModule - GetAll] Invoked.");
-
-                try
-                {
-                    var businesses = await db.Businesses
-                        .Include(b => b.UserAccesses)
-                            .ThenInclude(ua => ua.User)
-                        .Include(b => b.Services)
-                            .ThenInclude(s => s.Service)
-                        .ToListAsync();
-
-                    var response = businesses.Select(b => new BusinessResponse(
-                        b.Id,
-                        b.Name,
-                        b.Address,
-                        b.PhoneNumber,
-                        b.Email,
-                        b.BusinessType.ToString(),
-                        b.UserAccesses.Select(ua => new BusinessEmployeeResponse(
-                            ua.UserId,
-                            ua.User.FirstName,
-                            ua.User.LastName,
-                            ua.User.Email,
-                            ua.Role.ToString()
-                        )).ToList(),
-                        b.Services.Select(s => new BusinessServiceResponse(
-                            s.Id,
-                            s.BusinessId,
-                            s.ServiceId,
-                            s.Service.Value,
-                            s.Price,
-                            s.Duration,
-                            s.CreatedAt
-                        )).ToList(),
-                        b.WebsiteUrl,
-                        b.CreatedAt
-                    )).ToList();
-
-                    Log.Debug("[BusinessModule - GetAll] Returned {Count} businesses.", response.Count);
-
-                    return Results.Ok(response);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("[BusinessModule - GetAll] Error occurred. Exception: {Exception}", ex);
-                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
-                }
-            })
-            .WithTags(SwazyConstants.BusinessModuleName);
 
         endpoints.MapGet($"api/{SwazyConstants.BusinessModuleApi}/{{businessId:guid}}", async (
                 [FromServices] SwazyDbContext db,
@@ -194,8 +97,6 @@ public static class BusinessModule
                     business.Address = updateBusinessDto.Address;
                     business.PhoneNumber = updateBusinessDto.PhoneNumber;
                     business.Email = updateBusinessDto.Email;
-                    business.BusinessType = updateBusinessDto.BusinessType;
-                    business.WebsiteUrl = updateBusinessDto.WebsiteUrl;
 
                     await db.SaveChangesAsync();
 
@@ -431,51 +332,5 @@ public static class BusinessModule
             })
             .WithTags(SwazyConstants.BusinessModuleName);
 
-        endpoints.MapDelete($"api/{SwazyConstants.BusinessModuleApi}/{{id:guid}}", async (
-                [FromServices] SwazyDbContext db,
-                [FromRoute] Guid id) =>
-            {
-                Log.Verbose("[BusinessModule - Delete] Invoked. {BusinessId}", id);
-
-                try
-                {
-                    var business = await db.Businesses.FindAsync(id);
-
-                    if (business == null)
-                    {
-                        Log.Debug("[BusinessModule - Delete] Not found. {BusinessId}", id);
-                        return Results.NotFound("Business not found.");
-                    }
-
-                    business.IsDeleted = true;
-                    business.DeletedAt = DateTimeOffset.UtcNow;
-
-                    await db.SaveChangesAsync();
-
-                    Log.Debug("[BusinessModule - Delete] Successfully soft deleted. {BusinessId}", id);
-
-                    var response = new BusinessResponse(
-                        business.Id,
-                        business.Name,
-                        business.Address,
-                        business.PhoneNumber,
-                        business.Email,
-                        business.BusinessType.ToString(),
-                        [],
-                        [],
-                        business.WebsiteUrl,
-                        business.CreatedAt
-                    );
-
-                    return Results.Ok(response);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("[BusinessModule - Delete] Error occurred. {BusinessId} Exception: {Exception}",
-                        id, ex);
-                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
-                }
-            })
-            .WithTags(SwazyConstants.BusinessModuleName);
     }
 }

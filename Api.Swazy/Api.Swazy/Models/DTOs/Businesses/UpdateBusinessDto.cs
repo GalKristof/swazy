@@ -1,13 +1,12 @@
-﻿using Api.Swazy.Types;
+﻿namespace Api.Swazy.Models.DTOs.Businesses;
 
-namespace Api.Swazy.Models.DTOs.Businesses;
-
+/// <summary>
+/// DTO for tenant business updates - BusinessType and WebsiteUrl are read-only for tenants
+/// </summary>
 public record UpdateBusinessDto(
     Guid Id,
     string Name,
     string Address,
     string PhoneNumber,
-    string Email,
-    BusinessType BusinessType,
-    string WebsiteUrl
+    string Email
     ) : BaseUpdateDto(Id);

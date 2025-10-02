@@ -22,7 +22,6 @@ public static class BookingModule
 
                 try
                 {
-                    // Generate unique confirmation code
                     string confirmationCode;
                     do
                     {
@@ -68,42 +67,6 @@ public static class BookingModule
                 catch (Exception ex)
                 {
                     Log.Error("[BookingModule - Create] Error occurred. Exception: {Exception}", ex);
-                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
-                }
-            })
-            .WithTags(SwazyConstants.BookingModuleName);
-
-        endpoints.MapGet($"api/{SwazyConstants.BookingModuleApi}/all", async (
-                [FromServices] SwazyDbContext db) =>
-            {
-                Log.Verbose("[BookingModule - GetAll] Invoked.");
-
-                try
-                {
-                    var bookings = await db.Bookings.ToListAsync();
-
-                    var response = bookings.Select(b => new BookingResponse(
-                        b.Id,
-                        b.ConfirmationCode,
-                        b.BookingDate,
-                        b.Notes,
-                        b.FirstName,
-                        b.LastName,
-                        b.Email,
-                        b.PhoneNumber,
-                        b.BusinessServiceId,
-                        b.EmployeeId,
-                        b.BookedByUserId,
-                        b.CreatedAt
-                    )).ToList();
-
-                    Log.Debug("[BookingModule - GetAll] Returned {Count} bookings.", response.Count);
-
-                    return Results.Ok(response);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("[BookingModule - GetAll] Error occurred. Exception: {Exception}", ex);
                     return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
                 }
             })

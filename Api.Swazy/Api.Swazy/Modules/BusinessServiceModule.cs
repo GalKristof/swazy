@@ -104,39 +104,6 @@ public static class BusinessServiceModule
             })
             .WithTags(SwazyConstants.BusinessServiceModuleName);
 
-        endpoints.MapGet($"api/{SwazyConstants.BusinessServiceModuleApi}/all", async (
-                [FromServices] SwazyDbContext db) =>
-            {
-                Log.Verbose("[BusinessServiceModule - GetAll] Invoked.");
-
-                try
-                {
-                    var businessServices = await db.BusinessServices
-                        .Include(bs => bs.Service)
-                        .ToListAsync();
-
-                    var response = businessServices.Select(bs => new BusinessServiceResponse(
-                        bs.Id,
-                        bs.BusinessId,
-                        bs.ServiceId,
-                        bs.Service.Value,
-                        bs.Price,
-                        bs.Duration,
-                        bs.CreatedAt
-                    )).ToList();
-
-                    Log.Debug("[BusinessServiceModule - GetAll] Returned {Count} services.", response.Count);
-
-                    return Results.Ok(response);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("[BusinessServiceModule - GetAll] Error occurred. Exception: {Exception}", ex);
-                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
-                }
-            })
-            .WithTags(SwazyConstants.BusinessServiceModuleName);
-
         endpoints.MapGet($"api/{SwazyConstants.BusinessServiceModuleApi}/{{id:guid}}", async (
                 [FromServices] SwazyDbContext db,
                 [FromRoute] Guid id) =>

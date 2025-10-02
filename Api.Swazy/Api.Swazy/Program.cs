@@ -59,12 +59,17 @@ if (app.Environment.IsDevelopment())
 app.UseCors(SwazyCorsPolicy);
 Log.Information($"[Swazy] CORS Policy: '{SwazyCorsPolicy}' has been applied...");
 Log.Information("[Swazy] Endpoints mapping...");
+
+// Tenant-scoped endpoints
 app.MapBusinessEndpoints();
-app.MapServiceEndpoints();
 app.MapBookingEndpoints();
 app.MapUserEndpoints();
 app.MapBusinessServiceEndpoints();
 app.MapEmployeeScheduleEndpoints();
+
+// Admin-only endpoints
+app.MapAdminEndpoints();
+
 Log.Information("[Swazy] Endpoints mapped, setting up HTTPS Redirection...");
 app.UseHttpsRedirection();
 Log.Information("[Swazy] Migrating database...");
