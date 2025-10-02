@@ -310,6 +310,7 @@ export class BookingFlowComponent implements OnInit {
     const employee = this.selectedEmployee();
     const date = this.selectedDate();
     const time = this.selectedTime();
+    const business = this.tenantService.getCurrentBusiness();
 
     if (!service || !employee || !date || !time) {
       this.toastService.error('Hiányzó adatok');
@@ -317,8 +318,8 @@ export class BookingFlowComponent implements OnInit {
     }
 
     if (!this.customerFirstName() || !this.customerLastName() ||
-        !this.customerEmail() || !this.customerPhone()) {
-      this.toastService.warning('Kérlek töltsd ki az összes mezőt');
+        !this.customerPhone()) {
+      this.toastService.warning('Kérlek töltsd ki az összes kötelező mezőt (név és telefonszám)');
       return;
     }
 
@@ -332,7 +333,7 @@ export class BookingFlowComponent implements OnInit {
       notes: this.customerNotes() || null,
       firstName: this.customerFirstName(),
       lastName: this.customerLastName(),
-      email: this.customerEmail(),
+      email: this.customerEmail() || 'noemail@swazy.hu',
       phoneNumber: this.customerPhone(),
       businessServiceId: service.id,
       employeeId: employee.userId,
@@ -343,17 +344,28 @@ export class BookingFlowComponent implements OnInit {
 
     this.bookingService.createBooking(booking).subscribe({
       next: (response) => {
-        this.toastService.success('Foglalás sikeresen létrehozva!');
         this.isSubmitting.set(false);
 
-        // Navigate back to landing page
-        setTimeout(() => {
-          this.router.navigate(['/']);
-        }, 1500);
+        // Navigate to confirmation page with confirmation code
+        this.router.navigate(['/booking-confirmation', response.confirmationCode]);
       },
       error: (error) => {
         console.error('Error creating booking:', error);
-        this.toastService.error('Hiba történt a foglalás létrehozásakor');
+
+        // More specific error messages
+        let errorMessage = 'Hiba történt a foglalás létrehozásakor. ';
+
+        if (error.status === 400) {
+          errorMessage += 'Ellenőrizd az adatokat és próbáld újra.';
+        } else if (error.status === 409) {
+          errorMessage += 'Ez az időpont már foglalt. Válassz másik időpontot.';
+        } else if (error.status === 0) {
+          errorMessage += 'Nem sikerült kapcsolódni a szerverhez.';
+        } else {
+          errorMessage += 'Kérlek próbáld újra később.';
+        }
+
+        this.toastService.error(errorMessage);
         this.isSubmitting.set(false);
       }
     });

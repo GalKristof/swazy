@@ -1,0 +1,153 @@
+<div class="min-h-screen bg-base-200 py-8 px-4">
+  <div class="container max-w-lg mx-auto">
+
+    <!-- Loading State -->
+    @if (isLoading) {
+      <div class="flex flex-col items-center justify-center py-20">
+        <span class="loading loading-spinner loading-lg"></span>
+        <p class="mt-4 text-base-content/60">Foglalás betöltése...</p>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (errorMessage && !isLoading) {
+      <div class="alert alert-error">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>{{ errorMessage }}</span>
+      </div>
+      <div class="mt-6 flex justify-center">
+        <a href="/" class="btn btn-primary">Vissza a főoldalra</a>
+      </div>
+    }
+
+    <!-- Success State -->
+    @if (!isLoading && !errorMessage) {
+      <!-- Success Icon -->
+      <div class="flex justify-center mb-6">
+        <div class="w-20 h-20 rounded-full bg-success/20 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="text-center mb-8">
+        <h1 class="text-2xl font-bold mb-1">Foglalás megerősítve</h1>
+        <p class="text-base-content/60 text-sm">Várunk szeretettel!</p>
+      </div>
+
+      <!-- Confirmation Code -->
+      <div class="card bg-base-100 shadow-lg mb-8">
+        <div class="card-body p-6 text-center">
+          <div class="text-xs text-base-content/60 uppercase tracking-wide font-semibold mb-2">Megerősítési kód</div>
+          <div class="font-mono text-3xl font-bold text-primary tracking-wider">
+            #{{ confirmationCode }}
+          </div>
+          <p class="text-xs text-base-content/60 mt-2">Mutasd meg ezt a kódot érkezéskor</p>
+        </div>
+      </div>
+
+    <!-- Main Card -->
+    <div class="card bg-base-100 shadow-lg mb-4">
+      <div class="card-body p-6">
+
+        <!-- Date & Time - HERO -->
+        <div class="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg p-6 text-center mb-6">
+          <div class="text-4xl mb-2">📅</div>
+          <div class="text-sm text-base-content/60 mb-1">{{ bookingDate }}</div>
+          <div class="text-3xl font-bold text-primary">{{ bookingTime }}</div>
+        </div>
+
+        <!-- Details -->
+        <div class="space-y-4">
+          <!-- Service -->
+          <div class="flex items-start gap-4">
+            <div class="text-3xl">✂️</div>
+            <div class="flex-1">
+              <div class="text-xs text-base-content/60 uppercase tracking-wide mb-1">Szolgáltatás</div>
+              <div class="font-semibold">{{ serviceName }}</div>
+              <div class="text-sm text-base-content/60">{{ duration }} perc</div>
+            </div>
+          </div>
+
+          <div class="divider my-2"></div>
+
+          <!-- Employee -->
+          <div class="flex items-start gap-4">
+            <div class="text-3xl">👤</div>
+            <div class="flex-1">
+              <div class="text-xs text-base-content/60 uppercase tracking-wide mb-1">Fodrász</div>
+              <div class="font-semibold">{{ employeeName }}</div>
+            </div>
+          </div>
+
+          <div class="divider my-2"></div>
+
+          <!-- Business -->
+          <div class="flex items-start gap-4">
+            <div class="text-3xl">🏪</div>
+            <div class="flex-1">
+              <div class="text-xs text-base-content/60 uppercase tracking-wide mb-1">Helyszín</div>
+              <div class="font-semibold">{{ businessName }}</div>
+              @if (businessAddress) {
+                <div class="text-sm text-base-content/60 mt-1">{{ businessAddress }}</div>
+              }
+            </div>
+          </div>
+
+          <div class="divider my-2"></div>
+
+          <!-- Customer -->
+          <div class="flex items-start gap-4">
+            <div class="text-3xl">👨</div>
+            <div class="flex-1">
+              <div class="text-xs text-base-content/60 uppercase tracking-wide mb-1">Foglalás adatai</div>
+              <div class="font-semibold">{{ customerName }}</div>
+              <div class="text-sm text-base-content/60 mt-1">{{ customerPhone }}</div>
+            </div>
+          </div>
+
+          <div class="divider my-2"></div>
+
+          <!-- Price -->
+          <div class="flex items-start gap-4">
+            <div class="text-3xl">💰</div>
+            <div class="flex-1">
+              <div class="text-xs text-base-content/60 uppercase tracking-wide mb-1">Fizetendő összeg</div>
+              <div class="text-2xl font-bold text-success">{{ price }} Ft</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Payment Info -->
+    <div class="alert alert-info shadow-lg mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <div>
+        <div class="font-semibold text-sm">Fizetés a helyszínen</div>
+        <div class="text-xs">Készpénz vagy bankkártya</div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="space-y-3">
+      <a href="/" class="btn btn-primary w-full">Vissza a főoldalra</a>
+      <a href="/booking" class="btn btn-outline w-full">Új foglalás</a>
+    </div>
+
+      <!-- Contact -->
+      @if (businessPhone) {
+        <div class="text-center mt-8 text-sm text-base-content/60">
+          Kérdésed van? <a href="tel:{{ businessPhone }}" class="link">{{ businessPhone }}</a>
+        </div>
+      }
+    }
+  </div>
+</div>

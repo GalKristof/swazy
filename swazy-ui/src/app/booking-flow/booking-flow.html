@@ -38,7 +38,7 @@
                 <div class="w-full text-left">
                   <div class="font-bold text-lg mb-1">{{ service.serviceName }}</div>
                   <div class="flex justify-between items-center w-full mt-2">
-                    <span class="text-2xl font-bold text-primary">{{ service.price }} Ft</span>
+                    <span class="text-2xl font-bold">{{ service.price }} Ft</span>
                     <span class="text-sm opacity-70">{{ service.duration }} perc</span>
                   </div>
                 </div>
@@ -170,8 +170,9 @@
               <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-4">
                 @for (slot of availableSlots(); track slot) {
                   <button
-                    class="btn btn-outline btn-md h-auto py-3"
-                    [class.btn-primary]="selectedTime() === formatTime(slot)"
+                    [class]="selectedTime() === formatTime(slot)
+                      ? 'btn btn-primary btn-md h-auto py-3 text-primary-content hover:opacity-90'
+                      : 'btn btn-outline btn-md h-auto py-3 hover:border-primary hover:text-primary hover:bg-transparent'"
                     (click)="selectTime(formatTime(slot))">
                     <span class="text-base font-semibold">{{ formatTime(slot) }}</span>
                   </button>
@@ -262,8 +263,8 @@
               </label>
               <input
                 type="text"
-                class="input input-bordered w-full"
-                placeholder="Kovács"
+                class="input input-bordered w-full placeholder:text-base-content/40 placeholder:italic"
+                placeholder="pl. Kovács"
                 [value]="customerLastName()"
                 (input)="customerLastName.set($any($event.target).value)"
                 required />
@@ -275,8 +276,8 @@
               </label>
               <input
                 type="text"
-                class="input input-bordered w-full"
-                placeholder="János"
+                class="input input-bordered w-full placeholder:text-base-content/40 placeholder:italic"
+                placeholder="pl. János"
                 [value]="customerFirstName()"
                 (input)="customerFirstName.set($any($event.target).value)"
                 required />
@@ -284,15 +285,14 @@
 
             <div class="form-control w-full mb-4">
               <label class="label">
-                <span class="label-text font-semibold">Email cím *</span>
+                <span class="label-text font-semibold">Email cím (opcionális)</span>
               </label>
               <input
                 type="email"
-                class="input input-bordered w-full"
-                placeholder="kovacs.janos@example.com"
+                class="input input-bordered w-full placeholder:text-base-content/40 placeholder:italic"
+                placeholder="pl. janos.kovacs@email.com"
                 [value]="customerEmail()"
-                (input)="customerEmail.set($any($event.target).value)"
-                required />
+                (input)="customerEmail.set($any($event.target).value)" />
             </div>
 
             <div class="form-control w-full mb-4">
@@ -301,8 +301,8 @@
               </label>
               <input
                 type="tel"
-                class="input input-bordered w-full"
-                placeholder="+36 30 123 4567"
+                class="input input-bordered w-full placeholder:text-base-content/40 placeholder:italic"
+                placeholder="pl. +36 30 123 4567"
                 [value]="customerPhone()"
                 (input)="customerPhone.set($any($event.target).value)"
                 required />
@@ -313,8 +313,8 @@
                 <span class="label-text font-semibold">Megjegyzések (opcionális)</span>
               </label>
               <textarea
-                class="textarea textarea-bordered w-full h-24"
-                placeholder="Speciális kérések vagy megjegyzések..."
+                class="textarea textarea-bordered w-full h-24 placeholder:text-base-content/40 placeholder:italic"
+                placeholder="pl. Rövid hajat szeretnék, vagy oldalt angolt"
                 [value]="customerNotes()"
                 (input)="customerNotes.set($any($event.target).value)"></textarea>
             </div>
