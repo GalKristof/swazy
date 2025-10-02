@@ -135,7 +135,7 @@ export class BusinessService {
    * Calls GET /api/service/all
    */
   loadAllServices(): Observable<ServiceDetails[]> {
-    const url = `${environment.apiUrl}/service/all`;
+    const url = `${environment.apiUrl}/admin/service/all`;
     console.log('[BusinessService] Loading all available services');
     return this.http.get<ServiceDetails[]>(url);
   }

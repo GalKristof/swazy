@@ -2,3 +2,8 @@
 @plugin "daisyui" {
   themes: all;
 }
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}

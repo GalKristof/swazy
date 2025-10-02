@@ -56,7 +56,15 @@ export class BookingCalendarComponent implements OnInit {
 
     return allEmployees.filter(emp => {
       const schedule = allSchedules.find(s => s.userId === emp.userId);
-      if (!schedule || schedule.isOnVacation) return false;
+      if (!schedule) return false;
+
+      // Check if employee is on vacation for the selected date
+      if (schedule.vacationFrom && schedule.vacationTo) {
+        const selectedDate = date;
+        const vacationStart = new Date(schedule.vacationFrom);
+        const vacationEnd = new Date(schedule.vacationTo);
+        if (selectedDate >= vacationStart && selectedDate <= vacationEnd) return false;
+      }
 
       const daySchedule = schedule.daySchedules.find(d => d.dayOfWeek === dayOfWeek);
       return daySchedule?.isWorkingDay || false;

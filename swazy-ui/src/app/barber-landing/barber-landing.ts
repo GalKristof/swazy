@@ -66,12 +66,18 @@ export class BarberLandingComponent implements OnInit {
 
   isEmployeeOnVacation(employeeUserId: string): boolean {
     const schedule = this.schedules().find(s => s.userId === employeeUserId);
-    return schedule?.isOnVacation || false;
+    if (!schedule || !schedule.vacationFrom || !schedule.vacationTo) return false;
+
+    const now = new Date();
+    const vacationStart = new Date(schedule.vacationFrom);
+    const vacationEnd = new Date(schedule.vacationTo);
+
+    return now >= vacationStart && now <= vacationEnd;
   }
 
   private calculateAvailableMinutes(userId: string): number {
     const schedule = this.schedules().find(s => s.userId === userId);
-    if (!schedule || schedule.isOnVacation) return 0;
+    if (!schedule || this.isEmployeeOnVacation(userId)) return 0;
 
     return schedule.daySchedules
       .filter(day => day.isWorkingDay)

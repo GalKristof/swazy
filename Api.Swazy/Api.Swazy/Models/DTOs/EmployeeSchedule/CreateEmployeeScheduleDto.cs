@@ -4,6 +4,7 @@ public record CreateEmployeeScheduleDto(
     Guid UserId,
     Guid BusinessId,
     int BufferTimeMinutes,
-    bool IsOnVacation,
+    DateTimeOffset? VacationFrom,
+    DateTimeOffset? VacationTo,
     List<DayScheduleDto> DaySchedules
 );

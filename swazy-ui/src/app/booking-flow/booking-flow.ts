@@ -84,7 +84,17 @@ export class BookingFlowComponent implements OnInit {
     // Filter to employees with schedules who are not on vacation
     return allEmployees.filter(emp => {
       const schedule = currentSchedules.find(s => s.userId === emp.userId);
-      return schedule && !schedule.isOnVacation;
+      if (!schedule) return false;
+
+      // Check if employee is on vacation
+      if (schedule.vacationFrom && schedule.vacationTo) {
+        const now = new Date();
+        const vacationStart = new Date(schedule.vacationFrom);
+        const vacationEnd = new Date(schedule.vacationTo);
+        if (now >= vacationStart && now <= vacationEnd) return false;
+      }
+
+      return true;
     });
   });
 

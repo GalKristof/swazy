@@ -34,8 +34,19 @@ public class AvailabilityCalculationService : IAvailabilityCalculationService
             .Include(s => s.DaySchedules)
             .FirstOrDefaultAsync(s => s.UserId == employeeId && s.BusinessId == businessId);
 
-        if (schedule == null || schedule.IsOnVacation)
+        if (schedule == null)
             return new List<DateTimeOffset>();
+
+        // Check if the requested date falls within vacation period
+        if (schedule.VacationFrom.HasValue && schedule.VacationTo.HasValue)
+        {
+            var requestedDate = date.UtcDateTime.Date;
+            var vacationStart = schedule.VacationFrom.Value.UtcDateTime.Date;
+            var vacationEnd = schedule.VacationTo.Value.UtcDateTime.Date;
+
+            if (requestedDate >= vacationStart && requestedDate <= vacationEnd)
+                return new List<DateTimeOffset>();
+        }
 
         // Get day schedule for the requested date
         var dayOfWeek = (int)date.DayOfWeek;

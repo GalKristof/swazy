@@ -19,12 +19,14 @@ export class ScheduleManagementComponent {
     employee: Employee;
     currentSchedule: EmployeeSchedule | null;
     bufferTimeMinutes: number;
-    isOnVacation: boolean;
+    vacationFrom: string | null;
+    vacationTo: string | null;
     daySchedules: DaySchedule[];
   }>();
   scheduleCopied = output<{
     bufferTimeMinutes: number;
-    isOnVacation: boolean;
+    vacationFrom: string | null;
+    vacationTo: string | null;
     daySchedules: DaySchedule[];
   }>();
 
@@ -32,7 +34,8 @@ export class ScheduleManagementComponent {
   currentSchedule = signal<EmployeeSchedule | null>(null);
   editScheduleForm = signal<DaySchedule[]>([]);
   bufferTimeMinutesValue = 15;
-  isOnVacation = false;
+  vacationFromValue: string = '';
+  vacationToValue: string = '';
   isSaving = false;
   isCopying = false;
 
@@ -48,12 +51,35 @@ export class ScheduleManagementComponent {
     this.currentSchedule.set(schedule);
     if (schedule) {
       this.bufferTimeMinutesValue = schedule.bufferTimeMinutes;
-      this.isOnVacation = schedule.isOnVacation;
+      this.vacationFromValue = schedule.vacationFrom ? schedule.vacationFrom.split('T')[0] : '';
+      this.vacationToValue = schedule.vacationTo ? schedule.vacationTo.split('T')[0] : '';
       this.editScheduleForm.set([...schedule.daySchedules]);
+      console.log('[Schedule Load] Loaded vacation dates:', { vacationFrom: this.vacationFromValue, vacationTo: this.vacationToValue, raw: schedule });
     } else {
       this.bufferTimeMinutesValue = 15;
-      this.isOnVacation = false;
+      this.vacationFromValue = '';
+      this.vacationToValue = '';
       this.editScheduleForm.set(this.createDefaultWeekSchedule());
+    }
+  }
+
+  onVacationFromChange(value: string) {
+    this.vacationFromValue = value && value.trim() !== '' ? value : '';
+    console.log('[Vacation From Changed]', this.vacationFromValue);
+  }
+
+  onVacationToChange(value: string) {
+    this.vacationToValue = value && value.trim() !== '' ? value : '';
+    console.log('[Vacation To Changed]', this.vacationToValue);
+  }
+
+  onVacationDatesChange() {
+    // Clear the other field if one is cleared
+    if (!this.vacationFromValue) {
+      this.vacationToValue = '';
+    }
+    if (!this.vacationToValue) {
+      this.vacationFromValue = '';
     }
   }
 
@@ -62,12 +88,19 @@ export class ScheduleManagementComponent {
   }
 
   isEmployeeOnVacation(userId: string): boolean {
-    return this.schedules().find(s => s.userId === userId)?.isOnVacation || false;
+    const schedule = this.schedules().find(s => s.userId === userId);
+    if (!schedule || !schedule.vacationFrom || !schedule.vacationTo) return false;
+
+    const now = new Date();
+    const vacationStart = new Date(schedule.vacationFrom);
+    const vacationEnd = new Date(schedule.vacationTo);
+
+    return now >= vacationStart && now <= vacationEnd;
   }
 
   calculateAvailableMinutes(userId: string): number {
     const schedule = this.schedules().find(s => s.userId === userId);
-    if (!schedule || schedule.isOnVacation) return 0;
+    if (!schedule || this.isEmployeeOnVacation(userId)) return 0;
 
     return schedule.daySchedules
       .filter(day => day.isWorkingDay)
@@ -119,12 +152,33 @@ export class ScheduleManagementComponent {
     const employee = this.selectedEmployee();
     if (!employee || this.isSaving) return;
 
+    // Clean up vacation dates - ensure both are set or both are null
+    let vacationFrom: string | null = null;
+    let vacationTo: string | null = null;
+
+    if (this.vacationFromValue && this.vacationFromValue.trim() !== '') {
+      vacationFrom = this.vacationFromValue + 'T00:00:00.000Z';
+    }
+
+    if (this.vacationToValue && this.vacationToValue.trim() !== '') {
+      vacationTo = this.vacationToValue + 'T23:59:59.999Z';
+    }
+
+    // If only one is set, clear both
+    if ((vacationFrom && !vacationTo) || (!vacationFrom && vacationTo)) {
+      vacationFrom = null;
+      vacationTo = null;
+    }
+
+    console.log('[Schedule Save] Vacation dates:', { vacationFrom, vacationTo, raw: { from: this.vacationFromValue, to: this.vacationToValue } });
+
     this.isSaving = true;
     this.scheduleSaved.emit({
       employee,
       currentSchedule: this.currentSchedule(),
       bufferTimeMinutes: this.bufferTimeMinutesValue,
-      isOnVacation: this.isOnVacation,
+      vacationFrom: vacationFrom,
+      vacationTo: vacationTo,
       daySchedules: this.editScheduleForm()
     });
   }
@@ -140,10 +194,22 @@ export class ScheduleManagementComponent {
   copyToAllEmployees() {
     if (this.isCopying) return;
 
+    let vacationFrom: string | null = null;
+    let vacationTo: string | null = null;
+
+    if (this.vacationFromValue && this.vacationFromValue.trim() !== '') {
+      vacationFrom = this.vacationFromValue + 'T00:00:00.000Z';
+    }
+
+    if (this.vacationToValue && this.vacationToValue.trim() !== '') {
+      vacationTo = this.vacationToValue + 'T23:59:59.999Z';
+    }
+
     this.isCopying = true;
     this.scheduleCopied.emit({
       bufferTimeMinutes: this.bufferTimeMinutesValue,
-      isOnVacation: this.isOnVacation,
+      vacationFrom: vacationFrom,
+      vacationTo: vacationTo,
       daySchedules: this.editScheduleForm()
     });
   }

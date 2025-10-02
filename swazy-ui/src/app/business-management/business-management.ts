@@ -237,7 +237,8 @@ export class BusinessManagementComponent implements OnInit {
 
     const scheduleData = {
       bufferTimeMinutes: data.bufferTimeMinutes,
-      isOnVacation: data.isOnVacation,
+      vacationFrom: data.vacationFrom,
+      vacationTo: data.vacationTo,
       daySchedules: data.daySchedules
     };
 

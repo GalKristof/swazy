@@ -33,30 +33,52 @@
   </div>
 
   <!-- Hero Section -->
-  <section id="hero" class="hero min-h-[70vh] lg:min-h-screen bg-base-100 relative">
-    <div class="hero-content text-center px-4">
-      <div class="max-w-2xl">
-        @if ((business$ | async); as business) {
-          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
-            {{ business.title || 'Stílus. Hagyomány. Tökéletesség.' }}
-          </h1>
-          <p class="text-lg md:text-xl mb-6 md:mb-8 text-base-content/80">
-            {{ business.subtitle || 'Professzionális férfi hajvágás és szakáll ápolás a belvárosban' }}
-          </p>
-        } @else {
-          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
-            Stílus. Hagyomány. Tökéletesség.
-          </h1>
-          <p class="text-lg md:text-xl mb-6 md:mb-8 text-base-content/80">
-            Professzionális férfi hajvágás és szakáll ápolás a belvárosban
-          </p>
-        }
-        <div class="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
-          <a routerLink="/booking" class="btn btn-primary btn-md lg:btn-lg w-full sm:w-auto">
-            Időpontfoglalás
+  <section id="hero" class="hero min-h-[70vh] lg:min-h-screen bg-gradient-to-br from-base-100 via-base-200 to-base-300">
+    <div class="hero-content text-center px-4 py-12">
+      <div class="max-w-4xl">
+        <!-- Main Content Card -->
+        <div class="card bg-base-100 shadow-2xl backdrop-blur-sm bg-base-100/95 mb-8">
+          <div class="card-body py-8 md:py-12 px-6 md:px-12">
+            @if ((business$ | async); as business) {
+              <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
+                {{ business.title || 'Stílus. Hagyomány. Tökéletesség.' }}
+              </h1>
+              <p class="text-lg md:text-xl mb-6 md:mb-8 text-base-content/80">
+                {{ business.subtitle || 'Professzionális férfi hajvágás és szakáll ápolás a belvárosban' }}
+              </p>
+            } @else {
+              <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
+                Stílus. Hagyomány. Tökéletesség.
+              </h1>
+              <p class="text-lg md:text-xl mb-6 md:mb-8 text-base-content/80">
+                Professzionális férfi hajvágás és szakáll ápolás a belvárosban
+              </p>
+            }
+          </div>
+        </div>
+
+        <!-- Floating Card CTAs -->
+        <div class="flex flex-col sm:flex-row gap-6 justify-center">
+          <!-- Primary CTA Card -->
+          <a routerLink="/booking" class="card bg-primary text-primary-content shadow-2xl hover:shadow-primary/50 transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+            <div class="card-body items-center text-center py-6 md:py-8 px-8 md:px-12">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 md:w-12 md:h-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <h3 class="card-title text-xl md:text-2xl">Időpontfoglalás</h3>
+              <p class="text-sm opacity-90">Foglalj most azonnal</p>
+            </div>
           </a>
-          <a href="#services" class="btn btn-outline btn-md lg:btn-lg w-full sm:w-auto">
-            Szolgáltatások
+
+          <!-- Secondary CTA Card -->
+          <a href="#services" class="card bg-base-100 border-2 border-primary/50 shadow-xl hover:shadow-2xl hover:border-primary transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+            <div class="card-body items-center text-center py-6 md:py-8 px-8 md:px-12">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 md:w-12 md:h-12 mb-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <h3 class="card-title text-xl md:text-2xl">Szolgáltatások</h3>
+              <p class="text-sm text-base-content/70">Nézd meg kínálatunkat</p>
+            </div>
           </a>
         </div>
       </div>

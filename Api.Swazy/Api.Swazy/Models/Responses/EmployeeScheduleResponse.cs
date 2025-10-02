@@ -7,7 +7,8 @@ public record EmployeeScheduleResponse(
     Guid UserId,
     Guid BusinessId,
     int BufferTimeMinutes,
-    bool IsOnVacation,
+    DateTimeOffset? VacationFrom,
+    DateTimeOffset? VacationTo,
     List<DayScheduleDto> DaySchedules,
     DateTimeOffset CreatedAt
 );

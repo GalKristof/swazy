@@ -14,25 +14,43 @@
 
     /* Toolbar styling */
     .e-schedule .e-schedule-toolbar {
-      background-color: hsl(var(--b2));
+      background-color: hsl(var(--b2)) !important;
       border-bottom: 1px solid hsl(var(--bc) / 0.1);
     }
 
     .e-schedule .e-toolbar-item {
-      color: hsl(var(--bc));
+      color: hsl(var(--bc)) !important;
+    }
+
+    .e-schedule .e-toolbar-item .e-tbar-btn-text {
+      color: hsl(var(--bc)) !important;
+    }
+
+    .e-schedule .e-tbar-btn {
+      background-color: transparent !important;
+      color: hsl(var(--bc)) !important;
     }
 
     .e-schedule .e-tbar-btn:hover {
-      background-color: hsl(var(--b3));
+      background-color: hsl(var(--b3)) !important;
+    }
+
+    .e-schedule .e-tbar-btn .e-btn-icon {
+      color: hsl(var(--bc)) !important;
     }
 
     /* Header cells */
     .e-schedule .e-timeline-view .e-date-header-wrap table tbody td,
     .e-schedule .e-header-cells {
-      background-color: hsl(var(--b2));
-      color: hsl(var(--bc));
+      background-color: hsl(var(--b2)) !important;
+      color: hsl(var(--bc)) !important;
       border-color: hsl(var(--bc) / 0.1);
       font-weight: 600;
+    }
+
+    .e-schedule .e-timeline-view .e-date-header-wrap .e-header-cells .e-header-day,
+    .e-schedule .e-timeline-view .e-date-header-wrap .e-header-cells .e-header-date {
+      color: hsl(var(--bc)) !important;
     }
 
     /* Resource (employee) column headers */
@@ -72,24 +90,36 @@
       border-radius: 0.375rem;
       border: none;
       font-size: 0.875rem;
-      padding: 4px 8px;
+      padding: 8px 12px;
       color: white;
       font-weight: 500;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      min-height: 60px;
     }
 
     .e-schedule .e-appointment .e-subject {
       color: white;
       font-weight: 500;
+      line-height: 1.4;
     }
 
     .e-schedule .e-appointment .e-time {
       color: rgba(255, 255, 255, 0.9);
+      font-size: 0.8rem;
     }
 
     /* Time labels */
     .e-schedule .e-timeline-view .e-time-slots {
-      color: hsl(var(--bc) / 0.7);
+      color: hsl(var(--bc)) !important;
+      font-weight: 600;
+    }
+
+    .e-schedule .e-timeline-view .e-date-header-wrap .e-header-cells {
+      background-color: hsl(var(--b2)) !important;
+    }
+
+    .e-schedule .e-timeline-view .e-date-header-wrap .e-header-cells * {
+      color: hsl(var(--bc)) !important;
     }
 
     /* More events indicator */
@@ -100,19 +130,67 @@
 
     /* Popup styling */
     .e-schedule .e-quick-popup-wrapper {
-      background-color: hsl(var(--b2));
-      color: hsl(var(--bc));
-      border-color: hsl(var(--bc) / 0.2);
+      background-color: hsl(var(--b1)) !important;
+      color: hsl(var(--bc)) !important;
+      border: 2px solid hsl(var(--bc) / 0.3) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+      border-radius: 0.5rem;
+    }
+
+    .e-schedule .e-quick-popup-wrapper .e-popup-header {
+      background-color: hsl(var(--b2)) !important;
+      color: hsl(var(--bc)) !important;
+      border-bottom: 1px solid hsl(var(--bc) / 0.2);
+    }
+
+    .e-schedule .e-quick-popup-wrapper .e-popup-content {
+      background-color: hsl(var(--b1)) !important;
+      color: hsl(var(--bc)) !important;
+    }
+
+    .e-schedule .e-quick-popup-wrapper .e-event-popup {
+      background-color: hsl(var(--b1)) !important;
+      color: hsl(var(--bc)) !important;
+    }
+
+    .e-schedule .e-quick-popup-wrapper .e-cell-popup {
+      background-color: hsl(var(--b1)) !important;
+      color: hsl(var(--bc)) !important;
+    }
+
+    .e-schedule .e-quick-popup-wrapper .e-popup-footer {
+      background-color: hsl(var(--b2)) !important;
+      border-top: 1px solid hsl(var(--bc) / 0.2);
+    }
+
+    .e-schedule .e-quick-popup-wrapper * {
+      color: hsl(var(--bc)) !important;
+    }
+
+    .e-schedule .e-quick-popup-wrapper .e-subject,
+    .e-schedule .e-quick-popup-wrapper .e-location,
+    .e-schedule .e-quick-popup-wrapper .e-details {
+      color: hsl(var(--bc)) !important;
+      background-color: transparent !important;
     }
 
     /* Date navigation */
     .e-schedule .e-date-range {
-      color: hsl(var(--bc));
+      color: hsl(var(--bc)) !important;
+    }
+
+    .e-schedule .e-date-range .e-tbar-btn-text {
+      color: hsl(var(--bc)) !important;
     }
 
     /* Icons */
     .e-schedule .e-icons {
-      color: hsl(var(--bc));
+      color: hsl(var(--bc)) !important;
+    }
+
+    .e-schedule .e-icon-prev,
+    .e-schedule .e-icon-next {
+      color: hsl(var(--bc)) !important;
     }
 
     /* Scrollbar styling for dark theme */

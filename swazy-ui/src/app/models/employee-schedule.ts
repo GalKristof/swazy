@@ -10,7 +10,8 @@ export interface EmployeeSchedule {
   userId: string;
   businessId: string;
   bufferTimeMinutes: number;
-  isOnVacation: boolean;
+  vacationFrom: string | null;
+  vacationTo: string | null;
   daySchedules: DaySchedule[];
   createdAt: string;
 }
@@ -19,14 +20,16 @@ export interface CreateEmployeeSchedule {
   userId: string;
   businessId: string;
   bufferTimeMinutes: number;
-  isOnVacation: boolean;
+  vacationFrom: string | null;
+  vacationTo: string | null;
   daySchedules: DaySchedule[];
 }
 
 export interface UpdateEmployeeSchedule {
   id: string;
   bufferTimeMinutes: number;
-  isOnVacation: boolean;
+  vacationFrom: string | null;
+  vacationTo: string | null;
   daySchedules: DaySchedule[];
 }
 

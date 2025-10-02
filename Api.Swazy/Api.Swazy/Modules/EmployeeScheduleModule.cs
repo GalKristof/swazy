@@ -39,7 +39,8 @@ public static class EmployeeScheduleModule
                         UserId = dto.UserId,
                         BusinessId = dto.BusinessId,
                         BufferTimeMinutes = dto.BufferTimeMinutes,
-                        IsOnVacation = dto.IsOnVacation,
+                        VacationFrom = dto.VacationFrom,
+                        VacationTo = dto.VacationTo,
                         DaySchedules = dto.DaySchedules.Select(ds => new EmployeeDaySchedule
                         {
                             DayOfWeek = ds.DayOfWeek,
@@ -59,7 +60,8 @@ public static class EmployeeScheduleModule
                         schedule.UserId,
                         schedule.BusinessId,
                         schedule.BufferTimeMinutes,
-                        schedule.IsOnVacation,
+                        schedule.VacationFrom,
+                        schedule.VacationTo,
                         schedule.DaySchedules.Select(ds => new DayScheduleDto(
                             ds.DayOfWeek,
                             ds.IsWorkingDay,
@@ -98,7 +100,8 @@ public static class EmployeeScheduleModule
                         s.UserId,
                         s.BusinessId,
                         s.BufferTimeMinutes,
-                        s.IsOnVacation,
+                        s.VacationFrom,
+                        s.VacationTo,
                         s.DaySchedules.Select(ds => new DayScheduleDto(
                             ds.DayOfWeek,
                             ds.IsWorkingDay,
@@ -147,7 +150,8 @@ public static class EmployeeScheduleModule
                         schedule.UserId,
                         schedule.BusinessId,
                         schedule.BufferTimeMinutes,
-                        schedule.IsOnVacation,
+                        schedule.VacationFrom,
+                        schedule.VacationTo,
                         schedule.DaySchedules.Select(ds => new DayScheduleDto(
                             ds.DayOfWeek,
                             ds.IsWorkingDay,
@@ -189,7 +193,8 @@ public static class EmployeeScheduleModule
                     }
 
                     schedule.BufferTimeMinutes = dto.BufferTimeMinutes;
-                    schedule.IsOnVacation = dto.IsOnVacation;
+                    schedule.VacationFrom = dto.VacationFrom;
+                    schedule.VacationTo = dto.VacationTo;
 
                     // Update existing day schedules
                     foreach (var dtoDay in dto.DaySchedules)
@@ -238,7 +243,8 @@ public static class EmployeeScheduleModule
                         schedule.UserId,
                         schedule.BusinessId,
                         schedule.BufferTimeMinutes,
-                        schedule.IsOnVacation,
+                        schedule.VacationFrom,
+                        schedule.VacationTo,
                         schedule.DaySchedules.Select(ds => new DayScheduleDto(
                             ds.DayOfWeek,
                             ds.IsWorkingDay,
