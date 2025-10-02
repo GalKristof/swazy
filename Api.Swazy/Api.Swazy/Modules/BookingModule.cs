@@ -22,8 +22,16 @@ public static class BookingModule
 
                 try
                 {
+                    // Generate unique confirmation code
+                    string confirmationCode;
+                    do
+                    {
+                        confirmationCode = ConfirmationCodeGenerator.Generate();
+                    } while (await db.Bookings.AnyAsync(b => b.ConfirmationCode == confirmationCode));
+
                     var booking = new Booking
                     {
+                        ConfirmationCode = confirmationCode,
                         BookingDate = createBookingDto.BookingDate,
                         Notes = createBookingDto.Notes,
                         FirstName = createBookingDto.FirstName,
@@ -42,6 +50,7 @@ public static class BookingModule
 
                     var response = new BookingResponse(
                         booking.Id,
+                        booking.ConfirmationCode,
                         booking.BookingDate,
                         booking.Notes,
                         booking.FirstName,
@@ -75,6 +84,7 @@ public static class BookingModule
 
                     var response = bookings.Select(b => new BookingResponse(
                         b.Id,
+                        b.ConfirmationCode,
                         b.BookingDate,
                         b.Notes,
                         b.FirstName,
@@ -110,19 +120,29 @@ public static class BookingModule
                     var bookings = await db.Bookings
                         .Include(b => b.BusinessService)
                             .ThenInclude(bs => bs!.Service)
+                        .Include(b => b.BusinessService)
+                            .ThenInclude(bs => bs!.Business)
+                        .Include(b => b.Employee)
                         .Where(b => b.BusinessService != null && b.BusinessService.BusinessId == businessId)
                         .ToListAsync();
 
                     var response = bookings.Select(b => new BookingDetailsResponse(
                         b.Id,
+                        b.ConfirmationCode,
                         b.BookingDate,
                         b.BookingDate.AddMinutes(b.BusinessService!.Duration),
                         b.BusinessService!.Service!.Value,
+                        b.BusinessService.Duration,
+                        b.BusinessService.Price,
                         b.FirstName,
                         b.LastName,
                         b.Email,
                         b.PhoneNumber,
                         b.Notes,
+                        b.Employee != null ? $"{b.Employee.FirstName} {b.Employee.LastName}" : null,
+                        b.BusinessService.Business!.Name,
+                        b.BusinessService.Business.Address,
+                        b.BusinessService.Business.PhoneNumber,
                         b.EmployeeId,
                         b.BookedByUserId
                     )).ToList();
@@ -152,20 +172,30 @@ public static class BookingModule
                     var bookings = await db.Bookings
                         .Include(b => b.BusinessService)
                             .ThenInclude(bs => bs!.Service)
+                        .Include(b => b.BusinessService)
+                            .ThenInclude(bs => bs!.Business)
+                        .Include(b => b.Employee)
                         .Where(b => b.Email == email)
                         .OrderByDescending(b => b.BookingDate)
                         .ToListAsync();
 
                     var response = bookings.Select(b => new BookingDetailsResponse(
                         b.Id,
+                        b.ConfirmationCode,
                         b.BookingDate,
                         b.BookingDate.AddMinutes(b.BusinessService!.Duration),
                         b.BusinessService!.Service!.Value,
+                        b.BusinessService.Duration,
+                        b.BusinessService.Price,
                         b.FirstName,
                         b.LastName,
                         b.Email,
                         b.PhoneNumber,
                         b.Notes,
+                        b.Employee != null ? $"{b.Employee.FirstName} {b.Employee.LastName}" : null,
+                        b.BusinessService.Business!.Name,
+                        b.BusinessService.Business.Address,
+                        b.BusinessService.Business.PhoneNumber,
                         b.EmployeeId,
                         b.BookedByUserId
                     )).ToList();
@@ -195,20 +225,30 @@ public static class BookingModule
                     var bookings = await db.Bookings
                         .Include(b => b.BusinessService)
                             .ThenInclude(bs => bs!.Service)
+                        .Include(b => b.BusinessService)
+                            .ThenInclude(bs => bs!.Business)
+                        .Include(b => b.Employee)
                         .Where(b => b.EmployeeId == userId)
                         .OrderByDescending(b => b.BookingDate)
                         .ToListAsync();
 
                     var response = bookings.Select(b => new BookingDetailsResponse(
                         b.Id,
+                        b.ConfirmationCode,
                         b.BookingDate,
                         b.BookingDate.AddMinutes(b.BusinessService!.Duration),
                         b.BusinessService!.Service!.Value,
+                        b.BusinessService.Duration,
+                        b.BusinessService.Price,
                         b.FirstName,
                         b.LastName,
                         b.Email,
                         b.PhoneNumber,
                         b.Notes,
+                        b.Employee != null ? $"{b.Employee.FirstName} {b.Employee.LastName}" : null,
+                        b.BusinessService.Business!.Name,
+                        b.BusinessService.Business.Address,
+                        b.BusinessService.Business.PhoneNumber,
                         b.EmployeeId,
                         b.BookedByUserId
                     )).ToList();
@@ -259,6 +299,7 @@ public static class BookingModule
 
                     var response = new BookingResponse(
                         booking.Id,
+                        booking.ConfirmationCode,
                         booking.BookingDate,
                         booking.Notes,
                         booking.FirstName,
@@ -307,6 +348,7 @@ public static class BookingModule
 
                     var response = new BookingResponse(
                         booking.Id,
+                        booking.ConfirmationCode,
                         booking.BookingDate,
                         booking.Notes,
                         booking.FirstName,
@@ -325,6 +367,66 @@ public static class BookingModule
                 {
                     Log.Error("[BookingModule - Delete] Error occurred. {BookingId} Exception: {Exception}", 
                         id, ex);
+                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
+                }
+            })
+            .WithTags(SwazyConstants.BookingModuleName);
+
+        endpoints.MapGet($"api/{SwazyConstants.BookingModuleApi}/confirmation/{{code}}", async (
+                [FromServices] SwazyDbContext db,
+                [FromRoute] string code) =>
+            {
+                Log.Verbose("[BookingModule - GetByConfirmationCode] Invoked. {Code}", code);
+
+                try
+                {
+                    var booking = await db.Bookings
+                        .Include(b => b.BusinessService)
+                            .ThenInclude(bs => bs!.Service)
+                        .Include(b => b.BusinessService)
+                            .ThenInclude(bs => bs!.Business)
+                        .Include(b => b.Employee)
+                        .FirstOrDefaultAsync(b => b.ConfirmationCode == code);
+
+                    if (booking == null)
+                    {
+                        Log.Debug("[BookingModule - GetByConfirmationCode] Not found. {Code}", code);
+                        return Results.NotFound("Booking not found.");
+                    }
+
+                    var employeeName = booking.Employee != null
+                        ? $"{booking.Employee.FirstName} {booking.Employee.LastName}"
+                        : null;
+
+                    var response = new BookingDetailsResponse(
+                        booking.Id,
+                        booking.ConfirmationCode,
+                        booking.BookingDate,
+                        booking.BookingDate.AddMinutes(booking.BusinessService!.Duration),
+                        booking.BusinessService!.Service!.Value,
+                        booking.BusinessService.Duration,
+                        booking.BusinessService.Price,
+                        booking.FirstName,
+                        booking.LastName,
+                        booking.Email,
+                        booking.PhoneNumber,
+                        booking.Notes,
+                        employeeName,
+                        booking.BusinessService.Business!.Name,
+                        booking.BusinessService.Business.Address,
+                        booking.BusinessService.Business.PhoneNumber,
+                        booking.EmployeeId,
+                        booking.BookedByUserId
+                    );
+
+                    Log.Debug("[BookingModule - GetByConfirmationCode] Successfully returned. {Code}", code);
+
+                    return Results.Ok(response);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("[BookingModule - GetByConfirmationCode] Error occurred. {Code} Exception: {Exception}",
+                        code, ex);
                     return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
                 }
             })

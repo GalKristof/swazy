@@ -2,6 +2,7 @@
 
 public record BookingResponse(
     Guid Id,
+    string ConfirmationCode,
     DateTimeOffset BookingDate,
     string? Notes,
     string FirstName,
