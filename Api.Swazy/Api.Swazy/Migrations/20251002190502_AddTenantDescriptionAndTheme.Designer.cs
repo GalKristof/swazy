@@ -3,6 +3,7 @@ using System;
 using Api.Swazy.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Api.Swazy.Migrations
 {
     [DbContext(typeof(SwazyDbContext))]
-    partial class SwazyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251002190502_AddTenantDescriptionAndTheme")]
+    partial class AddTenantDescriptionAndTheme
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -113,10 +116,6 @@ namespace Api.Swazy.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Footer")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -128,15 +127,7 @@ namespace Api.Swazy.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Subtitle")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Theme")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
 

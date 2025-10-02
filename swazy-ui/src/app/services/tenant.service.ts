@@ -43,6 +43,7 @@ export class TenantService {
       tap(business => {
         console.log('[TenantService] Business data loaded:', business);
         this.businessSubject.next(business);
+        this.applyTheme(business.theme);
       })
     );
   }
@@ -52,5 +53,19 @@ export class TenantService {
    */
   getCurrentBusiness(): Business | null {
     return this.businessSubject.value;
+  }
+
+  /**
+   * Apply theme to the document
+   */
+  private applyTheme(theme: string) {
+    if (isPlatformBrowser(this.platformId) && theme) {
+      console.log('[TenantService] Applying theme:', theme);
+      document.documentElement.setAttribute('data-theme', theme);
+    } else if (isPlatformBrowser(this.platformId)) {
+      // Default to 'light' theme if no theme is set
+      console.log('[TenantService] No theme set, using default: light');
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
   }
 }

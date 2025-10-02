@@ -30,6 +30,41 @@ export class BusinessInfoComponent {
     'Other'
   ];
 
+  daisyThemes = [
+    'light',
+    'dark',
+    'cupcake',
+    'bumblebee',
+    'emerald',
+    'corporate',
+    'synthwave',
+    'retro',
+    'cyberpunk',
+    'valentine',
+    'halloween',
+    'garden',
+    'forest',
+    'aqua',
+    'lofi',
+    'pastel',
+    'fantasy',
+    'wireframe',
+    'black',
+    'luxury',
+    'dracula',
+    'cmyk',
+    'autumn',
+    'business',
+    'acid',
+    'lemonade',
+    'night',
+    'coffee',
+    'winter',
+    'dim',
+    'nord',
+    'sunset'
+  ];
+
   startEditing() {
     if (this.business()) {
       this.editForm = { ...this.business() } as Business;
@@ -57,5 +92,18 @@ export class BusinessInfoComponent {
 
   onSaveError() {
     this.isSaving = false;
+  }
+
+  onThemeChange(theme: string) {
+    if (this.editForm) {
+      this.editForm.theme = theme;
+      this.applyTheme(theme);
+    }
+  }
+
+  private applyTheme(theme: string) {
+    if (theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
   }
 }

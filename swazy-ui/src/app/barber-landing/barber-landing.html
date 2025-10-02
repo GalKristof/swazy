@@ -36,12 +36,21 @@
   <section id="hero" class="hero min-h-[70vh] lg:min-h-screen bg-base-100 relative">
     <div class="hero-content text-center px-4">
       <div class="max-w-2xl">
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
-          Stílus. Hagyomány. Tökéletesség.
-        </h1>
-        <p class="text-lg md:text-xl mb-6 md:mb-8 text-base-content/80">
-          Professzionális férfi hajvágás és szakáll ápolás a belvárosban
-        </p>
+        @if ((business$ | async); as business) {
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
+            {{ business.title || 'Stílus. Hagyomány. Tökéletesség.' }}
+          </h1>
+          <p class="text-lg md:text-xl mb-6 md:mb-8 text-base-content/80">
+            {{ business.subtitle || 'Professzionális férfi hajvágás és szakáll ápolás a belvárosban' }}
+          </p>
+        } @else {
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
+            Stílus. Hagyomány. Tökéletesség.
+          </h1>
+          <p class="text-lg md:text-xl mb-6 md:mb-8 text-base-content/80">
+            Professzionális férfi hajvágás és szakáll ápolás a belvárosban
+          </p>
+        }
         <div class="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
           <a routerLink="/booking" class="btn btn-primary btn-md lg:btn-lg w-full sm:w-auto">
             Időpontfoglalás
@@ -143,13 +152,19 @@
       </div>
 
       <div class="prose prose-sm md:prose-lg mx-auto">
-        <p class="text-base md:text-lg text-center text-base-content/80 leading-relaxed">
-          A ClassicCut fodrászat 2015 óta szolgálja ki vendégeit a hagyományos
-          férfi fodrászat és a modern styling ötvözésével. Tapasztalt szakembereink
-          minden vendéget egyedi igényei szerint kezelnek, garantálva a tökéletes
-          eredményt és a kiváló kiszolgálást. Nálunk nem csak hajat vágunk -
-          egy élményt nyújtunk, ahol a stílus találkozik a hagyománnyal.
-        </p>
+        @if ((business$ | async); as business) {
+          <p class="text-base md:text-lg text-center text-base-content/80 leading-relaxed whitespace-pre-wrap">
+            {{ business.description || 'A ClassicCut fodrászat 2015 óta szolgálja ki vendégeit a hagyományos férfi fodrászat és a modern styling ötvözésével. Tapasztalt szakembereink minden vendéget egyedi igényei szerint kezelnek, garantálva a tökéletes eredményt és a kiváló kiszolgálást. Nálunk nem csak hajat vágunk - egy élményt nyújtunk, ahol a stílus találkozik a hagyománnyal.' }}
+          </p>
+        } @else {
+          <p class="text-base md:text-lg text-center text-base-content/80 leading-relaxed">
+            A ClassicCut fodrászat 2015 óta szolgálja ki vendégeit a hagyományos
+            férfi fodrászat és a modern styling ötvözésével. Tapasztalt szakembereink
+            minden vendéget egyedi igényei szerint kezelnek, garantálva a tökéletes
+            eredményt és a kiváló kiszolgálást. Nálunk nem csak hajat vágunk -
+            egy élményt nyújtunk, ahol a stílus találkozik a hagyománnyal.
+          </p>
+        }
       </div>
     </div>
   </section>
@@ -208,13 +223,23 @@
   <!-- Footer -->
   <footer class="footer footer-center p-6 md:p-10 bg-base-300 text-base-content">
     <aside>
-      <p class="font-bold text-lg md:text-xl">{{ (business$ | async)?.name }}</p>
-      <p class="text-sm md:text-base text-base-content/70">
-        Professzionális férfi hajvágás 2015 óta
-      </p>
-      <p class="text-xs md:text-sm text-base-content/60">
-        © 2025 ClassicCut - Minden jog fenntartva
-      </p>
+      @if ((business$ | async); as business) {
+        <p class="font-bold text-lg md:text-xl">{{ business.name }}</p>
+        <p class="text-sm md:text-base text-base-content/70 whitespace-pre-wrap">
+          {{ business.footer || 'Professzionális férfi hajvágás 2015 óta' }}
+        </p>
+        <p class="text-xs md:text-sm text-base-content/60">
+          © 2025 {{ business.name }} - Minden jog fenntartva
+        </p>
+      } @else {
+        <p class="font-bold text-lg md:text-xl">Swazy</p>
+        <p class="text-sm md:text-base text-base-content/70">
+          Professzionális férfi hajvágás 2015 óta
+        </p>
+        <p class="text-xs md:text-sm text-base-content/60">
+          © 2025 Swazy - Minden jog fenntartva
+        </p>
+      }
     </aside>
   </footer>
 </div>

@@ -8,5 +8,10 @@ public record UpdateBusinessDto(
     string Name,
     string Address,
     string PhoneNumber,
-    string Email
+    string Email,
+    string Title,
+    string Subtitle,
+    string Description,
+    string Footer,
+    string Theme
     ) : BaseUpdateDto(Id);

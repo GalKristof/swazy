@@ -7,6 +7,11 @@ export interface Business {
   address: string;
   phoneNumber: string;
   email: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  footer: string;
+  theme: string;
   businessType: string;
   websiteUrl: string;
   employees?: Employee[];

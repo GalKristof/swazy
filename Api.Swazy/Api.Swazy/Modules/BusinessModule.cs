@@ -43,6 +43,11 @@ public static class BusinessModule
                         business.Address,
                         business.PhoneNumber,
                         business.Email,
+                        business.Title,
+                        business.Subtitle,
+                        business.Description,
+                        business.Footer,
+                        business.Theme,
                         business.BusinessType.ToString(),
                         business.UserAccesses.Select(ua => new BusinessEmployeeResponse(
                             ua.UserId,
@@ -97,6 +102,11 @@ public static class BusinessModule
                     business.Address = updateBusinessDto.Address;
                     business.PhoneNumber = updateBusinessDto.PhoneNumber;
                     business.Email = updateBusinessDto.Email;
+                    business.Title = updateBusinessDto.Title;
+                    business.Subtitle = updateBusinessDto.Subtitle;
+                    business.Description = updateBusinessDto.Description;
+                    business.Footer = updateBusinessDto.Footer;
+                    business.Theme = updateBusinessDto.Theme;
 
                     await db.SaveChangesAsync();
 
@@ -118,6 +128,11 @@ public static class BusinessModule
                         business.Address,
                         business.PhoneNumber,
                         business.Email,
+                        business.Title,
+                        business.Subtitle,
+                        business.Description,
+                        business.Footer,
+                        business.Theme,
                         business.BusinessType.ToString(),
                         business.UserAccesses.Select(ua => new BusinessEmployeeResponse(
                             ua.UserId,
@@ -218,6 +233,11 @@ public static class BusinessModule
                         business.Address,
                         business.PhoneNumber,
                         business.Email,
+                        business.Title,
+                        business.Subtitle,
+                        business.Description,
+                        business.Footer,
+                        business.Theme,
                         business.BusinessType.ToString(),
                         business.UserAccesses.Select(ua => new BusinessEmployeeResponse(
                             ua.UserId,
