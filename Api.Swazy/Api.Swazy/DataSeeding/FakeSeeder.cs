@@ -163,7 +163,7 @@ public static class FakeSeeder
             .RuleFor(b => b.Address, f => f.Address.FullAddress())
             .RuleFor(b => b.PhoneNumber, f => f.GenerateHungarianPhoneNumber())
             .RuleFor(b => b.Email, f => f.Internet.Email())
-            .RuleFor(b => b.BusinessType, f => f.PickRandom<BusinessType>())
+            .RuleFor(b => b.BusinessType, f => BusinessType.BarberSalon)
             .RuleFor(b => b.WebsiteUrl, f => f.Internet.Url());
 
         return businessFaker.Generate(amount);
@@ -171,12 +171,43 @@ public static class FakeSeeder
 
     private static List<Service> GetFakeServices(int amount)
     {
-        var serviceFaker = new Faker<Service>()
-            .RuleFor(s => s.Tag, f => f.Commerce.ProductName())
-            .RuleFor(s => s.BusinessType, f => f.PickRandom<BusinessType>())
-            .RuleFor(s => s.Value, f => f.Commerce.Product());
+        var barberServices = new List<(string Tag, string Value)>
+        {
+            ("Hajvágás", "Férfi hajvágás"),
+            ("Hajvágás", "Gyerek hajvágás"),
+            ("Hajvágás", "Diák hajvágás"),
+            ("Szakáll", "Szakállvágás"),
+            ("Szakáll", "Szakálligazítás"),
+            ("Szakáll", "Szakállformázás"),
+            ("Borotválás", "Borotválás"),
+            ("Borotválás", "Kontúr borotválás"),
+            ("Trimmelés", "Hajvégek igazítása"),
+            ("Trimmelés", "Kontúr igazítás"),
+            ("Trimmelés", "Nyakszirt igazítás"),
+            ("Hajmosás", "Hajmosás"),
+            ("Festés", "Hajfestés"),
+            ("Festés", "Ősz fedés"),
+            ("Mintázás", "Hajmintázás"),
+            ("Mintázás", "Szakállmintázás"),
+            ("Kombi", "Hajvágás + Szakáll"),
+            ("Kombi", "Hajvágás + Borotválás"),
+            ("Szemöldök", "Szemöldök rendezés"),
+            ("Orrszőr", "Orrszőr eltávolítás")
+        };
 
-        return serviceFaker.Generate(amount);
+        var services = new List<Service>();
+
+        for (int i = 0; i < Math.Min(amount, barberServices.Count); i++)
+        {
+            services.Add(new Service
+            {
+                Tag = barberServices[i].Tag,
+                Value = barberServices[i].Value,
+                BusinessType = BusinessType.BarberSalon
+            });
+        }
+
+        return services;
     }
 }
 

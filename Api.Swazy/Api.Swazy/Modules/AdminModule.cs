@@ -179,6 +179,68 @@ public static class AdminModule
             })
             .WithTags("Admin");
 
+        endpoints.MapPut($"api/admin/{SwazyConstants.BusinessModuleApi}/{{id:guid}}", async (
+                [FromServices] SwazyDbContext db,
+                [FromRoute] Guid id,
+                [FromBody] AdminUpdateBusinessDto updateDto) =>
+            {
+                Log.Verbose("[AdminModule - UpdateBusiness] Invoked. {BusinessId}", id);
+
+                try
+                {
+                    var business = await db.Businesses.FindAsync(id);
+
+                    if (business == null)
+                    {
+                        Log.Debug("[AdminModule - UpdateBusiness] Not found. {BusinessId}", id);
+                        return Results.NotFound("Business not found.");
+                    }
+
+                    business.Name = updateDto.Name;
+                    business.Address = updateDto.Address;
+                    business.PhoneNumber = updateDto.PhoneNumber;
+                    business.Email = updateDto.Email;
+                    business.Title = updateDto.Title;
+                    business.Subtitle = updateDto.Subtitle;
+                    business.Description = updateDto.Description;
+                    business.Footer = updateDto.Footer;
+                    business.Theme = updateDto.Theme;
+                    business.BusinessType = updateDto.BusinessType;
+                    business.WebsiteUrl = updateDto.WebsiteUrl;
+
+                    await db.SaveChangesAsync();
+
+                    Log.Debug("[AdminModule - UpdateBusiness] Successfully updated. {BusinessId}", id);
+
+                    var response = new BusinessResponse(
+                        business.Id,
+                        business.Name,
+                        business.Address,
+                        business.PhoneNumber,
+                        business.Email,
+                        business.Title,
+                        business.Subtitle,
+                        business.Description,
+                        business.Footer,
+                        business.Theme,
+                        business.BusinessType.ToString(),
+                        [],
+                        [],
+                        business.WebsiteUrl,
+                        business.CreatedAt
+                    );
+
+                    return Results.Ok(response);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("[AdminModule - UpdateBusiness] Error occurred. {BusinessId} Exception: {Exception}",
+                        id, ex);
+                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
+                }
+            })
+            .WithTags("Admin");
+
         endpoints.MapPut($"api/admin/{SwazyConstants.BusinessModuleApi}/{{id:guid}}/type", async (
                 [FromServices] SwazyDbContext db,
                 [FromRoute] Guid id,

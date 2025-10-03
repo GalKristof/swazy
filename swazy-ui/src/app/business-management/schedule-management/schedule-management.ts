@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import {Component, input, OnInit, output, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Employee } from '../../models/employee';
@@ -10,7 +10,7 @@ import { EmployeeSchedule, DaySchedule } from '../../models/employee-schedule';
   imports: [CommonModule, FormsModule],
   templateUrl: './schedule-management.html'
 })
-export class ScheduleManagementComponent {
+export class ScheduleManagementComponent implements OnInit {
   employees = input.required<Employee[]>();
   schedules = input.required<EmployeeSchedule[]>();
 
@@ -42,6 +42,10 @@ export class ScheduleManagementComponent {
   dayNames = ['Vasárnap', 'Hétfő', 'Kedd', 'Szerda', 'Csütörtök', 'Péntek', 'Szombat'];
   dayOrder = [1, 2, 3, 4, 5, 6, 0];
 
+  ngOnInit() {
+    this.selectEmployee(this.employees()[0]);
+  }
+
   selectEmployee(employee: Employee) {
     this.selectedEmployee.set(employee);
     this.employeeSelected.emit(employee);
@@ -60,26 +64,6 @@ export class ScheduleManagementComponent {
       this.vacationFromValue = '';
       this.vacationToValue = '';
       this.editScheduleForm.set(this.createDefaultWeekSchedule());
-    }
-  }
-
-  onVacationFromChange(value: string) {
-    this.vacationFromValue = value && value.trim() !== '' ? value : '';
-    console.log('[Vacation From Changed]', this.vacationFromValue);
-  }
-
-  onVacationToChange(value: string) {
-    this.vacationToValue = value && value.trim() !== '' ? value : '';
-    console.log('[Vacation To Changed]', this.vacationToValue);
-  }
-
-  onVacationDatesChange() {
-    // Clear the other field if one is cleared
-    if (!this.vacationFromValue) {
-      this.vacationToValue = '';
-    }
-    if (!this.vacationToValue) {
-      this.vacationFromValue = '';
     }
   }
 

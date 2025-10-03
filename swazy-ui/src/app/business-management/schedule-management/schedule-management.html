@@ -1,6 +1,6 @@
 <div class="card bg-base-100 shadow-xl">
   <div class="card-body p-4 md:p-6">
-    <h2 class="card-title text-xl md:text-2xl mb-4">Munkaidő beosztás</h2>
+    <h2 class="card-title text-xl md:text-2xl mb-4">Munkaidő beosztás: {{ selectedEmployee()?.firstName + " " + selectedEmployee()?.lastName }}</h2>
 
     @if (employees().length === 0) {
       <div class="alert alert-info">
@@ -54,6 +54,43 @@
               </div>
             </div>
           }
+
+          <!-- Weekly Schedule Grid -->
+          <div class="space-y-4">
+            <h3 class="font-bold text-lg">Heti beosztás</h3>
+
+            @for (daySchedule of getOrderedDaySchedules(); track daySchedule.dayOfWeek) {
+              <div class="card bg-base-200">
+                <div class="card-body p-4">
+                  <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
+                    <div class="flex items-center gap-3 w-full md:w-40">
+                      <input type="checkbox" class="toggle toggle-primary" [(ngModel)]="daySchedule.isWorkingDay" />
+                      <span class="font-bold text-base">{{ dayNames[daySchedule.dayOfWeek] }}</span>
+                    </div>
+
+                    @if (daySchedule.isWorkingDay) {
+                      <div class="flex flex-col sm:flex-row gap-3 flex-1">
+                        <div class="form-control flex-1">
+                          <label class="label">
+                            <span class="label-text font-semibold">Kezdés</span>
+                          </label>
+                          <input type="time" class="input input-bordered input-sm" [(ngModel)]="daySchedule.startTime" />
+                        </div>
+                        <div class="form-control flex-1">
+                          <label class="label">
+                            <span class="label-text font-semibold">Befejezés</span>
+                          </label>
+                          <input type="time" class="input input-bordered input-sm" [(ngModel)]="daySchedule.endTime" />
+                        </div>
+                      </div>
+                    } @else {
+                      <div class="text-base-content/50 italic">Pihenőnap</div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
 
           <!-- Vacation Period Settings -->
           <div class="card bg-base-200">
@@ -116,43 +153,6 @@
             <label class="label">
               <span class="label-text-alt">Az időpontok közötti szünet percekben</span>
             </label>
-          </div>
-
-          <!-- Weekly Schedule Grid -->
-          <div class="space-y-4">
-            <h3 class="font-bold text-lg">Heti beosztás</h3>
-
-            @for (daySchedule of getOrderedDaySchedules(); track daySchedule.dayOfWeek) {
-              <div class="card bg-base-200">
-                <div class="card-body p-4">
-                  <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
-                    <div class="flex items-center gap-3 w-full md:w-40">
-                      <input type="checkbox" class="toggle toggle-primary" [(ngModel)]="daySchedule.isWorkingDay" />
-                      <span class="font-bold text-base">{{ dayNames[daySchedule.dayOfWeek] }}</span>
-                    </div>
-
-                    @if (daySchedule.isWorkingDay) {
-                      <div class="flex flex-col sm:flex-row gap-3 flex-1">
-                        <div class="form-control flex-1">
-                          <label class="label">
-                            <span class="label-text font-semibold">Kezdés</span>
-                          </label>
-                          <input type="time" class="input input-bordered input-sm" [(ngModel)]="daySchedule.startTime" />
-                        </div>
-                        <div class="form-control flex-1">
-                          <label class="label">
-                            <span class="label-text font-semibold">Befejezés</span>
-                          </label>
-                          <input type="time" class="input input-bordered input-sm" [(ngModel)]="daySchedule.endTime" />
-                        </div>
-                      </div>
-                    } @else {
-                      <div class="text-base-content/50 italic">Pihenőnap</div>
-                    }
-                  </div>
-                </div>
-              </div>
-            }
           </div>
 
           <!-- Action Buttons -->

@@ -78,8 +78,10 @@ export class App implements OnInit, OnDestroy {
   }
 
   private loadTenantData() {
-    if (this.tenantService.getCurrentBusiness()) {
+    const existingBusiness = this.tenantService.getCurrentBusiness();
+    if (existingBusiness) {
       console.log('✅ [App] Business data found via TransferState, skipping load sequence.');
+      this.applyTheme(existingBusiness.theme);
       this.isLoading.set(false);
       this.hasError.set(false);
       return;
@@ -107,6 +109,7 @@ export class App implements OnInit, OnDestroy {
           const businessData = (result as SuccessResult).business;
 
           console.log('✅ [App] Business data loaded (min time fulfilled):', businessData);
+          this.applyTheme(businessData.theme);
           this.isLoading.set(false);
           this.hasError.set(false);
         } else {
@@ -118,5 +121,12 @@ export class App implements OnInit, OnDestroy {
           }
         }
       });
+  }
+
+  private applyTheme(theme: string) {
+    if (isPlatformBrowser(this.platformId) && theme) {
+      console.log('[TenantService] Applying theme:', theme);
+      document.documentElement.setAttribute('data-theme', theme);
+    }
   }
 }
