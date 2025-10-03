@@ -1,71 +1,54 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, tap, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Business } from '../models/business';
+import { TransferState, makeStateKey } from '@angular/core';
 
-/**
- * TenantService handles tenant-specific data loading
- * This service manages the global business/tenant context
- */
+const BUSINESS_KEY = makeStateKey<Business>('BUSINESS_DATA');
+
 @Injectable({
   providedIn: 'root'
 })
 export class TenantService {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
+  private transferState = inject(TransferState);
 
   private businessSubject = new BehaviorSubject<Business | null>(null);
   public business$ = this.businessSubject.asObservable();
 
-  /**
-   * Load business data based on environment configuration
-   * - Development: Uses hardcoded tenantId
-   * - Production: Extracts domain from URL
-   */
   loadBusinessData(): Observable<Business> {
+    if (isPlatformBrowser(this.platformId)) {
+      const transferredBusiness = this.transferState.get(BUSINESS_KEY, null);
+      if (transferredBusiness) {
+        this.transferState.remove(BUSINESS_KEY);
+        this.businessSubject.next(transferredBusiness);
+        return of(transferredBusiness);
+      }
+    }
+
     let url: string;
 
     if (environment.fromDomain && isPlatformBrowser(this.platformId)) {
-      // PRODUCTION: Get domain from URL (not implemented in backend yet)
       const domain = window.location.hostname;
-      console.log('[TenantService] Loading business by domain:', domain);
       url = `${environment.apiUrl}/business/by-domain/${domain}`;
     } else {
-      // DEVELOPMENT: Use hardcoded tenant ID - calls GET /api/business/{id}
-      console.log('[TenantService] Loading business by ID:', environment.tenantId);
       url = `${environment.apiUrl}/business/${environment.tenantId}`;
     }
 
     return this.http.get<Business>(url).pipe(
       tap(business => {
-        console.log('[TenantService] Business data loaded:', business);
+        if (isPlatformServer(this.platformId)) {
+          this.transferState.set(BUSINESS_KEY, business);
+        }
         this.businessSubject.next(business);
-        this.applyTheme(business.theme);
       })
     );
   }
 
-  /**
-   * Get current business data (synchronous)
-   */
   getCurrentBusiness(): Business | null {
     return this.businessSubject.value;
-  }
-
-  /**
-   * Apply theme to the document
-   */
-  private applyTheme(theme: string) {
-    if (isPlatformBrowser(this.platformId) && theme) {
-      console.log('[TenantService] Applying theme:', theme);
-      document.documentElement.setAttribute('data-theme', theme);
-    } else if (isPlatformBrowser(this.platformId)) {
-      // Default to 'light' theme if no theme is set
-      console.log('[TenantService] No theme set, using default: light');
-      document.documentElement.setAttribute('data-theme', 'light');
-    }
   }
 }

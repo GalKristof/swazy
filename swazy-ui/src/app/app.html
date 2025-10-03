@@ -1,24 +1,28 @@
 @if (isLoading()) {
   <div class="fixed inset-0 bg-base-100 flex items-center justify-center z-50">
     <div class="text-center">
-      <span class="loading loading-spinner loading-lg text-primary"></span>
-      <p class="mt-4 text-lg font-semibold">Betöltés...</p>
+      <img src="images/logo/swazy_square_withname.png" alt="Swazy" class="w-32 h-32 mx-auto logo-pulse">
+      <p class="mt-4 text-lg font-semibold mt-5">{{ loadingText() }}</p>
     </div>
   </div>
 }
-
-@if (!isLoading()) {
+@else if (hasError()) {
+  <div class="fixed inset-0 bg-base-100 flex items-center justify-center z-50">
+    <div class="text-center max-w-md px-4">
+      <img src="images/logo/swazy_square_withname.png" alt="Swazy" class="w-32 h-32 mx-auto mb-6">
+      <h2 class="text-2xl font-bold mb-2">Swazy nem tölthető be</h2>
+      <p class="text-base-content/70 mb-6">A kért oldal nem érhető el. Kérjük, próbálja újra később.</p>
+      <button class="btn btn-primary" (click)="retry()">Újra</button>
+    </div>
+  </div>
+}
+@else {
   <router-outlet></router-outlet>
 }
 
-<!-- Toast Container -->
 <div class="toast toast-start toast-bottom z-50">
   @for (toast of toastService.toasts$ | async; track toast.id) {
-    <div class="alert"
-         [class.alert-success]="toast.type === 'success'"
-         [class.alert-error]="toast.type === 'error'"
-         [class.alert-info]="toast.type === 'info'"
-         [class.alert-warning]="toast.type === 'warning'">
+    <div [ngClass]="{'alert-success': toast.type === 'success', 'alert-error': toast.type === 'error', 'alert-info': toast.type === 'info', 'alert-warning': toast.type === 'warning'}" class="alert text-sm">
       <span>{{ toast.message }}</span>
     </div>
   }
