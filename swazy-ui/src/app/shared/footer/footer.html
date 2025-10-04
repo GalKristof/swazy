@@ -1,0 +1,19 @@
+<footer class="footer footer-center p-6 md:p-10 bg-base-300 text-base-content">
+  <aside>
+    @if ((business$ | async); as business) {
+      <p class="text-sm md:text-base text-base-content/70 whitespace-pre-wrap">
+        {{ business.footer || 'Professzionális férfi hajvágás 2015 óta' }}
+      </p>
+      <p class="text-xs md:text-sm text-base-content/60">
+        © 2025 - Minden jog fenntartva
+      </p>
+    } @else {
+      <p class="text-sm md:text-base text-base-content/70">
+        Professzionális férfi hajvágás 2015 óta
+      </p>
+      <p class="text-xs md:text-sm text-base-content/60">
+        © 2025 - Minden jog fenntartva
+      </p>
+    }
+  </aside>
+</footer>

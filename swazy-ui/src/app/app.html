@@ -5,8 +5,7 @@
       <p class="mt-4 text-lg font-semibold mt-5">{{ loadingText() }}</p>
     </div>
   </div>
-}
-@else if (hasError()) {
+} @else if (hasError()) {
   <div class="fixed inset-0 bg-base-100 flex items-center justify-center z-50">
     <div class="text-center max-w-md px-4">
       <img src="images/logo/swazy_square_withname.png" alt="Swazy" class="w-32 h-32 mx-auto mb-6">
@@ -15,9 +14,18 @@
       <button class="btn btn-primary" (click)="retry()">Újra</button>
     </div>
   </div>
-}
-@else {
-  <router-outlet></router-outlet>
+} @else {
+  <div class="min-h-screen bg-base-100 flex flex-col">
+    @if (showNavbarFooter()) {
+      <app-navbar />
+    }
+    <div class="flex-1">
+      <router-outlet />
+    </div>
+    @if (showNavbarFooter()) {
+      <app-footer />
+    }
+  </div>
 }
 
 <div class="toast toast-start toast-bottom z-50">

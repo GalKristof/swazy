@@ -1,11 +1,14 @@
 import { Component, inject, OnInit, signal, PLATFORM_ID, OnDestroy } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { registerLicense } from '@syncfusion/ej2-base';
 import { TenantService } from './services/tenant.service';
 import { ToastService } from './services/toast.service';
 import { environment } from '../environments/environment';
 import { of, timer, map, catchError, take, combineLatest, interval, Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import { NavbarComponent } from './shared/navbar/navbar';
+import { FooterComponent } from './shared/footer/footer';
 
 interface SuccessResult { success: true; business: any; }
 interface ErrorResult { success: false; error: any; }
@@ -13,7 +16,7 @@ interface ErrorResult { success: false; error: any; }
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule],
+  imports: [RouterOutlet, CommonModule, NavbarComponent, FooterComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.scss']
 })
@@ -21,12 +24,14 @@ export class App implements OnInit, OnDestroy {
   private tenantService = inject(TenantService);
   toastService = inject(ToastService);
   private platformId = inject(PLATFORM_ID);
+  private router = inject(Router);
 
   isLoading = signal(true);
   hasError = signal(false);
   title = 'swazy-ui';
   loadingText = signal('Betöltés');
   private loadingSubscription: Subscription | undefined;
+  showNavbarFooter = signal(true);
 
   private MIN_LOAD_TIME_MS = 1000;
 
@@ -39,6 +44,16 @@ export class App implements OnInit, OnDestroy {
     this.loadTenantData();
     // Start the loading animation only if we are in the browser
     this.startLoadingAnimation();
+
+    // Track route changes to show/hide navbar and footer
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      this.showNavbarFooter.set(!event.url.startsWith('/manage'));
+    });
+
+    // Set initial state
+    this.showNavbarFooter.set(!this.router.url.startsWith('/manage'));
   }
 
   ngOnDestroy(): void {

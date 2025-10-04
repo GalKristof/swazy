@@ -1,38 +1,4 @@
-<div class="min-h-screen bg-base-100">
-  <!-- Navigation -->
-  <div class="navbar bg-base-300 sticky top-0 z-50 shadow-lg">
-    <div class="navbar-start">
-      <div class="dropdown">
-        <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
-          </svg>
-        </div>
-        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-300 rounded-box w-52">
-          <li><a href="#hero">Kezdőlap</a></li>
-          <li><a href="#services">Szolgáltatások</a></li>
-          <li><a href="#barbers">Fodrászok</a></li>
-          <li><a href="#about">Rólunk</a></li>
-          <li><a href="#contact">Kapcsolat</a></li>
-        </ul>
-      </div>
-      <a class="btn btn-ghost text-xl lg:text-2xl font-bold">{{ (business$ | async)?.name || 'Swazy' }}</a>
-    </div>
-    <div class="navbar-center hidden lg:flex">
-      <ul class="menu menu-horizontal px-1 text-base">
-        <li><a href="#hero">Kezdőlap</a></li>
-        <li><a href="#services">Szolgáltatások</a></li>
-        <li><a href="#barbers">Fodrászok</a></li>
-        <li><a href="#about">Rólunk</a></li>
-        <li><a href="#contact">Kapcsolat</a></li>
-      </ul>
-    </div>
-    <div class="navbar-end">
-      <a routerLink="/booking" class="btn btn-primary btn-sm lg:btn-md">Foglalás</a>
-    </div>
-  </div>
-
-  <!-- Hero Section -->
+<!-- Hero Section -->
   <section id="hero" class="hero min-h-[70vh] lg:min-h-screen bg-gradient-to-br from-base-100 via-base-200 to-base-300">
     <div class="hero-content text-center px-4 py-12">
       <div class="max-w-4xl">
@@ -242,26 +208,3 @@
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="footer footer-center p-6 md:p-10 bg-base-300 text-base-content">
-    <aside>
-      @if ((business$ | async); as business) {
-        <p class="font-bold text-lg md:text-xl">{{ business.name }}</p>
-        <p class="text-sm md:text-base text-base-content/70 whitespace-pre-wrap">
-          {{ business.footer || 'Professzionális férfi hajvágás 2015 óta' }}
-        </p>
-        <p class="text-xs md:text-sm text-base-content/60">
-          © 2025 {{ business.name }} - Minden jog fenntartva
-        </p>
-      } @else {
-        <p class="font-bold text-lg md:text-xl">Swazy</p>
-        <p class="text-sm md:text-base text-base-content/70">
-          Professzionális férfi hajvágás 2015 óta
-        </p>
-        <p class="text-xs md:text-sm text-base-content/60">
-          © 2025 Swazy - Minden jog fenntartva
-        </p>
-      }
-    </aside>
-  </footer>
-</div>
