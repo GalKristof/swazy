@@ -148,9 +148,11 @@ export class BookingCalendarComponent implements OnInit {
     console.log('Schedules:', this.schedules().length);
   }
 
-  onDateChange(args: any) {
-    if (args.value) {
-      this.selectedDate.set(new Date(args.value));
+  onDateChange(target: any) {
+    if (target && target.value) {
+      const newDate = new Date(target.value);
+      console.log('Date changed to:', newDate);
+      this.selectedDate.set(newDate);
     }
   }
 
