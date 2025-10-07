@@ -11,6 +11,7 @@ export interface UserInfo {
   lastName: string;
   email: string;
   systemRole?: string;
+  businessRole?: 'Employee' | 'Manager' | 'Owner';
 }
 
 export interface LoginRequest {

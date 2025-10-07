@@ -17,20 +17,22 @@
 
   <div class="container mx-auto p-3 md:p-6">
     <div class="tabs tabs-boxed bg-base-100 mb-4 md:mb-6 shadow-lg overflow-x-auto flex-nowrap">
-      <a
-        class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
-        [class.tab-active]="activeTab() === 'info'"
-        (click)="setActiveTab('info')">
-        <span class="hidden sm:inline">📋 Üzlet adatai</span>
-        <span class="sm:hidden">📋</span>
-      </a>
-      <a
-        class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
-        [class.tab-active]="activeTab() === 'design'"
-        (click)="setActiveTab('design')">
-        <span class="hidden sm:inline">🎨 Weboldal dizájn</span>
-        <span class="sm:hidden">🎨</span>
-      </a>
+      @if (permissionsService.canUpdateBusinessSettings(currentUserRole())) {
+        <a
+          class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
+          [class.tab-active]="activeTab() === 'info'"
+          (click)="setActiveTab('info')">
+          <span class="hidden sm:inline">📋 Üzlet adatai</span>
+          <span class="sm:hidden">📋</span>
+        </a>
+        <a
+          class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
+          [class.tab-active]="activeTab() === 'design'"
+          (click)="setActiveTab('design')">
+          <span class="hidden sm:inline">🎨 Weboldal dizájn</span>
+          <span class="sm:hidden">🎨</span>
+        </a>
+      }
       <a
         class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
         [class.tab-active]="activeTab() === 'employees'"
@@ -38,13 +40,15 @@
         <span class="hidden sm:inline">👥 Dolgozók</span>
         <span class="sm:hidden">👥</span>
       </a>
-      <a
-        class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
-        [class.tab-active]="activeTab() === 'services'"
-        (click)="setActiveTab('services')">
-        <span class="hidden sm:inline">💼 Szolgáltatások</span>
-        <span class="sm:hidden">💼</span>
-      </a>
+      @if (permissionsService.canManageServices(currentUserRole())) {
+        <a
+          class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
+          [class.tab-active]="activeTab() === 'services'"
+          (click)="setActiveTab('services')">
+          <span class="hidden sm:inline">💼 Szolgáltatások</span>
+          <span class="sm:hidden">💼</span>
+        </a>
+      }
       <a
         class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
         [class.tab-active]="activeTab() === 'bookings'"
@@ -52,13 +56,15 @@
         <span class="hidden sm:inline">📅 Foglalások</span>
         <span class="sm:hidden">📅</span>
       </a>
-      <a
-        class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
-        [class.tab-active]="activeTab() === 'schedules'"
-        (click)="setActiveTab('schedules')">
-        <span class="hidden sm:inline">🕒 Munkaidő</span>
-        <span class="sm:hidden">🕒</span>
-      </a>
+      @if (permissionsService.canManageSchedules(currentUserRole())) {
+        <a
+          class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
+          [class.tab-active]="activeTab() === 'schedules'"
+          (click)="setActiveTab('schedules')">
+          <span class="hidden sm:inline">🕒 Munkaidő</span>
+          <span class="sm:hidden">🕒</span>
+        </a>
+      }
       <a
         class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
         [class.tab-active]="activeTab() === 'calendar'"
@@ -85,6 +91,7 @@
     @if (activeTab() === 'employees') {
       <app-employee-management
         [employees]="employees()"
+        [currentUserRole]="currentUserRole()"
         (employeeInvited)="onEmployeeInvited($event)"
         (invitationResent)="onInvitationResent($event)"
         (employeeRoleUpdated)="onEmployeeRoleUpdated($event)"

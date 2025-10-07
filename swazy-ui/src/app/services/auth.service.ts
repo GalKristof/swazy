@@ -110,8 +110,28 @@ export class AuthService {
     if (!this.isBrowser) return;
     localStorage.setItem(this.STORAGE_ACCESS_TOKEN, authResponse.accessToken);
     localStorage.setItem(this.STORAGE_REFRESH_TOKEN, authResponse.refreshToken);
-    localStorage.setItem(this.STORAGE_USER, JSON.stringify(authResponse.user));
-    this.currentUserSubject.next(authResponse.user);
+
+    // Decode token to get business_role claim
+    const tokenPayload = this.decodeToken(authResponse.accessToken);
+    const businessRole = tokenPayload?.business_role as 'Employee' | 'Manager' | 'Owner' | undefined;
+
+    // Add business role to user info
+    const userWithRole = {
+      ...authResponse.user,
+      businessRole: businessRole
+    };
+
+    localStorage.setItem(this.STORAGE_USER, JSON.stringify(userWithRole));
+    this.currentUserSubject.next(userWithRole);
+  }
+
+  private decodeToken(token: string): any {
+    try {
+      const payload = token.split('.')[1];
+      return JSON.parse(atob(payload));
+    } catch {
+      return null;
+    }
   }
 
   private clearSession(): void {

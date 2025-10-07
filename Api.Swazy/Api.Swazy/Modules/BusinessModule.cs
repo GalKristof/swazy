@@ -1,5 +1,6 @@
 ﻿using Api.Swazy.Attributes;
 using Api.Swazy.Common;
+using Api.Swazy.Helpers;
 using Api.Swazy.Models.DTOs.Businesses;
 using Api.Swazy.Models.Entities;
 using Api.Swazy.Models.Responses;
@@ -89,9 +90,24 @@ public static class BusinessModule
             .WithTags(SwazyConstants.BusinessModuleName);
 
         endpoints.MapPut($"api/{SwazyConstants.BusinessModuleApi}", async (
+                HttpContext httpContext,
                 [FromServices] SwazyDbContext db,
                 [FromBody] UpdateBusinessDto updateBusinessDto) =>
             {
+                // Get current user's role from context
+                var currentUserRoleString = httpContext.Items["BusinessRole"] as string;
+                var currentUserRole = AuthorizationHelper.ParseBusinessRole(currentUserRoleString);
+
+                // Authorization check - Only Owner can update business settings
+                if (!AuthorizationHelper.CanUpdateBusinessSettings(currentUserRole))
+                {
+                    Log.Warning("[BusinessModule - UpdateBusiness] Unauthorized attempt. CurrentRole: {CurrentRole}",
+                        currentUserRole);
+                    return Results.Problem(
+                        statusCode: (int)HttpStatusCode.Forbidden,
+                        title: "Forbidden",
+                        detail: "You don't have permission to update business settings.");
+                }
                 Log.Verbose("[BusinessModule - Update] Invoked. {BusinessId}", updateBusinessDto.Id);
 
                 try
@@ -318,6 +334,7 @@ public static class BusinessModule
             .WithMetadata(new RequireAuthenticationAttribute());
 
         endpoints.MapPatch($"api/{SwazyConstants.BusinessModuleApi}/{{businessId:guid}}/employee/{{userId:guid}}", async (
+                HttpContext httpContext,
                 [FromServices] SwazyDbContext db,
                 [FromRoute] Guid businessId,
                 [FromRoute] Guid userId,
@@ -327,6 +344,10 @@ public static class BusinessModule
 
                 try
                 {
+                    // Get current user's role from context
+                    var currentUserRoleString = httpContext.Items["BusinessRole"] as string;
+                    var currentUserRole = AuthorizationHelper.ParseBusinessRole(currentUserRoleString);
+
                     var userAccess = await db.UserBusinessAccesses
                         .Include(uba => uba.User)
                         .FirstOrDefaultAsync(uba => uba.BusinessId == businessId && uba.UserId == userId);
@@ -336,6 +357,17 @@ public static class BusinessModule
                         Log.Debug("[BusinessModule - UpdateEmployeeRole] Employee not found. {BusinessId} {UserId}",
                             businessId, userId);
                         return Results.NotFound("Employee not found in business.");
+                    }
+
+                    // Authorization check
+                    if (!AuthorizationHelper.CanUpdateEmployeeRole(currentUserRole, userAccess.Role, updateEmployeeRoleDto.Role))
+                    {
+                        Log.Warning("[BusinessModule - UpdateEmployeeRole] Unauthorized attempt. CurrentRole: {CurrentRole}, TargetCurrentRole: {TargetCurrentRole}, TargetNewRole: {TargetNewRole}",
+                            currentUserRole, userAccess.Role, updateEmployeeRoleDto.Role);
+                        return Results.Problem(
+                            statusCode: (int)HttpStatusCode.Forbidden,
+                            title: "Forbidden",
+                            detail: "You don't have permission to change employee roles.");
                     }
 
                     userAccess.Role = updateEmployeeRoleDto.Role;
@@ -453,6 +485,7 @@ public static class BusinessModule
             .WithMetadata(new RequireAuthenticationAttribute());
 
         endpoints.MapDelete($"api/{SwazyConstants.BusinessModuleApi}/{{businessId:guid}}/employee/{{userId:guid}}", async (
+                HttpContext httpContext,
                 [FromServices] SwazyDbContext db,
                 [FromRoute] Guid businessId,
                 [FromRoute] Guid userId) =>
@@ -461,6 +494,11 @@ public static class BusinessModule
 
                 try
                 {
+                    // Get current user's role from context
+                    var currentUserRoleString = httpContext.Items["BusinessRole"] as string;
+                    var currentUserRole = AuthorizationHelper.ParseBusinessRole(currentUserRoleString);
+
+                    // Get target employee's role
                     var userAccess = await db.UserBusinessAccesses
                         .FirstOrDefaultAsync(uba => uba.BusinessId == businessId && uba.UserId == userId);
 
@@ -469,6 +507,17 @@ public static class BusinessModule
                         Log.Debug("[BusinessModule - RemoveEmployee] Employee not found. {BusinessId} {UserId}",
                             businessId, userId);
                         return Results.NotFound("Employee not found in business.");
+                    }
+
+                    // Authorization check
+                    if (!AuthorizationHelper.CanRemoveEmployee(currentUserRole, userAccess.Role))
+                    {
+                        Log.Warning("[BusinessModule - RemoveEmployee] Unauthorized attempt. CurrentRole: {CurrentRole}, TargetRole: {TargetRole}",
+                            currentUserRole, userAccess.Role);
+                        return Results.Problem(
+                            statusCode: (int)HttpStatusCode.Forbidden,
+                            title: "Forbidden",
+                            detail: "You don't have permission to remove this employee.");
                     }
 
                     db.UserBusinessAccesses.Remove(userAccess);

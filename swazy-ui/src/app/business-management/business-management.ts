@@ -6,6 +6,7 @@ import { BusinessService } from '../services/business.service';
 import { EmployeeScheduleService } from '../services/employee-schedule.service';
 import { ToastService } from '../services/toast.service';
 import { AuthService } from '../services/auth.service';
+import { PermissionsService, BusinessRole } from '../services/permissions.service';
 import { Business } from '../models/business';
 import { Employee } from '../models/employee';
 import { Service } from '../models/service';
@@ -44,6 +45,7 @@ export class BusinessManagementComponent implements OnInit {
   private toastService = inject(ToastService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  public permissionsService = inject(PermissionsService);
 
   businessInfoComponent = viewChild(BusinessInfoComponent);
   websiteDesignComponent = viewChild(WebsiteDesignComponent);
@@ -62,6 +64,7 @@ export class BusinessManagementComponent implements OnInit {
   schedules = signal<EmployeeSchedule[]>([]);
   currentUserName = signal<string>('');
   userInitials = signal<string>('');
+  currentUserRole = signal<BusinessRole>('Employee');
 
 
   logout(): void {
@@ -422,9 +425,11 @@ export class BusinessManagementComponent implements OnInit {
         const fullName = `${user.firstName} ${user.lastName}`;
         this.currentUserName.set(fullName);
         this.userInitials.set(`${user.firstName[0]}${user.lastName[0]}`);
+        this.currentUserRole.set(user.businessRole || 'Employee');
       } else {
         this.currentUserName.set('');
         this.userInitials.set('');
+        this.currentUserRole.set('Employee');
       }
     });
   }

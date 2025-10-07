@@ -1,8 +1,9 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Employee } from '../../models/employee';
 import { InviteEmployeeRequest } from '../../models/auth.models';
+import { PermissionsService, BusinessRole } from '../../services/permissions.service';
 
 @Component({
   selector: 'app-employee-management',
@@ -12,6 +13,9 @@ import { InviteEmployeeRequest } from '../../models/auth.models';
 })
 export class EmployeeManagementComponent {
   employees = input.required<Employee[]>();
+  currentUserRole = input.required<BusinessRole>();
+
+  permissionsService = inject(PermissionsService);
 
   employeeInvited = output<InviteEmployeeRequest>();
   employeeRoleUpdated = output<{ userId: string; role: string }>();
@@ -186,6 +190,13 @@ export class EmployeeManagementComponent {
     return this.getCurrentRole(userId);
   }
 
+  canRemoveThisEmployee(employee: Employee): boolean {
+    return this.permissionsService.canRemoveEmployee(
+      this.currentUserRole(),
+      employee.role as BusinessRole
+    );
+  }
+
   updateRole(userId: string, newRole: string) {
     const employee = this.employees().find(e => e.userId === userId);
     const currentRole = this.getCurrentRole(userId);
@@ -263,5 +274,15 @@ export class EmployeeManagementComponent {
 
   getRoleDescription(role: string) {
     return this.roleDescriptions[role as 'Employee' | 'Manager' | 'Owner'];
+  }
+
+  getAvailableRolesForInvite(): BusinessRole[] {
+    const role = this.currentUserRole();
+    if (role === 'Owner') {
+      return ['Employee', 'Manager', 'Owner'];
+    } else if (role === 'Manager') {
+      return ['Employee']; // Manager can only invite Employees
+    }
+    return [];
   }
 }
