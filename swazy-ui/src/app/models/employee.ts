@@ -4,4 +4,6 @@
   lastName: string;
   email: string;
   role: 'Owner' | 'Manager' | 'Employee';
+  isPasswordSet: boolean;
+  invitationExpiresAt: string | null;
 }

@@ -1,15 +1,18 @@
 import { Component, signal, inject, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { TenantService } from '../services/tenant.service';
 import { BusinessService } from '../services/business.service';
 import { EmployeeScheduleService } from '../services/employee-schedule.service';
 import { ToastService } from '../services/toast.service';
+import { AuthService } from '../services/auth.service';
 import { Business } from '../models/business';
 import { Employee } from '../models/employee';
 import { Service } from '../models/service';
 import { BookingDetails } from '../models/booking.details';
 import { ServiceDetails } from '../models/service.details';
 import { EmployeeSchedule } from '../models/employee-schedule';
+import { InviteEmployeeRequest } from '../models/auth.models';
 import { BusinessInfoComponent } from './business-info/business-info';
 import { EmployeeManagementComponent } from './employee-management/employee-management';
 import { ServiceManagementComponent } from './service-management/service-management';
@@ -37,6 +40,8 @@ export class BusinessManagementComponent implements OnInit {
   private businessService = inject(BusinessService);
   private scheduleService = inject(EmployeeScheduleService);
   private toastService = inject(ToastService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   businessInfoComponent = viewChild(BusinessInfoComponent);
   employeeComponent = viewChild(EmployeeManagementComponent);
@@ -52,6 +57,28 @@ export class BusinessManagementComponent implements OnInit {
   availableServices = signal<ServiceDetails[]>([]);
   bookings = signal<BookingDetails[]>([]);
   schedules = signal<EmployeeSchedule[]>([]);
+
+  get currentUserName(): string {
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+    return '';
+  }
+
+  get userInitials(): string {
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      return `${user.firstName[0]}${user.lastName[0]}`;
+    }
+    return '';
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.toastService.success('Sikeres kijelentkezés!');
+    this.router.navigate(['/auth/login']);
+  }
 
   setActiveTab(tab: 'info' | 'employees' | 'services' | 'bookings' | 'schedules' | 'calendar') {
     this.activeTab.set(tab);
@@ -92,21 +119,36 @@ export class BusinessManagementComponent implements OnInit {
     });
   }
 
-  onEmployeeAdded(data: { email: string; role: string }) {
+  onEmployeeInvited(request: InviteEmployeeRequest) {
     const businessId = this.business()?.id;
     if (businessId) {
-      this.businessService.addEmployeeToBusiness(businessId, data.email, data.role).subscribe({
-        next: (updatedBusiness) => {
-          this.business.set(updatedBusiness);
-          this.employees.set(updatedBusiness.employees || []);
-          this.services.set(updatedBusiness.services || []);
-          this.employeeComponent()?.onAddComplete();
-          this.toastService.success('Dolgozó sikeresen hozzáadva!');
+      this.businessService.inviteEmployee(businessId, request).subscribe({
+        next: (response) => {
+          this.employeeComponent()?.onInviteComplete(response.invitationUrl);
+          this.toastService.success('Meghívó sikeresen elküldve!');
+          this.tenantService.loadBusinessData().subscribe();
         },
         error: (error) => {
-          console.error('Error adding employee:', error);
+          console.error('Error inviting employee:', error);
           this.employeeComponent()?.onAddError();
-          this.toastService.error('Hiba történt a dolgozó hozzáadása során. Ellenőrizd, hogy az email cím helyes-e.');
+          this.toastService.error('Hiba történt a meghívó küldése során.');
+        }
+      });
+    }
+  }
+
+  onInvitationResent(userId: string) {
+    const businessId = this.business()?.id;
+    if (businessId) {
+      this.businessService.resendInvitation(businessId, userId).subscribe({
+        next: (response) => {
+          this.employeeComponent()?.onResendComplete(userId, response.invitationUrl);
+          this.toastService.success('Meghívó újra elküldve!');
+        },
+        error: (error) => {
+          console.error('Error resending invitation:', error);
+          this.employeeComponent()?.onResendError(userId);
+          this.toastService.error('Hiba történt a meghívó újraküldése során.');
         }
       });
     }

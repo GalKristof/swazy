@@ -13,5 +13,6 @@ public static class SwazyExtensions
 
         // Services
         services.AddScoped<IAvailabilityCalculationService, AvailabilityCalculationService>();
+        services.AddScoped<IAuthorizationService, AuthorizationService>();
     }
 }

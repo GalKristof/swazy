@@ -5,5 +5,7 @@ public record BusinessEmployeeResponse(
     string FirstName,
     string LastName,
     string Email,
-    string Role
+    string Role,
+    bool IsPasswordSet,
+    DateTime? InvitationExpiresAt
 );

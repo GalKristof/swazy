@@ -1,13 +1,17 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json.Serialization;
 using Api.Swazy.Common;
 using Api.Swazy.DataSeeding;
 using Api.Swazy.Extensions;
+using Api.Swazy.Middleware;
 using Api.Swazy.Modules;
 using Api.Swazy.Options;
 using Api.Swazy.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
+
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((context, configuration) => 
@@ -58,16 +62,21 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(SwazyCorsPolicy);
 Log.Information($"[Swazy] CORS Policy: '{SwazyCorsPolicy}' has been applied...");
+
+app.UseMiddleware<AuthenticationMiddleware>();
+app.UseMiddleware<BusinessAuthorizationMiddleware>();
+Log.Information("[Swazy] Authentication and Authorization middleware applied...");
+
 Log.Information("[Swazy] Endpoints mapping...");
 
-// Tenant-scoped endpoints
+app.MapAuthEndpoints();
+
 app.MapBusinessEndpoints();
 app.MapBookingEndpoints();
 app.MapUserEndpoints();
 app.MapBusinessServiceEndpoints();
 app.MapEmployeeScheduleEndpoints();
 
-// Admin-only endpoints
 app.MapAdminEndpoints();
 
 Log.Information("[Swazy] Endpoints mapped, setting up HTTPS Redirection...");

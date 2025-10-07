@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Api.Swazy.Providers;
@@ -44,12 +45,24 @@ public class JwtTokenProvider : IJwtTokenProvider
     
     public string GenerateAccessToken(TokenDto tokenDto)
     {
-        Claim[] claims =
+        var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, tokenDto.Id.ToString()),
+            new(JwtRegisteredClaimNames.Email, tokenDto.Email),
             new(JwtRegisteredClaimNames.GivenName, tokenDto.FirstName),
-            new(JwtRegisteredClaimNames.FamilyName, tokenDto.LastName)
+            new(JwtRegisteredClaimNames.FamilyName, tokenDto.LastName),
+            new("system_role", tokenDto.SystemRole.ToString())
         };
+
+        if (tokenDto.CurrentBusinessId.HasValue)
+        {
+            claims.Add(new Claim("business_id", tokenDto.CurrentBusinessId.Value.ToString()));
+        }
+
+        if (tokenDto.CurrentBusinessRole.HasValue)
+        {
+            claims.Add(new Claim("business_role", tokenDto.CurrentBusinessRole.Value.ToString()));
+        }
 
         JwtSecurityToken token = new(
             jwtOptions.Issuer,
@@ -63,6 +76,14 @@ public class JwtTokenProvider : IJwtTokenProvider
         return tokenHandler.WriteToken(token);
     }
 
+    public string GenerateRefreshToken()
+    {
+        var randomNumber = new byte[64];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomNumber);
+        return Convert.ToBase64String(randomNumber);
+    }
+
     public bool ValidateToken(string token, bool withLifeTime = true)
     {
         try
@@ -71,15 +92,31 @@ public class JwtTokenProvider : IJwtTokenProvider
             var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out _);
             return principal is { Identity.IsAuthenticated: true };
         }
-        catch (Exception ex)
+        catch
         {
             return false;
+        }
+    }
+
+    public ClaimsPrincipal? GetPrincipalFromToken(string token, bool validateLifetime = false)
+    {
+        try
+        {
+            var validationParameters = tokenValidationParameters.Clone();
+            validationParameters.ValidateLifetime = validateLifetime;
+
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
+            return principal;
+        }
+        catch
+        {
+            return null;
         }
     }
 
     public string? ReadValueFromToken(string token, string valueName)
     {
         var readToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
-        return readToken?.Claims.First(claim => claim.Type == valueName).Value;
+        return readToken?.Claims.FirstOrDefault(claim => claim.Type == valueName)?.Value;
     }
 }

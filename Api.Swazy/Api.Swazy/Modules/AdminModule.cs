@@ -49,7 +49,9 @@ public static class AdminModule
                             ua.User.FirstName,
                             ua.User.LastName,
                             ua.User.Email,
-                            ua.Role.ToString()
+                            ua.Role.ToString(),
+                            ua.User.IsPasswordSet,
+                            ua.User.InvitationExpiresAt
                         )).ToList(),
                         b.Services.Select(s => new BusinessServiceResponse(
                             s.Id,
@@ -437,6 +439,71 @@ public static class AdminModule
                 {
                     Log.Error("[AdminModule - DeleteUser] Error occurred. {UserId} Exception: {Exception}",
                         id, ex);
+                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
+                }
+            })
+            .WithTags("Admin");
+
+        endpoints.MapPost($"api/admin/{SwazyConstants.BusinessModuleApi}/assign-user", async (
+                [FromServices] SwazyDbContext db,
+                [FromBody] AssignUserToBusinessDto assignDto) =>
+            {
+                Log.Verbose("[AdminModule - AssignUserToBusiness] Invoked. {UserId} {BusinessId} {Role}",
+                    assignDto.UserId, assignDto.BusinessId, assignDto.Role);
+
+                try
+                {
+                    var user = await db.Users.FindAsync(assignDto.UserId);
+                    if (user == null)
+                    {
+                        Log.Debug("[AdminModule - AssignUserToBusiness] User not found. {UserId}", assignDto.UserId);
+                        return Results.NotFound("User not found.");
+                    }
+
+                    var business = await db.Businesses.FindAsync(assignDto.BusinessId);
+                    if (business == null)
+                    {
+                        Log.Debug("[AdminModule - AssignUserToBusiness] Business not found. {BusinessId}",
+                            assignDto.BusinessId);
+                        return Results.NotFound("Business not found.");
+                    }
+
+                    var existingAccess = await db.UserBusinessAccesses
+                        .FirstOrDefaultAsync(uba => uba.UserId == assignDto.UserId &&
+                                                   uba.BusinessId == assignDto.BusinessId);
+
+                    if (existingAccess != null)
+                    {
+                        Log.Debug("[AdminModule - AssignUserToBusiness] User already assigned. {UserId} {BusinessId}",
+                            assignDto.UserId, assignDto.BusinessId);
+                        return Results.BadRequest("User is already assigned to this business.");
+                    }
+
+                    var userAccess = new UserBusinessAccess
+                    {
+                        UserId = assignDto.UserId,
+                        BusinessId = assignDto.BusinessId,
+                        Role = assignDto.Role
+                    };
+
+                    db.UserBusinessAccesses.Add(userAccess);
+                    await db.SaveChangesAsync();
+
+                    Log.Information("[AdminModule - AssignUserToBusiness] Successfully assigned. {UserId} {BusinessId} {Role}",
+                        assignDto.UserId, assignDto.BusinessId, assignDto.Role);
+
+                    return Results.Ok(new
+                    {
+                        UserId = assignDto.UserId,
+                        BusinessId = assignDto.BusinessId,
+                        Role = assignDto.Role.ToString(),
+                        Message = "User successfully assigned to business."
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("[AdminModule - AssignUserToBusiness] Error occurred. {UserId} {BusinessId} Exception: {Exception}",
+                        assignDto.UserId, assignDto.BusinessId, ex);
                     return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
                 }
             })

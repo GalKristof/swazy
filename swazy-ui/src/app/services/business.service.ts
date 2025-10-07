@@ -6,6 +6,7 @@ import { Business } from '../models/business';
 import { Service } from '../models/service';
 import { BookingDetails } from '../models/booking.details';
 import { ServiceDetails } from '../models/service.details';
+import { InviteEmployeeRequest, InvitationResponse } from '../models/auth.models';
 
 @Injectable({
   providedIn: 'root'
@@ -24,17 +25,23 @@ export class BusinessService {
   }
 
   /**
-   * Add employee to business
-   * Calls POST /api/business/{businessId}/employee
+   * Invite employee to business
+   * Calls POST /api/business/{businessId}/employee/invite
    */
-  addEmployeeToBusiness(businessId: string, userEmail: string, role: string): Observable<Business> {
-    const url = `${environment.apiUrl}/business/${businessId}/employee`;
-    const payload = {
-      userEmail,
-      role
-    };
-    console.log('[BusinessService] Adding employee to business:', payload);
-    return this.http.post<Business>(url, payload);
+  inviteEmployee(businessId: string, request: InviteEmployeeRequest): Observable<InvitationResponse> {
+    const url = `${environment.apiUrl}/business/${businessId}/employee/invite`;
+    console.log('[BusinessService] Inviting employee to business:', request);
+    return this.http.post<InvitationResponse>(url, request);
+  }
+
+  /**
+   * Resend invitation to employee
+   * Calls POST /api/business/{businessId}/employee/{userId}/resend-invitation
+   */
+  resendInvitation(businessId: string, userId: string): Observable<InvitationResponse> {
+    const url = `${environment.apiUrl}/business/${businessId}/employee/${userId}/resend-invitation`;
+    console.log('[BusinessService] Resending invitation:', { businessId, userId });
+    return this.http.post<InvitationResponse>(url, {});
   }
 
   /**

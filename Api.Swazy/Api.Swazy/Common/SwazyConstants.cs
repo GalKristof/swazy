@@ -3,7 +3,9 @@
 public static class SwazyConstants
 {
     public const byte JwtTokenClockSkewSeconds = 30;
-    public const ushort JwtAccessTokenLifetimeMinutes = 24 * 60;
+    public const ushort JwtAccessTokenLifetimeMinutes = 15;
+    public const ushort JwtRefreshTokenLifetimeDays = 30;
+    public const byte InvitationTokenLifetimeHours = 24;
     public const byte HashSaltWorkforce = 13;
     public const string JwtOptionsSectionName = "JwtOptions";
     public const string DatabaseOptionsSectionName = "PostgresConnection";
@@ -21,7 +23,7 @@ public static class SwazyConstants
     public static readonly string UserModuleApi = UserModuleName.ToLower();
     
     public const string AuthModuleName = "Auth";
-    public static readonly string AuthModuleApi = UserModuleName.ToLower();
+    public static readonly string AuthModuleApi = AuthModuleName.ToLower();
 
     public const string BusinessServiceModuleName = "BusinessService";
     public static readonly string BusinessServiceModuleApi = BusinessServiceModuleName.ToLower();

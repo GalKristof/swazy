@@ -13,8 +13,20 @@ public class User : BaseEntity
 
     [JsonIgnore]
     public string HashedPassword { get; set; } = string.Empty;
-    
+
     public UserRole SystemRole { get; set; } = UserRole.User;
-    
+
+    public bool IsPasswordSet { get; set; } = false;
+
+    [JsonIgnore]
+    public string? InvitationToken { get; set; }
+
+    public DateTime? InvitationExpiresAt { get; set; }
+
+    [JsonIgnore]
+    public string? RefreshToken { get; set; }
+
+    public DateTime? RefreshTokenExpiresAt { get; set; }
+
     public virtual List<UserBusinessAccess> BusinessAccesses { get; set; } = new();
 }

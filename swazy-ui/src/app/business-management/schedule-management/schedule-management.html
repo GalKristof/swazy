@@ -2,7 +2,25 @@
   <div class="card-body p-4 md:p-6">
     <h2 class="card-title text-xl md:text-2xl mb-4">Munkaidő beosztás: {{ selectedEmployee()?.firstName + " " + selectedEmployee()?.lastName }}</h2>
 
-    @if (employees().length === 0) {
+    @if (isLoading()) {
+      <!-- Skeleton Loading -->
+      <div class="mb-6 w-full">
+        <label class="label">
+          <span class="label-text font-bold">Válassz dolgozót</span>
+        </label>
+        <div class="overflow-x-auto">
+          <div class="flex gap-4 p-4 bg-base-200 rounded-box min-w-full w-max">
+            @for (i of [1,2,3,4,5]; track i) {
+              <div class="skeleton w-32 h-32 flex-shrink-0"></div>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="space-y-4">
+        <div class="skeleton h-8 w-48"></div>
+        <div class="skeleton h-64 w-full"></div>
+      </div>
+    } @else if (employees().length === 0) {
       <div class="alert alert-info">
         <span>Nincs még dolgozó hozzáadva. Először adj hozzá dolgozókat a "Dolgozók" fülön.</span>
       </div>

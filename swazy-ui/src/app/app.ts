@@ -49,11 +49,15 @@ export class App implements OnInit, OnDestroy {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      this.showNavbarFooter.set(!event.url.startsWith('/manage'));
+      const hideNavbarRoutes = ['/manage', '/business-management', '/auth/login', '/auth/setup-password'];
+      const shouldHide = hideNavbarRoutes.some(route => event.url.startsWith(route));
+      this.showNavbarFooter.set(!shouldHide);
     });
 
     // Set initial state
-    this.showNavbarFooter.set(!this.router.url.startsWith('/manage'));
+    const hideNavbarRoutes = ['/manage', '/business-management', '/auth/login', '/auth/setup-password'];
+    const shouldHide = hideNavbarRoutes.some(route => this.router.url.startsWith(route));
+    this.showNavbarFooter.set(!shouldHide);
   }
 
   ngOnDestroy(): void {

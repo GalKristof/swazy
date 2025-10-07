@@ -1,21 +1,17 @@
 <div class="min-h-screen bg-base-200">
   <div class="navbar bg-base-300 shadow-lg">
     <div class="flex-1">
-      <a class="btn btn-ghost text-lg md:text-xl lg:text-2xl font-bold">{{ business()?.name }}</a>
+      <a href="/" class="btn btn-ghost text-lg md:text-xl lg:text-2xl font-bold">{{ business()?.name }}</a>
     </div>
-    <div class="flex-none gap-2">
-      <button class="btn btn-ghost btn-circle btn-sm md:btn-md">
-        <div class="indicator">
-          <span class="badge badge-xs md:badge-sm indicator-item">{{ bookings().length }}</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg>
-        </div>
+    <div class="flex-none flex items-center gap-4">
+      <div class="text-sm md:text-base font-medium">
+        {{ currentUserName }}
+      </div>
+      <button class="btn btn-ghost btn-circle btn-sm md:btn-md" (click)="logout()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
       </button>
-      <a href="/" class="btn btn-ghost btn-sm md:btn-md">
-        <span class="hidden sm:inline">Vissza</span>
-        <span class="sm:hidden">🏠</span>
-      </a>
     </div>
   </div>
 
@@ -75,7 +71,8 @@
     @if (activeTab() === 'employees') {
       <app-employee-management
         [employees]="employees()"
-        (employeeAdded)="onEmployeeAdded($event)"
+        (employeeInvited)="onEmployeeInvited($event)"
+        (invitationResent)="onInvitationResent($event)"
         (employeeRoleUpdated)="onEmployeeRoleUpdated($event)"
         (employeeRemoved)="onEmployeeRemoved($event)">
       </app-employee-management>

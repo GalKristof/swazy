@@ -1,8 +1,12 @@
-﻿using Api.Swazy.Common;
+﻿using Api.Swazy.Attributes;
+using Api.Swazy.Common;
 using Api.Swazy.Models.DTOs.Businesses;
 using Api.Swazy.Models.Entities;
 using Api.Swazy.Models.Responses;
 using Api.Swazy.Persistence;
+using Api.Swazy.Providers;
+using Api.Swazy.Services;
+using Api.Swazy.Types;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -54,7 +58,9 @@ public static class BusinessModule
                             ua.User.FirstName,
                             ua.User.LastName,
                             ua.User.Email,
-                            ua.Role.ToString()
+                            ua.Role.ToString(),
+                            ua.User.IsPasswordSet,
+                            ua.User.InvitationExpiresAt
                         )).ToList(),
                         business.Services.Select(s => new BusinessServiceResponse(
                             s.Id,
@@ -139,7 +145,9 @@ public static class BusinessModule
                             ua.User.FirstName,
                             ua.User.LastName,
                             ua.User.Email,
-                            ua.Role.ToString()
+                            ua.Role.ToString(),
+                            ua.User.IsPasswordSet,
+                            ua.User.InvitationExpiresAt
                         )).ToList(),
                         business.Services.Select(s => new BusinessServiceResponse(
                             s.Id,
@@ -165,110 +173,149 @@ public static class BusinessModule
             })
             .WithTags(SwazyConstants.BusinessModuleName);
 
-        endpoints.MapPost($"api/{SwazyConstants.BusinessModuleApi}/{{businessId:guid}}/employee", async (
+        endpoints.MapPost($"api/{SwazyConstants.BusinessModuleApi}/{{businessId:guid}}/employee/invite", async (
                 [FromServices] SwazyDbContext db,
+                [FromServices] IAuthorizationService authorizationService,
+                [FromServices] IHashingProvider hashingProvider,
                 [FromRoute] Guid businessId,
-                [FromBody] AddEmployeeToBusinessDto addEmployeeDto) =>
+                [FromBody] InviteEmployeeDto inviteDto,
+                HttpContext httpContext) =>
             {
-                Log.Verbose("[BusinessModule - AddEmployee] Invoked. {BusinessId}", businessId);
+                Log.Verbose("[BusinessModule - InviteEmployee] Invoked. {BusinessId} {Email}", businessId, inviteDto.Email);
 
                 try
                 {
+                    if (!httpContext.Items.ContainsKey("UserId"))
+                    {
+                        Log.Warning("[BusinessModule - InviteEmployee] UserId not found in context");
+                        return Results.Unauthorized();
+                    }
+
+                    var actorId = (Guid)httpContext.Items["UserId"]!;
+
+                    var actorRole = await authorizationService.GetUserBusinessRoleAsync(actorId, businessId);
+
+                    if (!actorRole.HasValue)
+                    {
+                        Log.Warning("[BusinessModule - InviteEmployee] Actor has no access. {ActorId} {BusinessId}",
+                            actorId, businessId);
+                        return Results.Forbid();
+                    }
+
+                    if (actorRole.Value < BusinessRole.Manager)
+                    {
+                        Log.Warning("[BusinessModule - InviteEmployee] Insufficient permissions. {ActorId} {Role}",
+                            actorId, actorRole.Value);
+                        return Results.Forbid();
+                    }
+
+                    if (actorRole.Value == BusinessRole.Manager && inviteDto.Role != BusinessRole.Employee)
+                    {
+                        Log.Warning("[BusinessModule - InviteEmployee] Manager can only invite Employees. {ActorId}",
+                            actorId);
+                        return Results.BadRequest("Managers can only invite employees.");
+                    }
+
                     var business = await db.Businesses.FindAsync(businessId);
 
                     if (business == null)
                     {
-                        Log.Debug("[BusinessModule - AddEmployee] Business not found. {BusinessId}",
-                            businessId);
+                        Log.Debug("[BusinessModule - InviteEmployee] Business not found. {BusinessId}", businessId);
                         return Results.NotFound("Business not found.");
                     }
 
-                    var user = await db.Users
-                        .SingleOrDefaultAsync(u => u.Email == addEmployeeDto.UserEmail);
+                    var existingUser = await db.Users
+                        .Include(u => u.BusinessAccesses)
+                        .SingleOrDefaultAsync(u => u.Email == inviteDto.Email);
 
-                    if (user == null)
+                    User user;
+                    bool isNewUser = false;
+
+                    if (existingUser != null)
                     {
-                        Log.Debug("[BusinessModule - AddEmployee] User not found. {UserEmail}",
-                            addEmployeeDto.UserEmail);
-                        return Results.NotFound("User not found.");
+                        user = existingUser;
+
+                        var existingAccess = user.BusinessAccesses
+                            .FirstOrDefault(ba => ba.BusinessId == businessId);
+
+                        if (existingAccess != null)
+                        {
+                            Log.Debug("[BusinessModule - InviteEmployee] User already has access. {UserId} {BusinessId}",
+                                user.Id, businessId);
+                            return Results.BadRequest("Employee already belongs to this business.");
+                        }
+
+                        Log.Debug("[BusinessModule - InviteEmployee] Existing user found, adding to business. {UserId}",
+                            user.Id);
                     }
-
-                    var existingAccess = await db.UserBusinessAccesses
-                        .FirstOrDefaultAsync(uba => uba.UserId == user.Id
-                                                 && uba.BusinessId == businessId);
-
-                    if (existingAccess != null)
+                    else
                     {
-                        Log.Debug("[BusinessModule - AddEmployee] User already has access. {UserId} {BusinessId}",
-                            user.Id, businessId);
-                        return Results.BadRequest("Employee already included in business.");
+                        isNewUser = true;
+                        var invitationToken = Guid.NewGuid().ToString();
+
+                        user = new User
+                        {
+                            FirstName = inviteDto.FirstName,
+                            LastName = inviteDto.LastName,
+                            Email = inviteDto.Email,
+                            PhoneNumber = inviteDto.PhoneNumber,
+                            HashedPassword = hashingProvider.HashPassword(Guid.NewGuid().ToString()),
+                            IsPasswordSet = false,
+                            InvitationToken = invitationToken,
+                            InvitationExpiresAt = DateTime.UtcNow.AddHours(SwazyConstants.InvitationTokenLifetimeHours),
+                            SystemRole = UserRole.User
+                        };
+
+                        db.Users.Add(user);
+
+                        Log.Debug("[BusinessModule - InviteEmployee] New user created. {Email}", inviteDto.Email);
                     }
 
                     var userAccess = new UserBusinessAccess
                     {
                         UserId = user.Id,
                         BusinessId = businessId,
-                        Role = addEmployeeDto.Role
+                        Role = inviteDto.Role
                     };
 
                     db.UserBusinessAccesses.Add(userAccess);
                     await db.SaveChangesAsync();
 
-                    Log.Debug("[BusinessModule - AddEmployee] Successfully added employee. {UserId} {BusinessId}",
-                        user.Id, businessId);
+                    var invitationUrl = isNewUser && user.InvitationToken != null
+                        ? $"/auth/setup-password/{user.InvitationToken}"
+                        : null;
 
-                    await db.Entry(business)
-                        .Collection(b => b.UserAccesses)
-                        .Query()
-                        .Include(ua => ua.User)
-                        .LoadAsync();
-
-                    await db.Entry(business)
-                        .Collection(b => b.Services)
-                        .LoadAsync();
-
-                    var response = new BusinessResponse(
-                        business.Id,
-                        business.Name,
-                        business.Address,
-                        business.PhoneNumber,
-                        business.Email,
-                        business.Title,
-                        business.Subtitle,
-                        business.Description,
-                        business.Footer,
-                        business.Theme,
-                        business.BusinessType.ToString(),
-                        business.UserAccesses.Select(ua => new BusinessEmployeeResponse(
-                            ua.UserId,
-                            ua.User.FirstName,
-                            ua.User.LastName,
-                            ua.User.Email,
-                            ua.Role.ToString()
-                        )).ToList(),
-                        business.Services.Select(s => new BusinessServiceResponse(
-                            s.Id,
-                            s.BusinessId,
-                            s.ServiceId,
-                            s.Service.Value,
-                            s.Price,
-                            s.Duration,
-                            s.CreatedAt
-                        )).ToList(),
-                        business.WebsiteUrl,
-                        business.CreatedAt
+                    var employeeResponse = new BusinessEmployeeResponse(
+                        user.Id,
+                        user.FirstName,
+                        user.LastName,
+                        user.Email,
+                        inviteDto.Role.ToString(),
+                        user.IsPasswordSet,
+                        user.InvitationExpiresAt
                     );
+
+                    var response = new InvitationResponse(
+                        invitationUrl ?? "User already registered",
+                        user.InvitationToken ?? "N/A",
+                        user.InvitationExpiresAt ?? DateTime.MinValue,
+                        employeeResponse
+                    );
+
+                    Log.Information("[BusinessModule - InviteEmployee] Employee invited. {Email} {BusinessId} IsNew: {IsNew}",
+                        inviteDto.Email, businessId, isNewUser);
 
                     return Results.Ok(response);
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("[BusinessModule - AddEmployee] Error occurred. {BusinessId} Exception: {Exception}",
-                        businessId, ex);
+                    Log.Error("[BusinessModule - InviteEmployee] Error occurred. {BusinessId} {Email} Exception: {Exception}",
+                        businessId, inviteDto.Email, ex);
                     return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
                 }
             })
-            .WithTags(SwazyConstants.BusinessModuleName);
+            .WithTags(SwazyConstants.BusinessModuleName)
+            .WithMetadata(new RequireAuthenticationAttribute());
 
         endpoints.MapPatch($"api/{SwazyConstants.BusinessModuleApi}/{{businessId:guid}}/employee/{{userId:guid}}", async (
                 [FromServices] SwazyDbContext db,
@@ -302,7 +349,9 @@ public static class BusinessModule
                         userAccess.User.FirstName,
                         userAccess.User.LastName,
                         userAccess.User.Email,
-                        userAccess.Role.ToString()
+                        userAccess.Role.ToString(),
+                        userAccess.User.IsPasswordSet,
+                        userAccess.User.InvitationExpiresAt
                     );
 
                     return Results.Ok(response);
@@ -315,6 +364,93 @@ public static class BusinessModule
                 }
             })
             .WithTags(SwazyConstants.BusinessModuleName);
+
+        endpoints.MapPost($"api/{SwazyConstants.BusinessModuleApi}/{{businessId:guid}}/employee/{{userId:guid}}/resend-invitation", async (
+                [FromServices] SwazyDbContext db,
+                [FromServices] IAuthorizationService authorizationService,
+                [FromRoute] Guid businessId,
+                [FromRoute] Guid userId,
+                HttpContext httpContext) =>
+            {
+                Log.Verbose("[BusinessModule - ResendInvitation] Invoked. {BusinessId} {UserId}", businessId, userId);
+
+                try
+                {
+                    if (!httpContext.Items.ContainsKey("UserId"))
+                    {
+                        Log.Warning("[BusinessModule - ResendInvitation] UserId not found in context");
+                        return Results.Unauthorized();
+                    }
+
+                    var actorId = (Guid)httpContext.Items["UserId"]!;
+
+                    var actorRole = await authorizationService.GetUserBusinessRoleAsync(actorId, businessId);
+
+                    if (!actorRole.HasValue || actorRole.Value < BusinessRole.Manager)
+                    {
+                        Log.Warning("[BusinessModule - ResendInvitation] Insufficient permissions. {ActorId}",
+                            actorId);
+                        return Results.Forbid();
+                    }
+
+                    var userAccess = await db.UserBusinessAccesses
+                        .Include(uba => uba.User)
+                        .FirstOrDefaultAsync(uba => uba.BusinessId == businessId && uba.UserId == userId);
+
+                    if (userAccess == null)
+                    {
+                        Log.Debug("[BusinessModule - ResendInvitation] Employee not found. {BusinessId} {UserId}",
+                            businessId, userId);
+                        return Results.NotFound("Employee not found in business.");
+                    }
+
+                    var user = userAccess.User;
+
+                    if (user.IsPasswordSet)
+                    {
+                        Log.Debug("[BusinessModule - ResendInvitation] Password already set. {UserId}", userId);
+                        return Results.BadRequest("Employee has already set their password.");
+                    }
+
+                    var newInvitationToken = Guid.NewGuid().ToString();
+                    user.InvitationToken = newInvitationToken;
+                    user.InvitationExpiresAt = DateTime.UtcNow.AddHours(SwazyConstants.InvitationTokenLifetimeHours);
+
+                    await db.SaveChangesAsync();
+
+                    var invitationUrl = $"/auth/setup-password/{newInvitationToken}";
+
+                    var employeeResponse = new BusinessEmployeeResponse(
+                        user.Id,
+                        user.FirstName,
+                        user.LastName,
+                        user.Email,
+                        userAccess.Role.ToString(),
+                        user.IsPasswordSet,
+                        user.InvitationExpiresAt
+                    );
+
+                    var response = new InvitationResponse(
+                        invitationUrl,
+                        newInvitationToken,
+                        user.InvitationExpiresAt.Value,
+                        employeeResponse
+                    );
+
+                    Log.Information("[BusinessModule - ResendInvitation] Invitation resent. {UserId} {BusinessId}",
+                        userId, businessId);
+
+                    return Results.Ok(response);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("[BusinessModule - ResendInvitation] Error occurred. {BusinessId} {UserId} Exception: {Exception}",
+                        businessId, userId, ex);
+                    return Results.Problem(statusCode: (int)HttpStatusCode.InternalServerError);
+                }
+            })
+            .WithTags(SwazyConstants.BusinessModuleName)
+            .WithMetadata(new RequireAuthenticationAttribute());
 
         endpoints.MapDelete($"api/{SwazyConstants.BusinessModuleApi}/{{businessId:guid}}/employee/{{userId:guid}}", async (
                 [FromServices] SwazyDbContext db,

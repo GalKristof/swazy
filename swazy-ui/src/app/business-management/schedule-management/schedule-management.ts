@@ -38,12 +38,18 @@ export class ScheduleManagementComponent implements OnInit {
   vacationToValue: string = '';
   isSaving = false;
   isCopying = false;
+  isLoading = signal<boolean>(true);
 
   dayNames = ['Vasárnap', 'Hétfő', 'Kedd', 'Szerda', 'Csütörtök', 'Péntek', 'Szombat'];
   dayOrder = [1, 2, 3, 4, 5, 6, 0];
 
   ngOnInit() {
-    this.selectEmployee(this.employees()[0]);
+    if (this.employees().length > 0) {
+      this.selectEmployee(this.employees()[0]);
+    }
+    setTimeout(() => {
+      this.isLoading.set(false);
+    }, 500);
   }
 
   selectEmployee(employee: Employee) {
