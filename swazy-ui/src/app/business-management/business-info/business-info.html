@@ -28,26 +28,6 @@
           <div class="p-3 bg-base-200 rounded text-sm md:text-base break-all">{{ business()?.email }}</div>
         </div>
         <div class="form-control">
-          <label class="label"><span class="label-text font-bold text-sm md:text-base">Cím</span></label>
-          <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()?.title || 'Nincs cím' }}</div>
-        </div>
-        <div class="form-control">
-          <label class="label"><span class="label-text font-bold text-sm md:text-base">Alcím</span></label>
-          <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()?.subtitle || 'Nincs alcím' }}</div>
-        </div>
-        <div class="form-control md:col-span-2">
-          <label class="label"><span class="label-text font-bold text-sm md:text-base">Rólunk</span></label>
-          <div class="p-3 bg-base-200 rounded text-sm md:text-base whitespace-pre-wrap">{{ business()?.description || 'Nincs leírás' }}</div>
-        </div>
-        <div class="form-control md:col-span-2">
-          <label class="label"><span class="label-text font-bold text-sm md:text-base">Lábléc</span></label>
-          <div class="p-3 bg-base-200 rounded text-sm md:text-base whitespace-pre-wrap">{{ business()?.footer || 'Nincs lábléc' }}</div>
-        </div>
-        <div class="form-control">
-          <label class="label"><span class="label-text font-bold text-sm md:text-base">Téma</span></label>
-          <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()?.theme || 'light' }}</div>
-        </div>
-        <div class="form-control">
           <label class="label"><span class="label-text font-bold text-sm md:text-base">Típus</span></label>
           <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()?.businessType }}</div>
         </div>
@@ -81,38 +61,6 @@
             <span class="label-text text-sm md:text-base font-medium">Email</span>
           </label>
           <input type="email" [(ngModel)]="editForm!.email" class="input input-bordered input-sm md:input-md w-full" />
-        </div>
-        <div class="form-control">
-          <label class="block mb-2">
-            <span class="label-text text-sm md:text-base font-medium">Cím</span>
-          </label>
-          <input type="text" [(ngModel)]="editForm!.title" class="input input-bordered input-sm md:input-md w-full" placeholder="Pl: Stílus. Hagyomány. Tökéletesség." />
-        </div>
-        <div class="form-control">
-          <label class="block mb-2">
-            <span class="label-text text-sm md:text-base font-medium">Alcím</span>
-          </label>
-          <input type="text" [(ngModel)]="editForm!.subtitle" class="input input-bordered input-sm md:input-md w-full" placeholder="Pl: Professzionális hajvágás..." />
-        </div>
-        <div class="form-control md:col-span-2">
-          <label class="block mb-2">
-            <span class="label-text text-sm md:text-base font-medium">Rólunk</span>
-          </label>
-          <textarea [(ngModel)]="editForm!.description" class="textarea textarea-bordered w-full" rows="4" placeholder="Adj meg egy leírást az üzletedről..."></textarea>
-        </div>
-        <div class="form-control md:col-span-2">
-          <label class="block mb-2">
-            <span class="label-text text-sm md:text-base font-medium">Lábléc</span>
-          </label>
-          <textarea [(ngModel)]="editForm!.footer" class="textarea textarea-bordered w-full" rows="3" placeholder="Adj meg egy lábléc szöveget..."></textarea>
-        </div>
-        <div class="form-control">
-          <label class="block mb-2">
-            <span class="label-text text-sm md:text-base font-medium">Téma</span>
-          </label>
-          <select [(ngModel)]="editForm!.theme" (ngModelChange)="onThemeChange($event)" class="select select-bordered select-sm md:select-md w-full">
-            <option *ngFor="let theme of daisyThemes" [value]="theme">{{ theme }}</option>
-          </select>
         </div>
         <div class="form-control">
           <label class="block mb-2">

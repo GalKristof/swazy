@@ -1,9 +1,10 @@
-import { Component, input, OnInit, ViewChild, signal, computed, effect } from '@angular/core';
+import { Component, input, OnInit, ViewChild, signal, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScheduleModule, DayService, TimelineViewsService, ResizeService, DragAndDropService, ScheduleComponent, EventSettingsModel, ResourceDetails } from '@syncfusion/ej2-angular-schedule';
 import { BookingDetails } from '../../models/booking.details';
 import { Employee } from '../../models/employee';
 import { EmployeeSchedule } from '../../models/employee-schedule';
+import { AuthService } from '../../services/auth.service';
 
 interface CalendarEvent {
   Id: string;
@@ -32,12 +33,17 @@ interface EmployeeResource {
 export class BookingCalendarComponent implements OnInit {
   @ViewChild('scheduleObj') scheduleObj?: ScheduleComponent;
 
+  private authService = inject(AuthService);
+
   bookings = input.required<BookingDetails[]>();
   employees = input.required<Employee[]>();
   schedules = input.required<EmployeeSchedule[]>();
 
   selectedDate = signal<Date>(new Date());
   eventSettings = signal<EventSettingsModel>({ dataSource: [] });
+  personalEventSettings = signal<EventSettingsModel>({ dataSource: [] });
+  viewMode = signal<'personal' | 'full'>('personal');
+  currentUserId = signal<string | null>(null);
 
   // Employee colors for visual distinction
   private employeeColors = [
@@ -80,7 +86,7 @@ export class BookingCalendarComponent implements OnInit {
     }));
   });
 
-  // Calendar events from bookings
+  // Calendar events from bookings (for Full view - all employees)
   calendarEvents = computed<CalendarEvent[]>(() => {
     const date = this.selectedDate();
     const startOfDay = new Date(date);
@@ -91,22 +97,43 @@ export class BookingCalendarComponent implements OnInit {
     const workingEmployeeIds = new Set(this.workingEmployees().map(e => e.userId));
     const allBookings = this.bookings();
 
-    console.log('All bookings:', allBookings.length);
-    console.log('Working employee IDs:', Array.from(workingEmployeeIds));
-
     const filtered = allBookings.filter(booking => {
       const bookingDate = new Date(booking.startTime);
       const isInRange = bookingDate >= startOfDay && bookingDate <= endOfDay;
       const hasEmployee = booking.employeeId && workingEmployeeIds.has(booking.employeeId);
-
-      if (!hasEmployee && booking.employeeId) {
-        console.log('Booking has employeeId but not in working employees:', booking.employeeId);
-      }
-
       return isInRange && hasEmployee;
     });
 
-    console.log('Filtered bookings for calendar:', filtered.length);
+    return filtered.map(booking => ({
+      Id: booking.id,
+      Subject: `${booking.serviceName} - ${booking.firstName} ${booking.lastName}`,
+      StartTime: new Date(booking.startTime),
+      EndTime: new Date(booking.endTime),
+      EmployeeId: booking.employeeId!,
+      Description: booking.notes || '',
+      IsReadonly: true
+    }));
+  });
+
+  // Personal calendar events (for logged-in user only)
+  personalCalendarEvents = computed<CalendarEvent[]>(() => {
+    const userId = this.currentUserId();
+    if (!userId) return [];
+
+    const date = this.selectedDate();
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const allBookings = this.bookings();
+
+    const filtered = allBookings.filter(booking => {
+      const bookingDate = new Date(booking.startTime);
+      const isInRange = bookingDate >= startOfDay && bookingDate <= endOfDay;
+      const isMyBooking = booking.employeeId === userId;
+      return isInRange && isMyBooking;
+    });
 
     return filtered.map(booking => ({
       Id: booking.id,
@@ -120,11 +147,25 @@ export class BookingCalendarComponent implements OnInit {
   });
 
   constructor() {
-    // Update event settings when calendar events change
+    // Update event settings for Full view
     effect(() => {
       const events = this.calendarEvents();
-      console.log('Calendar events changed:', events.length);
       this.eventSettings.set({
+        dataSource: events,
+        fields: {
+          id: 'Id',
+          subject: { name: 'Subject' },
+          startTime: { name: 'StartTime' },
+          endTime: { name: 'EndTime' },
+          description: { name: 'Description' }
+        }
+      });
+    });
+
+    // Update event settings for Personal view
+    effect(() => {
+      const events = this.personalCalendarEvents();
+      this.personalEventSettings.set({
         dataSource: events,
         fields: {
           id: 'Id',
@@ -143,15 +184,16 @@ export class BookingCalendarComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('Calendar initialized with bookings:', this.bookings().length);
-    console.log('Employees:', this.employees().length);
-    console.log('Schedules:', this.schedules().length);
+    // Get current user ID
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.currentUserId.set(user.id);
+    }
   }
 
   onDateChange(target: any) {
     if (target && target.value) {
       const newDate = new Date(target.value);
-      console.log('Date changed to:', newDate);
       this.selectedDate.set(newDate);
     }
   }

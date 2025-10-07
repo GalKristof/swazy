@@ -1,0 +1,92 @@
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-4 md:p-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+      <h2 class="card-title text-xl md:text-2xl">Weboldal dizájn</h2>
+      @if (!isEditing) {
+        <button class="btn btn-primary btn-sm md:btn-md w-full sm:w-auto" (click)="startEditing()">
+          Szerkesztés
+        </button>
+      }
+    </div>
+
+    @if (!isEditing) {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+        <div class="form-control">
+          <label class="label"><span class="label-text font-bold text-sm md:text-base">Főcím</span></label>
+          <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()?.title || 'Nincs cím' }}</div>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text font-bold text-sm md:text-base">Alcím</span></label>
+          <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()?.subtitle || 'Nincs alcím' }}</div>
+        </div>
+        <div class="form-control md:col-span-2">
+          <label class="label"><span class="label-text font-bold text-sm md:text-base">Rólunk</span></label>
+          <div class="p-3 bg-base-200 rounded text-sm md:text-base whitespace-pre-wrap">{{ business()?.description || 'Nincs leírás' }}</div>
+        </div>
+        <div class="form-control md:col-span-2">
+          <label class="label"><span class="label-text font-bold text-sm md:text-base">Lábléc</span></label>
+          <div class="p-3 bg-base-200 rounded text-sm md:text-base whitespace-pre-wrap">{{ business()?.footer || 'Nincs lábléc' }}</div>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text font-bold text-sm md:text-base">Téma</span></label>
+          <div class="p-3 bg-base-200 rounded text-sm md:text-base">{{ business()?.theme || 'light' }}</div>
+        </div>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+        <div class="form-control">
+          <label class="block mb-2">
+            <span class="label-text text-sm md:text-base font-medium">Főcím</span>
+          </label>
+          <input type="text" [(ngModel)]="editForm!.title" class="input input-bordered input-sm md:input-md w-full" placeholder="Pl: Stílus. Hagyomány. Tökéletesség." />
+        </div>
+        <div class="form-control">
+          <label class="block mb-2">
+            <span class="label-text text-sm md:text-base font-medium">Alcím</span>
+          </label>
+          <input type="text" [(ngModel)]="editForm!.subtitle" class="input input-bordered input-sm md:input-md w-full" placeholder="Pl: Professzionális hajvágás..." />
+        </div>
+        <div class="form-control md:col-span-2">
+          <label class="block mb-2">
+            <span class="label-text text-sm md:text-base font-medium">Rólunk</span>
+          </label>
+          <textarea [(ngModel)]="editForm!.description" class="textarea textarea-bordered w-full" rows="4" placeholder="Adj meg egy leírást az üzletedről..."></textarea>
+        </div>
+        <div class="form-control md:col-span-2">
+          <label class="block mb-2">
+            <span class="label-text text-sm md:text-base font-medium">Lábléc</span>
+          </label>
+          <textarea [(ngModel)]="editForm!.footer" class="textarea textarea-bordered w-full" rows="3" placeholder="Adj meg egy lábléc szöveget..."></textarea>
+        </div>
+        <div class="form-control">
+          <label class="block mb-2">
+            <span class="label-text text-sm md:text-base font-medium">Téma</span>
+          </label>
+          <select [(ngModel)]="editForm!.theme" (ngModelChange)="onThemeChange($event)" class="select select-bordered select-sm md:select-md w-full">
+            <option *ngFor="let theme of daisyThemes" [value]="theme">{{ theme }}</option>
+          </select>
+          <div class="mt-3 p-3 bg-base-200 rounded-lg">
+            <p class="text-xs text-base-content/70 mb-2">Előnézet:</p>
+            <div class="flex gap-2 flex-wrap">
+              <div class="badge badge-primary">Primary</div>
+              <div class="badge badge-secondary">Secondary</div>
+              <div class="badge badge-accent">Accent</div>
+              <div class="badge badge-success">Success</div>
+              <div class="badge badge-warning">Warning</div>
+              <div class="badge badge-error">Error</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions justify-end mt-4 md:mt-6 gap-2">
+        <button class="btn btn-ghost btn-sm md:btn-md" (click)="cancelEditing()" [disabled]="isSaving">Mégse</button>
+        <button class="btn btn-primary btn-sm md:btn-md" (click)="save()" [disabled]="isSaving">
+          @if (isSaving) {
+            <span class="loading loading-spinner loading-sm"></span>
+          }
+          Mentés
+        </button>
+      </div>
+    }
+  </div>
+</div>

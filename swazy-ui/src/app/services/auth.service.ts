@@ -23,12 +23,20 @@ export class AuthService {
   private readonly STORAGE_USER = 'current_user';
   private isBrowser: boolean;
 
-  private currentUserSubject = new BehaviorSubject<UserInfo | null>(this.getCurrentUserFromStorage());
+  private currentUserSubject = new BehaviorSubject<UserInfo | null>(null);
 
   currentUser$ = this.currentUserSubject.asObservable();
 
   constructor() {
     this.isBrowser = isPlatformBrowser(this.platformId);
+
+    // Load user from storage after platform check
+    if (this.isBrowser) {
+      const user = this.getCurrentUserFromStorage();
+      if (user) {
+        this.currentUserSubject.next(user);
+      }
+    }
   }
 
   login(email: string, password: string): Observable<AuthResponse> {

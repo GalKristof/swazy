@@ -5,7 +5,7 @@
     </div>
     <div class="flex-none flex items-center gap-4">
       <div class="text-sm md:text-base font-medium">
-        {{ currentUserName }}
+        {{ currentUserName() }}
       </div>
       <button class="btn btn-ghost btn-circle btn-sm md:btn-md" (click)="logout()">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -23,6 +23,13 @@
         (click)="setActiveTab('info')">
         <span class="hidden sm:inline">📋 Üzlet adatai</span>
         <span class="sm:hidden">📋</span>
+      </a>
+      <a
+        class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
+        [class.tab-active]="activeTab() === 'design'"
+        (click)="setActiveTab('design')">
+        <span class="hidden sm:inline">🎨 Weboldal dizájn</span>
+        <span class="sm:hidden">🎨</span>
       </a>
       <a
         class="tab tab-sm md:tab-md whitespace-nowrap flex-shrink-0"
@@ -66,6 +73,13 @@
         [business]="business()"
         (businessUpdated)="onBusinessUpdated($event)">
       </app-business-info>
+    }
+
+    @if (activeTab() === 'design') {
+      <app-website-design
+        [business]="business()"
+        (businessUpdated)="onBusinessUpdated($event)">
+      </app-website-design>
     }
 
     @if (activeTab() === 'employees') {

@@ -14,6 +14,7 @@ import { ServiceDetails } from '../models/service.details';
 import { EmployeeSchedule } from '../models/employee-schedule';
 import { InviteEmployeeRequest } from '../models/auth.models';
 import { BusinessInfoComponent } from './business-info/business-info';
+import { WebsiteDesignComponent } from './website-design/website-design';
 import { EmployeeManagementComponent } from './employee-management/employee-management';
 import { ServiceManagementComponent } from './service-management/service-management';
 import { BookingListComponent } from './booking-list/booking-list';
@@ -26,6 +27,7 @@ import { BookingCalendarComponent } from './booking-calendar/booking-calendar';
   imports: [
     CommonModule,
     BusinessInfoComponent,
+    WebsiteDesignComponent,
     EmployeeManagementComponent,
     ServiceManagementComponent,
     BookingListComponent,
@@ -44,12 +46,13 @@ export class BusinessManagementComponent implements OnInit {
   private router = inject(Router);
 
   businessInfoComponent = viewChild(BusinessInfoComponent);
+  websiteDesignComponent = viewChild(WebsiteDesignComponent);
   employeeComponent = viewChild(EmployeeManagementComponent);
   serviceComponent = viewChild(ServiceManagementComponent);
   bookingComponent = viewChild(BookingListComponent);
   scheduleComponent = viewChild(ScheduleManagementComponent);
 
-  activeTab = signal<'info' | 'employees' | 'services' | 'bookings' | 'schedules' | 'calendar'>('info');
+  activeTab = signal<'info' | 'design' | 'employees' | 'services' | 'bookings' | 'schedules' | 'calendar'>('info');
 
   business = signal<Business | null>(null);
   employees = signal<Employee[]>([]);
@@ -57,22 +60,9 @@ export class BusinessManagementComponent implements OnInit {
   availableServices = signal<ServiceDetails[]>([]);
   bookings = signal<BookingDetails[]>([]);
   schedules = signal<EmployeeSchedule[]>([]);
+  currentUserName = signal<string>('');
+  userInitials = signal<string>('');
 
-  get currentUserName(): string {
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      return `${user.firstName} ${user.lastName}`;
-    }
-    return '';
-  }
-
-  get userInitials(): string {
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      return `${user.firstName[0]}${user.lastName[0]}`;
-    }
-    return '';
-  }
 
   logout(): void {
     this.authService.logout();
@@ -80,7 +70,7 @@ export class BusinessManagementComponent implements OnInit {
     this.router.navigate(['/auth/login']);
   }
 
-  setActiveTab(tab: 'info' | 'employees' | 'services' | 'bookings' | 'schedules' | 'calendar') {
+  setActiveTab(tab: 'info' | 'design' | 'employees' | 'services' | 'bookings' | 'schedules' | 'calendar') {
     this.activeTab.set(tab);
 
     if (tab === 'bookings' && this.bookings().length === 0) {
@@ -109,11 +99,13 @@ export class BusinessManagementComponent implements OnInit {
         this.employees.set(business.employees || []);
         this.services.set(business.services || []);
         this.businessInfoComponent()?.onSaveComplete();
+        this.websiteDesignComponent()?.onSaveComplete();
         this.toastService.success('Üzlet adatai sikeresen frissítve!');
       },
       error: (error) => {
         console.error('Error updating business:', error);
         this.businessInfoComponent()?.onSaveError();
+        this.websiteDesignComponent()?.onSaveError();
         this.toastService.error('Hiba történt az üzlet adatainak mentése során.');
       }
     });
@@ -422,6 +414,17 @@ export class BusinessManagementComponent implements OnInit {
         this.employees.set(business.employees || []);
         this.services.set(business.services || []);
         this.loadAvailableServices();
+      }
+    });
+
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        const fullName = `${user.firstName} ${user.lastName}`;
+        this.currentUserName.set(fullName);
+        this.userInitials.set(`${user.firstName[0]}${user.lastName[0]}`);
+      } else {
+        this.currentUserName.set('');
+        this.userInitials.set('');
       }
     });
   }

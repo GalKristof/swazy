@@ -1,171 +1,361 @@
-<div class="card bg-base-100 shadow-xl">
-  <div class="card-body p-4 md:p-6">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
-      <h2 class="card-title text-xl md:text-2xl">Dolgozók</h2>
-      <button class="btn btn-primary btn-sm md:btn-md w-full sm:w-auto" (click)="showAddForm()">
-        + Dolgozó meghívása
-      </button>
-    </div>
+<div class="space-y-4 max-w-full overflow-hidden">
+  <!-- Header -->
+  <div class="flex justify-between items-center gap-2">
+    <h2 class="text-xl sm:text-2xl font-bold truncate">Dolgozók</h2>
+    <button class="btn btn-primary btn-sm gap-1 flex-shrink-0" (click)="showAddForm()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      <span class="hidden sm:inline">Meghívás</span>
+    </button>
+  </div>
 
-    @if (isAddingEmployee) {
-      <div class="card bg-base-200 shadow-md mb-4">
-        <div class="card-body p-4">
-          <h3 class="font-bold mb-3 md:mb-4 text-base md:text-lg">Új dolgozó meghívása</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-            <div class="form-control">
-              <label class="block mb-2">
-                <span class="label-text text-sm md:text-base font-medium">Keresztnév *</span>
-              </label>
-              <input
-                type="text"
-                [(ngModel)]="newEmployee.firstName"
-                placeholder="pl. János"
-                class="input input-bordered input-sm md:input-md w-full" />
-            </div>
-            <div class="form-control">
-              <label class="block mb-2">
-                <span class="label-text text-sm md:text-base font-medium">Vezetéknév *</span>
-              </label>
-              <input
-                type="text"
-                [(ngModel)]="newEmployee.lastName"
-                placeholder="pl. Kovács"
-                class="input input-bordered input-sm md:input-md w-full" />
-            </div>
-            <div class="form-control">
-              <label class="block mb-2">
-                <span class="label-text text-sm md:text-base font-medium">Email *</span>
-              </label>
-              <input
-                type="email"
-                [(ngModel)]="newEmployee.email"
-                placeholder="pl. janos.kovacs@email.com"
-                class="input input-bordered input-sm md:input-md w-full" />
-            </div>
-            <div class="form-control">
-              <label class="block mb-2">
-                <span class="label-text text-sm md:text-base font-medium">Telefonszám</span>
-              </label>
-              <input
-                type="tel"
-                [(ngModel)]="newEmployee.phoneNumber"
-                placeholder="pl. +36 30 123 4567"
-                class="input input-bordered input-sm md:input-md w-full" />
-            </div>
-            <div class="form-control md:col-span-2">
-              <label class="block mb-2">
-                <span class="label-text text-sm md:text-base font-medium">Szerepkör *</span>
-              </label>
-              <select [(ngModel)]="newEmployee.role" class="select select-bordered select-sm md:select-md w-full">
-                <option value="Employee">Dolgozó</option>
-                <option value="Manager">Menedzser</option>
-                <option value="Owner">Tulajdonos</option>
-              </select>
+  <!-- Add Employee Form -->
+  @if (isAddingEmployee) {
+    <div class="card bg-base-100 shadow-xl animate-fadeIn">
+      <div class="card-body p-4">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-lg">Új dolgozó meghívása</h3>
+          <button class="btn btn-ghost btn-sm btn-circle" (click)="cancelAdd()">✕</button>
+        </div>
+        <div class="space-y-3">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Keresztnév *</span>
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="newEmployee.firstName"
+              placeholder="János"
+              class="input input-bordered w-full" />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Vezetéknév *</span>
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="newEmployee.lastName"
+              placeholder="Kovács"
+              class="input input-bordered w-full" />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Email *</span>
+            </label>
+            <input
+              type="email"
+              [(ngModel)]="newEmployee.email"
+              placeholder="janos.kovacs@email.com"
+              class="input input-bordered w-full" />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Telefonszám</span>
+            </label>
+            <input
+              type="tel"
+              [(ngModel)]="newEmployee.phoneNumber"
+              placeholder="+36 30 123 4567"
+              class="input input-bordered w-full" />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Szerepkör *</span>
+            </label>
+            <select [(ngModel)]="newEmployee.role" class="select select-bordered w-full">
+              <option value="Employee">Dolgozó</option>
+              <option value="Manager">Menedzser</option>
+              <option value="Owner">Tulajdonos</option>
+            </select>
+            <div class="mt-3 p-3 bg-base-200 rounded-lg text-sm">
+              <p class="font-semibold mb-2">{{ getRoleDescription(newEmployee.role).title }} jogosultságai:</p>
+              <ul class="space-y-1 text-xs">
+                @for (permission of getRoleDescription(newEmployee.role).permissions.slice(0, 3); track permission) {
+                  <li class="flex items-start gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-success flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>{{ permission }}</span>
+                  </li>
+                }
+              </ul>
+              @if (getRoleDescription(newEmployee.role).warning) {
+                <div class="mt-2 p-2 bg-error/10 text-error rounded text-xs">
+                  {{ getRoleDescription(newEmployee.role).warning }}
+                </div>
+              }
             </div>
           </div>
-          <div class="card-actions justify-end mt-3 md:mt-4 gap-2">
-            <button class="btn btn-ghost btn-sm md:btn-md" (click)="cancelAdd()" [disabled]="isAdding">Mégse</button>
-            <button class="btn btn-primary btn-sm md:btn-md" (click)="inviteEmployee()" [disabled]="isAdding">
-              @if (isAdding) {
-                <span class="loading loading-spinner loading-sm"></span>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button class="btn btn-ghost flex-1" (click)="cancelAdd()" [disabled]="isAdding">Mégse</button>
+          <button class="btn btn-primary flex-1" (click)="inviteEmployee()" [disabled]="isAdding">
+            @if (isAdding) {
+              <span class="loading loading-spinner loading-sm"></span>
+            }
+            Meghívás
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Employee Cards -->
+  <div class="grid gap-3 max-w-full">
+    @for (employee of employees(); track employee.userId) {
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow max-w-full">
+        <div class="card-body p-3 sm:p-4">
+          <!-- Employee Header -->
+          <div class="flex items-start gap-2 sm:gap-3 min-w-0">
+            <div class="avatar placeholder flex-shrink-0">
+              <div class="bg-primary text-primary-content rounded-full w-10 h-10 sm:w-12 sm:h-12">
+                <span class="text-sm sm:text-lg font-bold">{{ employee.firstName[0] }}{{ employee.lastName[0] }}</span>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0 overflow-hidden">
+              <h3 class="font-bold text-base sm:text-lg truncate">{{ employee.firstName }} {{ employee.lastName }}</h3>
+              <p class="text-xs sm:text-sm text-base-content/70 truncate">{{ employee.email }}</p>
+            </div>
+            <!-- Status Badge -->
+            <div class="flex-shrink-0">
+              @switch (getEmployeeStatus(employee)) {
+                @case ('active') {
+                  <div class="badge badge-success badge-xs sm:badge-sm gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span class="hidden xs:inline">Aktív</span>
+                  </div>
+                }
+                @case ('pending') {
+                  <div class="badge badge-warning badge-xs sm:badge-sm gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="hidden xs:inline">Függő</span>
+                  </div>
+                }
+                @case ('expired') {
+                  <div class="badge badge-error badge-xs sm:badge-sm gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="hidden xs:inline">Lejárt</span>
+                  </div>
+                }
               }
-              Meghívás küldése
+            </div>
+          </div>
+
+          <!-- Role Selector -->
+          <div class="flex items-center gap-2 mt-3 min-w-0">
+            <span class="text-xs sm:text-sm font-medium flex-shrink-0">Szerepkör:</span>
+            <select
+              [value]="getDisplayRole(employee.userId)"
+              (change)="updateRole(employee.userId, $any($event.target).value)"
+              [disabled]="isUpdating[employee.userId]"
+              class="select select-bordered select-xs sm:select-sm flex-1 min-w-0">
+              <option value="Employee">Dolgozó</option>
+              <option value="Manager">Menedzser</option>
+              <option value="Owner">Tulajdonos</option>
+            </select>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-2 mt-3">
+            @if (!employee.isPasswordSet) {
+              <button
+                class="btn btn-info btn-xs sm:btn-sm flex-1 gap-1"
+                (click)="resendInvitation(employee.userId)"
+                [disabled]="isResending[employee.userId]">
+                @if (isResending[employee.userId]) {
+                  <span class="loading loading-spinner loading-xs"></span>
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                }
+                <span class="hidden xs:inline">Újraküldés</span>
+              </button>
+            }
+            <button
+              class="btn btn-error btn-xs sm:btn-sm gap-1"
+              [class.flex-1]="!employee.isPasswordSet"
+              (click)="removeEmployee(employee.userId)"
+              [disabled]="isRemoving[employee.userId]">
+              @if (isRemoving[employee.userId]) {
+                <span class="loading loading-spinner loading-xs"></span>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              }
+              <span class="hidden xs:inline">Törlés</span>
             </button>
           </div>
         </div>
       </div>
     }
-
-    <div class="overflow-x-auto -mx-4 md:mx-0">
-      <table class="table table-sm md:table-md">
-        <thead>
-          <tr>
-            <th class="text-xs md:text-sm">Név</th>
-            <th class="text-xs md:text-sm hidden sm:table-cell">Email</th>
-            <th class="text-xs md:text-sm">Státusz</th>
-            <th class="text-xs md:text-sm">Szerepkör</th>
-            <th class="text-xs md:text-sm">Műveletek</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (employee of employees(); track employee.userId) {
-            <tr>
-              <td class="text-xs md:text-sm">
-                <div>{{ employee.firstName }} {{ employee.lastName }}</div>
-                <div class="text-xs text-base-content/60 sm:hidden">{{ employee.email }}</div>
-              </td>
-              <td class="text-xs md:text-sm hidden sm:table-cell">{{ employee.email }}</td>
-              <td>
-                @switch (getEmployeeStatus(employee)) {
-                  @case ('active') {
-                    <div class="badge badge-success badge-sm">Aktív</div>
-                  }
-                  @case ('pending') {
-                    <div class="badge badge-warning badge-sm">Meghívás folyamatban</div>
-                  }
-                  @case ('expired') {
-                    <div class="badge badge-error badge-sm">Lejárt meghívó</div>
-                  }
-                }
-              </td>
-              <td>
-                <select
-                  [ngModel]="employee.role"
-                  (ngModelChange)="updateRole(employee.userId, $event)"
-                  [disabled]="isUpdating[employee.userId]"
-                  class="select select-bordered select-xs md:select-sm">
-                  <option value="Employee">Dolgozó</option>
-                  <option value="Manager">Menedzser</option>
-                  <option value="Owner">Tulajdonos</option>
-                </select>
-              </td>
-              <td>
-                <div class="flex gap-2">
-                  @if (!employee.isPasswordSet) {
-                    <button class="btn btn-info btn-xs md:btn-sm"
-                            (click)="resendInvitation(employee.userId)"
-                            [disabled]="isResending[employee.userId]">
-                      @if (isResending[employee.userId]) {
-                        <span class="loading loading-spinner loading-xs"></span>
-                      }
-                      Újraküldés
-                    </button>
-                  }
-                  <button class="btn btn-error btn-xs md:btn-sm"
-                          (click)="removeEmployee(employee.userId)"
-                          [disabled]="isRemoving[employee.userId]">
-                    @if (isRemoving[employee.userId]) {
-                      <span class="loading loading-spinner loading-xs"></span>
-                    }
-                    Eltávolítás
-                  </button>
-                </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
   </div>
+
+  @if (employees().length === 0) {
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body text-center py-12">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-base-content/30 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        <h3 class="text-lg font-bold mb-2">Még nincsenek dolgozók</h3>
+        <p class="text-base-content/70 mb-4">Hívd meg az első dolgozót a csapatodba!</p>
+        <button class="btn btn-primary btn-sm" (click)="showAddForm()">
+          Dolgozó meghívása
+        </button>
+      </div>
+    </div>
+  }
 </div>
 
+<!-- Invitation Modal -->
 @if (showInvitationModal && invitationUrl) {
   <div class="modal modal-open">
     <div class="modal-box">
-      <h3 class="font-bold text-lg mb-4">Meghívó link</h3>
-      <p class="mb-4">Küldje el ezt a linket a dolgozónak a jelszó beállításához:</p>
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-lg">Meghívó link</h3>
+        <button class="btn btn-ghost btn-sm btn-circle" (click)="closeInvitationModal()">✕</button>
+      </div>
+      <p class="mb-4 text-sm">Küldje el ezt a linket a dolgozónak a jelszó beállításához:</p>
       <div class="bg-base-200 p-3 rounded-lg mb-4 break-all text-sm">
         {{ window.location.origin }}{{ invitationUrl }}
       </div>
       <div class="alert alert-warning mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span class="text-sm">A meghívó 24 óráig érvényes</span>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-primary flex-1" (click)="copyInvitationUrl()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          Másolás
+        </button>
+        <button class="btn btn-ghost flex-1" (click)="closeInvitationModal()">Bezárás</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Role Change Confirmation Modal -->
+@if (showRoleChangeModal && roleChangeData) {
+  <div class="modal modal-open">
+    <div class="modal-box max-w-2xl">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-xl">Szerepkör módosítása</h3>
+        <button class="btn btn-ghost btn-sm btn-circle" (click)="cancelRoleChange()">✕</button>
+      </div>
+
+      <div class="mb-4">
+        <p class="text-sm mb-2">Módosítani szeretnéd <span class="font-bold">{{ roleChangeData.employee.firstName }} {{ roleChangeData.employee.lastName }}</span> szerepkörét?</p>
+        <div class="flex items-center gap-3 text-sm">
+          <span class="badge badge-lg">{{ getRoleDescription(roleChangeData.oldRole).title }}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+          <span class="badge badge-lg badge-primary">{{ getRoleDescription(roleChangeData.newRole).title }}</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="mb-4">
+        <h4 class="font-bold text-lg mb-2">{{ getRoleDescription(roleChangeData.newRole).title }} jogosultságai</h4>
+        <p class="text-sm text-base-content/80 mb-3">{{ getRoleDescription(roleChangeData.newRole).description }}</p>
+        <ul class="space-y-2">
+          @for (permission of getRoleDescription(roleChangeData.newRole).permissions; track permission) {
+            <li class="flex items-start gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-success flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>{{ permission }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+
+      @if (getRoleDescription(roleChangeData.newRole).warning) {
+        <div class="alert alert-error mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span class="text-sm">{{ getRoleDescription(roleChangeData.newRole).warning }}</span>
+        </div>
+      }
+
+      <div class="flex gap-2 mt-6">
+        <button class="btn btn-ghost flex-1" (click)="cancelRoleChange()">Mégse</button>
+        <button class="btn btn-primary flex-1" (click)="confirmRoleChange()">
+          Megerősítés
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Remove Employee Confirmation Modal -->
+@if (showRemoveModal && removeEmployeeData) {
+  <div class="modal modal-open">
+    <div class="modal-box">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-xl">Dolgozó eltávolítása</h3>
+        <button class="btn btn-ghost btn-sm btn-circle" (click)="cancelRemove()">✕</button>
+      </div>
+
+      <div class="alert alert-warning mb-4">
         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
-        <span>A meghívó 24 óráig érvényes</span>
+        <div>
+          <h4 class="font-bold">Biztosan eltávolítod?</h4>
+          <p class="text-sm">Ez a művelet nem vonható vissza!</p>
+        </div>
       </div>
-      <div class="modal-action">
-        <button class="btn btn-primary btn-sm" (click)="copyInvitationUrl()">Link másolása</button>
-        <button class="btn btn-ghost btn-sm" (click)="closeInvitationModal()">Bezárás</button>
+
+      <div class="mb-4">
+        <p class="text-sm mb-3">Eltávolítod <span class="font-bold">{{ removeEmployeeData.employee.firstName }} {{ removeEmployeeData.employee.lastName }}</span> dolgozót?</p>
+        <div class="bg-base-200 p-3 rounded-lg">
+          <p class="text-sm text-base-content/80 mb-2">A következő adatok törlésre kerülnek:</p>
+          <ul class="space-y-1 text-sm">
+            <li class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Hozzáférés az üzlethez
+            </li>
+            <li class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Munkaidő beosztás
+            </li>
+            <li class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Összes jövőbeli foglalás
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="flex gap-2 mt-6">
+        <button class="btn btn-ghost flex-1" (click)="cancelRemove()">Mégse</button>
+        <button class="btn btn-error flex-1" (click)="confirmRemove()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          Eltávolítás
+        </button>
       </div>
     </div>
   </div>

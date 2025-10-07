@@ -26,6 +26,15 @@ export class EmployeeManagementComponent {
   invitationUrl: string | null = null;
   showInvitationModal = false;
 
+  showRoleChangeModal = false;
+  roleChangeData: { userId: string; employee: Employee; oldRole: string; newRole: string } | null = null;
+
+  showRemoveModal = false;
+  removeEmployeeData: { userId: string; employee: Employee } | null = null;
+
+  currentRoles: { [key: string]: string } = {};
+  pendingRoleChange: { userId: string; newRole: string } | null = null;
+
   newEmployee = {
     firstName: '',
     lastName: '',
@@ -35,6 +44,45 @@ export class EmployeeManagementComponent {
   };
 
   window = window;
+
+  roleDescriptions = {
+    'Employee': {
+      title: 'Dolgozó',
+      description: 'A dolgozó a következőket teheti:',
+      permissions: [
+        'Saját munkaidő megtekintése és módosítása',
+        'Saját foglalások kezelése',
+        'Ügyfelek kiszolgálása',
+        'Naptár megtekintése'
+      ],
+      warning: null
+    },
+    'Manager': {
+      title: 'Menedzser',
+      description: 'A menedzser mindent tehet, amit a dolgozó, plusz:',
+      permissions: [
+        'Új dolgozók meghívása',
+        'Dolgozók munkaidejének kezelése',
+        'Összes foglalás megtekintése és módosítása',
+        'Szolgáltatások kezelése',
+        'Üzleti statisztikák megtekintése'
+      ],
+      warning: 'A menedzser nem tud más menedzsereket vagy tulajdonosokat eltávolítani.'
+    },
+    'Owner': {
+      title: 'Tulajdonos',
+      description: 'A tulajdonos teljes hozzáféréssel rendelkezik:',
+      permissions: [
+        'Mindent tehet, amit a menedzser',
+        'Új tulajdonosok hozzáadása',
+        'Bármely dolgozó szerepkörének módosítása',
+        'Bármely dolgozó eltávolítása (beleértve más tulajdonosokat is)',
+        'Üzleti beállítások teljes körű módosítása',
+        'Pénzügyi adatok megtekintése és kezelése'
+      ],
+      warning: '⚠️ FIGYELEM: A tulajdonos veled egyenrangú lesz! Képes lesz téged is eltávolítani vagy módosítani a szerepkörödet. Csak megbízható személyeknek adj tulajdonosi jogokat!'
+    }
+  };
 
   showAddForm() {
     this.newEmployee = {
@@ -119,11 +167,60 @@ export class EmployeeManagementComponent {
     return this.getEmployeeStatus(employee) === 'expired';
   }
 
-  updateRole(userId: string, role: string) {
-    if (!this.isUpdating[userId]) {
-      this.isUpdating[userId] = true;
-      this.employeeRoleUpdated.emit({ userId, role });
+  getCurrentRole(userId: string): string {
+    if (!this.currentRoles[userId]) {
+      const employee = this.employees().find(e => e.userId === userId);
+      if (employee) {
+        this.currentRoles[userId] = employee.role;
+      }
     }
+    return this.currentRoles[userId] || 'Employee';
+  }
+
+  getDisplayRole(userId: string): string {
+    // If there's a pending change for this user, show that temporarily
+    if (this.pendingRoleChange && this.pendingRoleChange.userId === userId) {
+      return this.pendingRoleChange.newRole;
+    }
+    // Otherwise show the current role
+    return this.getCurrentRole(userId);
+  }
+
+  updateRole(userId: string, newRole: string) {
+    const employee = this.employees().find(e => e.userId === userId);
+    const currentRole = this.getCurrentRole(userId);
+
+    if (employee && currentRole !== newRole && !this.isUpdating[userId]) {
+      this.pendingRoleChange = { userId, newRole };
+      this.roleChangeData = {
+        userId,
+        employee,
+        oldRole: currentRole,
+        newRole
+      };
+      this.showRoleChangeModal = true;
+    }
+  }
+
+  confirmRoleChange() {
+    if (this.roleChangeData && !this.isUpdating[this.roleChangeData.userId]) {
+      this.isUpdating[this.roleChangeData.userId] = true;
+      this.currentRoles[this.roleChangeData.userId] = this.roleChangeData.newRole;
+      this.employeeRoleUpdated.emit({
+        userId: this.roleChangeData.userId,
+        role: this.roleChangeData.newRole
+      });
+      this.showRoleChangeModal = false;
+      this.roleChangeData = null;
+      this.pendingRoleChange = null;
+    }
+  }
+
+  cancelRoleChange() {
+    // Clear pending change so select reverts to current role
+    this.pendingRoleChange = null;
+    this.showRoleChangeModal = false;
+    this.roleChangeData = null;
   }
 
   onUpdateComplete(userId: string) {
@@ -135,10 +232,25 @@ export class EmployeeManagementComponent {
   }
 
   removeEmployee(userId: string) {
-    if (!this.isRemoving[userId]) {
-      this.isRemoving[userId] = true;
-      this.employeeRemoved.emit(userId);
+    const employee = this.employees().find(e => e.userId === userId);
+    if (employee && !this.isRemoving[userId]) {
+      this.removeEmployeeData = { userId, employee };
+      this.showRemoveModal = true;
     }
+  }
+
+  confirmRemove() {
+    if (this.removeEmployeeData && !this.isRemoving[this.removeEmployeeData.userId]) {
+      this.isRemoving[this.removeEmployeeData.userId] = true;
+      this.employeeRemoved.emit(this.removeEmployeeData.userId);
+      this.showRemoveModal = false;
+      this.removeEmployeeData = null;
+    }
+  }
+
+  cancelRemove() {
+    this.showRemoveModal = false;
+    this.removeEmployeeData = null;
   }
 
   onRemoveComplete(userId: string) {
@@ -147,5 +259,9 @@ export class EmployeeManagementComponent {
 
   onRemoveError(userId: string) {
     this.isRemoving[userId] = false;
+  }
+
+  getRoleDescription(role: string) {
+    return this.roleDescriptions[role as 'Employee' | 'Manager' | 'Owner'];
   }
 }
