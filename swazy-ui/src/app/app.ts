@@ -34,6 +34,7 @@ export class App implements OnInit, OnDestroy {
   private loadingSubscription: Subscription | undefined;
   showNavbarFooter = signal(true);
   isPlatformMode = environment.platformType === 'platform';
+  showLandingPage = signal(true);
 
   private MIN_LOAD_TIME_MS = 1000;
 
@@ -46,6 +47,21 @@ export class App implements OnInit, OnDestroy {
     if (this.isPlatformMode) {
       this.isLoading.set(false);
       this.hasError.set(false);
+
+      // Track route changes to show landing page or router outlet
+      this.router.events.pipe(
+        filter(event => event instanceof NavigationEnd)
+      ).subscribe((event: any) => {
+        const appRoutes = ['/auth/login', '/auth/setup-password', '/admin'];
+        const shouldShowRouterOutlet = appRoutes.some(route => event.url.startsWith(route));
+        this.showLandingPage.set(!shouldShowRouterOutlet);
+      });
+
+      // Set initial state
+      const appRoutes = ['/auth/login', '/auth/setup-password', '/admin'];
+      const shouldShowRouterOutlet = appRoutes.some(route => this.router.url.startsWith(route));
+      this.showLandingPage.set(!shouldShowRouterOutlet);
+
       return;
     }
 

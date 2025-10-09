@@ -11,5 +11,6 @@ public record UserInfo(
     Guid Id,
     string FirstName,
     string LastName,
-    string Email
+    string Email,
+    string? SystemRole
 );

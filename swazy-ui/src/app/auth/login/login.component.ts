@@ -55,7 +55,14 @@ export class LoginComponent implements OnInit {
       next: () => {
         this.isLoading = false;
         this.toastService.success('Sikeres bejelentkezés!');
-        this.router.navigate(['/business-management']);
+
+        // Check if user is SuperAdmin and redirect accordingly
+        const user = this.authService.getCurrentUser();
+        if (user?.systemRole === 'SuperAdmin') {
+          this.router.navigate(['/admin']);
+        } else {
+          this.router.navigate(['/business-management']);
+        }
       },
       error: (error) => {
         this.isLoading = false;

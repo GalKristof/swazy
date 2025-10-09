@@ -83,7 +83,7 @@ public static class AuthModule
                         accessToken,
                         refreshToken,
                         SwazyConstants.JwtAccessTokenLifetimeMinutes * 60,
-                        new UserInfo(user.Id, user.FirstName, user.LastName, user.Email)
+                        new UserInfo(user.Id, user.FirstName, user.LastName, user.Email, user.SystemRole.ToString())
                     );
 
                     Log.Information("[AuthModule - Login] User logged in successfully. {UserEmail} {UserId}",
@@ -208,7 +208,7 @@ public static class AuthModule
                         accessToken,
                         newRefreshToken,
                         SwazyConstants.JwtAccessTokenLifetimeMinutes * 60,
-                        new UserInfo(user.Id, user.FirstName, user.LastName, user.Email)
+                        new UserInfo(user.Id, user.FirstName, user.LastName, user.Email, user.SystemRole.ToString())
                     );
 
                     Log.Debug("[AuthModule - Refresh] Token refreshed. {UserId}", user.Id);
@@ -314,7 +314,7 @@ public static class AuthModule
                         accessToken,
                         refreshToken,
                         SwazyConstants.JwtAccessTokenLifetimeMinutes * 60,
-                        new UserInfo(user.Id, user.FirstName, user.LastName, user.Email)
+                        new UserInfo(user.Id, user.FirstName, user.LastName, user.Email, user.SystemRole.ToString())
                     );
 
                     Log.Information("[AuthModule - SetupPassword] Password set successfully. {UserId}", user.Id);

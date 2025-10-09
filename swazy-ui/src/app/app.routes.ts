@@ -5,8 +5,14 @@ import { BookingFlowComponent } from './booking-flow/booking-flow';
 import { BookingConfirmation } from './booking-confirmation/booking-confirmation';
 import { LoginComponent } from './auth/login/login.component';
 import { SetupPasswordComponent } from './auth/setup-password/setup-password.component';
+import { AdminManagementComponent } from './admin-management/admin-management.component';
+import { BusinessListComponent } from './admin-management/business-list/business-list.component';
+import { BusinessDetailsComponent } from './admin-management/business-details/business-details.component';
+import { UserListComponent } from './admin-management/user-list/user-list.component';
 import { authGuard } from './guards/auth.guard';
 import { loginGuard } from './guards/login.guard';
+import { adminGuard } from './guards/admin.guard';
+import { tenantGuard } from './guards/tenant.guard';
 
 export const routes: Routes = [
   {
@@ -19,9 +25,33 @@ export const routes: Routes = [
     component: SetupPasswordComponent
   },
   {
+    path: 'admin',
+    component: AdminManagementComponent,
+    canActivate: [adminGuard],
+    children: [
+      {
+        path: 'businesses',
+        component: BusinessListComponent
+      },
+      {
+        path: 'businesses/:id',
+        component: BusinessDetailsComponent
+      },
+      {
+        path: 'users',
+        component: UserListComponent
+      },
+      {
+        path: '',
+        redirectTo: 'businesses',
+        pathMatch: 'full'
+      }
+    ]
+  },
+  {
     path: 'business-management',
     component: BusinessManagementComponent,
-    canActivate: [authGuard]
+    canActivate: [tenantGuard, authGuard]
   },
   {
     path: 'manage',

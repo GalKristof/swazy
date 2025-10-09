@@ -7,7 +7,12 @@ export const loginGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   if (authService.isAuthenticated()) {
-    router.navigate(['/business-management']);
+    const user = authService.getCurrentUser();
+    if (user?.systemRole === 'SuperAdmin') {
+      router.navigate(['/admin']);
+    } else {
+      router.navigate(['/business-management']);
+    }
     return false;
   }
 

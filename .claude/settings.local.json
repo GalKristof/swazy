@@ -6,7 +6,10 @@
       "Bash(dotnet build)",
       "Bash(npm run build:*)",
       "Bash(ng build:*)",
-      "Bash(ng serve:*)"
+      "Bash(ng serve:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(tasklist)"
     ],
     "deny": [],
     "ask": []

@@ -333,6 +333,7 @@ public static class AdminModule
                         Email = createUserDto.Email,
                         PhoneNumber = createUserDto.PhoneNumber,
                         HashedPassword = hashingProvider.HashPassword(createUserDto.Password),
+                        IsPasswordSet = true,
                         SystemRole = UserRole.User
                     };
 

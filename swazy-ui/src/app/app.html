@@ -1,6 +1,12 @@
 @if (isPlatformMode) {
-  <!-- Platform Landing Page Mode -->
-  <app-swazy-platform />
+  <!-- Platform Mode -->
+  @if (showLandingPage()) {
+    <!-- Show Landing Page -->
+    <app-swazy-platform />
+  } @else {
+    <!-- Show Router Outlet for auth/admin routes -->
+    <router-outlet />
+  }
 } @else {
   <!-- Tenant Mode -->
   @if (isLoading()) {
