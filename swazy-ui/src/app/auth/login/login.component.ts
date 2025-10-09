@@ -61,7 +61,7 @@ export class LoginComponent implements OnInit {
         if (user?.systemRole === 'SuperAdmin') {
           this.router.navigate(['/admin']);
         } else {
-          this.router.navigate(['/business-management']);
+          this.router.navigate(['/manage']);
         }
       },
       error: (error) => {

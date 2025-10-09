@@ -1,0 +1,42 @@
+<div class="p-4">
+  <h2 class="text-2xl font-bold mb-4">User List</h2>
+
+  <div *ngIf="isLoading" class="flex justify-center items-center h-64">
+    <span class="loading loading-spinner loading-lg"></span>
+  </div>
+
+  <div *ngIf="!isLoading && users.length === 0" class="alert alert-info">
+    <span>No users found.</span>
+  </div>
+
+  <div *ngIf="!isLoading && users.length > 0" class="overflow-x-auto">
+    <table class="table table-zebra w-full">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>System Role</th>
+          <th>Business Access</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.firstName }} {{ user.lastName }}</td>
+          <td>{{ user.email }}</td>
+          <td><span class="badge">{{ user.systemRole }}</span></td>
+          <td>
+            <div *ngIf="user.businesses && user.businesses.length > 0" class="flex flex-col gap-1">
+              <div *ngFor="let business of user.businesses" class="flex items-center gap-2">
+                <span class="badge badge-sm badge-outline">{{ business.businessName }}</span>
+                <span class="badge badge-sm badge-ghost">{{ business.role }}</span>
+              </div>
+            </div>
+            <span *ngIf="!user.businesses || user.businesses.length === 0" class="text-gray-400">
+              None
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

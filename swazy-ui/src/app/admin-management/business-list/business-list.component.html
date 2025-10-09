@@ -1,0 +1,40 @@
+<div class="p-4">
+  <h2 class="text-2xl font-bold mb-4">Business List</h2>
+
+  <div *ngIf="isLoading" class="flex justify-center items-center h-64">
+    <span class="loading loading-spinner loading-lg"></span>
+  </div>
+
+  <div *ngIf="!isLoading && businesses.length === 0" class="alert alert-info">
+    <span>No businesses found.</span>
+  </div>
+
+  <div *ngIf="!isLoading && businesses.length > 0" class="overflow-x-auto">
+    <table class="table table-zebra w-full">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Address</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let business of businesses">
+          <td>{{ business.name }}</td>
+          <td><span class="badge badge-outline">{{ business.businessType }}</span></td>
+          <td>{{ business.email }}</td>
+          <td>{{ business.phoneNumber }}</td>
+          <td>{{ business.address }}</td>
+          <td>
+            <button class="btn btn-sm btn-primary" (click)="viewDetails(business.id)">
+              View Details
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

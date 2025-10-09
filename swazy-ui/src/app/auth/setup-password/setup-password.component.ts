@@ -89,7 +89,7 @@ export class SetupPasswordComponent implements OnInit {
       next: () => {
         this.isLoading = false;
         this.toastService.success('Jelszó sikeresen beállítva! Üdvözöljük!');
-        this.router.navigate(['/business-management']);
+        this.router.navigate(['/manage']);
       },
       error: (error) => {
         this.isLoading = false;

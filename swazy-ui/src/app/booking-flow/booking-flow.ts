@@ -357,7 +357,7 @@ export class BookingFlowComponent implements OnInit {
         this.isSubmitting.set(false);
 
         // Navigate to confirmation page with confirmation code
-        this.router.navigate(['/booking-confirmation', response.confirmationCode]);
+        this.router.navigate(['/confirmation', response.confirmationCode]);
       },
       error: (error) => {
         console.error('Error creating booking:', error);

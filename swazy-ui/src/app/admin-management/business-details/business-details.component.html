@@ -1,0 +1,96 @@
+<div class="p-4">
+  <div class="mb-4">
+    <button class="btn btn-sm" (click)="goBack()">
+      ← Back to List
+    </button>
+  </div>
+
+  <h2 class="text-2xl font-bold mb-4">Business Details</h2>
+
+  <div *ngIf="isLoading" class="flex justify-center items-center h-64">
+    <span class="loading loading-spinner loading-lg"></span>
+  </div>
+
+  <div *ngIf="!isLoading && !business" class="alert alert-warning">
+    <span>Business not found.</span>
+  </div>
+
+  <div *ngIf="!isLoading && business" class="space-y-4">
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h3 class="card-title">{{ business.name }}</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div>
+            <p><strong>Email:</strong> {{ business.email }}</p>
+            <p><strong>Phone:</strong> {{ business.phoneNumber }}</p>
+            <p><strong>Address:</strong> {{ business.address }}</p>
+            <p><strong>Website:</strong> {{ business.websiteUrl || 'N/A' }}</p>
+          </div>
+          <div>
+            <p><strong>Type:</strong> <span class="badge badge-outline">{{ business.businessType }}</span></p>
+            <p><strong>Theme:</strong> {{ business.theme }}</p>
+            <p><strong>Title:</strong> {{ business.title || 'N/A' }}</p>
+            <p><strong>Subtitle:</strong> {{ business.subtitle || 'N/A' }}</p>
+          </div>
+        </div>
+        <div *ngIf="business.description" class="mt-4">
+          <p><strong>Description:</strong></p>
+          <p class="text-sm">{{ business.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="business.employees && business.employees.length > 0" class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h4 class="card-title text-lg">Employees</h4>
+        <div class="overflow-x-auto">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let employee of business.employees">
+                <td>{{ employee.firstName }} {{ employee.lastName }}</td>
+                <td>{{ employee.email }}</td>
+                <td><span class="badge badge-sm">{{ employee.role }}</span></td>
+                <td>
+                  <span *ngIf="employee.isPasswordSet" class="badge badge-success badge-sm">Active</span>
+                  <span *ngIf="!employee.isPasswordSet" class="badge badge-warning badge-sm">Pending</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="business.services && business.services.length > 0" class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h4 class="card-title text-lg">Services</h4>
+        <div class="overflow-x-auto">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Price</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let service of business.services" class="hover:bg-base-200 cursor-pointer" (click)="openService(service.serviceId)">
+                <td>{{ service.serviceName || service.ServiceName || 'N/A' }}</td>
+                <td>{{ service.price }} Ft</td>
+                <td>{{ service.duration }} min</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

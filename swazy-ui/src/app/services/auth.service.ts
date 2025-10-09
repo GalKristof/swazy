@@ -157,4 +157,13 @@ export class AuthService {
       return true;
     }
   }
+
+  /**
+   * Get all users (admin only)
+   * Calls GET /api/admin/user/all
+   */
+  getAllUsers(): Observable<UserInfo[]> {
+    const url = `${environment.apiUrl}/admin/user/all`;
+    return this.http.get<UserInfo[]>(url);
+  }
 }

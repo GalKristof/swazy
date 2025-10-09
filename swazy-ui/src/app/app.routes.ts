@@ -9,21 +9,25 @@ import { AdminManagementComponent } from './admin-management/admin-management.co
 import { BusinessListComponent } from './admin-management/business-list/business-list.component';
 import { BusinessDetailsComponent } from './admin-management/business-details/business-details.component';
 import { UserListComponent } from './admin-management/user-list/user-list.component';
+import { ServiceListComponent } from './admin-management/service-list/service-list.component';
 import { authGuard } from './guards/auth.guard';
 import { loginGuard } from './guards/login.guard';
 import { adminGuard } from './guards/admin.guard';
 import { tenantGuard } from './guards/tenant.guard';
 
 export const routes: Routes = [
+  // Login route
   {
-    path: 'auth/login',
+    path: 'login',
     component: LoginComponent,
     canActivate: [loginGuard]
   },
+  // Setup password from invitation
   {
-    path: 'auth/setup-password/:token',
+    path: 'setup/:token',
     component: SetupPasswordComponent
   },
+  // Admin panel
   {
     path: 'admin',
     component: AdminManagementComponent,
@@ -42,34 +46,38 @@ export const routes: Routes = [
         component: UserListComponent
       },
       {
+        path: 'services',
+        component: ServiceListComponent
+      },
+      {
         path: '',
         redirectTo: 'businesses',
         pathMatch: 'full'
       }
     ]
   },
+  // Business owner management
   {
-    path: 'business-management',
+    path: 'manage',
     component: BusinessManagementComponent,
     canActivate: [tenantGuard, authGuard]
   },
+  // Booking flow
   {
-    path: 'manage',
-    redirectTo: 'business-management',
-    pathMatch: 'full'
-  },
-  {
-    path: 'booking',
+    path: 'book',
     component: BookingFlowComponent
   },
+  // Booking confirmation
   {
-    path: 'booking-confirmation/:code',
+    path: 'confirmation/:code',
     component: BookingConfirmation
   },
+  // Landing page
   {
     path: '',
     component: BarberLandingComponent
   },
+  // Catch all
   {
     path: '**',
     redirectTo: ''

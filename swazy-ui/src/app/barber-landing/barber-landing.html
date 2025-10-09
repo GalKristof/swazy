@@ -26,7 +26,7 @@
         <!-- Floating Card CTAs -->
         <div class="flex flex-col sm:flex-row gap-6 justify-center">
           <!-- Primary CTA Card -->
-          <a routerLink="/booking" class="card bg-primary text-primary-content shadow-2xl hover:shadow-primary/50 transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+          <a routerLink="/book" class="card bg-primary text-primary-content shadow-2xl hover:shadow-primary/50 transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
             <div class="card-body items-center text-center py-6 md:py-8 px-8 md:px-12">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 md:w-12 md:h-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -70,7 +70,7 @@
               <p class="text-2xl md:text-3xl font-bold text-primary">{{ service.price }} Ft</p>
               <p class="text-xs md:text-sm text-base-content/60">{{ service.duration }} perc</p>
               <div class="card-actions mt-3 md:mt-4 w-full">
-                <a [routerLink]="['/booking']" [queryParams]="{serviceId: service.id}" class="btn btn-primary btn-sm w-full">Foglalás</a>
+                <a [routerLink]="['/book']" [queryParams]="{serviceId: service.id}" class="btn btn-primary btn-sm w-full">Foglalás</a>
               </div>
             </div>
           </div>
@@ -109,7 +109,7 @@
                 @if (isEmployeeOnVacation(employee.userId)) {
                   <p class="text-sm italic text-base-content/60">Szabadságon</p>
                 } @else {
-                  <a [routerLink]="['/booking']" [queryParams]="{employeeId: employee.userId}" class="btn btn-primary btn-sm w-full">Foglalás</a>
+                  <a [routerLink]="['/book']" [queryParams]="{employeeId: employee.userId}" class="btn btn-primary btn-sm w-full">Foglalás</a>
                 }
               </div>
             </div>
@@ -126,7 +126,7 @@
       <p class="text-lg md:text-xl mb-6 md:mb-8 opacity-90">
         Foglalj időpontot még ma és tapasztald meg a különbséget!
       </p>
-      <a routerLink="/booking" class="btn btn-secondary btn-md lg:btn-lg">
+      <a routerLink="/book" class="btn btn-secondary btn-md lg:btn-lg">
         Foglalj most
       </a>
     </div>

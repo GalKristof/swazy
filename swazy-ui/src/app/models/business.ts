@@ -15,5 +15,16 @@ export interface Business {
   businessType: string;
   websiteUrl: string;
   employees?: Employee[];
-  services?: Service[];
+  services?: BusinessService[];
+  createdAt?: string;
+}
+
+export interface BusinessService {
+  id: string;
+  businessId: string;
+  serviceId: string;
+  serviceName: string;
+  price: number;
+  duration: number;
+  createdAt: string;
 }

@@ -9,7 +9,9 @@
       "Bash(ng serve:*)",
       "Bash(netstat:*)",
       "Bash(findstr:*)",
-      "Bash(tasklist)"
+      "Bash(tasklist)",
+      "Bash(awk:*)",
+      "Bash(dir /b \"C:\\swazy\\swazy-ui\\src\\app\")"
     ],
     "deny": [],
     "ask": []

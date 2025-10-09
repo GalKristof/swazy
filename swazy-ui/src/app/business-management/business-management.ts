@@ -70,7 +70,7 @@ export class BusinessManagementComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.toastService.success('Sikeres kijelentkezés!');
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/login']);
   }
 
   setActiveTab(tab: 'info' | 'design' | 'employees' | 'services' | 'bookings' | 'schedules' | 'calendar') {

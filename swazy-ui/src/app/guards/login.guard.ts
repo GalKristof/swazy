@@ -11,7 +11,7 @@ export const loginGuard: CanActivateFn = (route, state) => {
     if (user?.systemRole === 'SuperAdmin') {
       router.navigate(['/admin']);
     } else {
-      router.navigate(['/business-management']);
+      router.navigate(['/manage']);
     }
     return false;
   }

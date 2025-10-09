@@ -28,7 +28,7 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
         return authService.refreshToken().pipe(
           switchMap(response => {
             if (!response) {
-              router.navigate(['/auth/login']);
+              router.navigate(['/login']);
               return throwError(() => error);
             }
 
@@ -44,7 +44,7 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
             return next(req);
           }),
           catchError(refreshError => {
-            router.navigate(['/auth/login']);
+            router.navigate(['/login']);
             return throwError(() => refreshError);
           })
         );

@@ -10,8 +10,17 @@ export interface UserInfo {
   firstName: string;
   lastName: string;
   email: string;
+  phoneNumber?: string;
   systemRole?: string;
   businessRole?: 'Employee' | 'Manager' | 'Owner';
+  businesses?: UserBusinessResponse[];
+  createdAt?: string;
+}
+
+export interface UserBusinessResponse {
+  businessId: string;
+  businessName: string;
+  role: string;
 }
 
 export interface LoginRequest {

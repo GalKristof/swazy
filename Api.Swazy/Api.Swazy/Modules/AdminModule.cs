@@ -555,15 +555,19 @@ public static class AdminModule
 
                 try
                 {
-                    var services = await db.Services.ToListAsync();
+                    var services = await db.Services
+                        .Include(s => s.BusinessServices)
+                        .ToListAsync();
 
-                    var response = services.Select(s => new ServiceResponse(
-                        s.Id,
-                        s.Tag,
-                        s.BusinessType.ToString(),
-                        s.Value,
-                        s.CreatedAt
-                    )).ToList();
+                    var response = services.Select(s => new
+                    {
+                        Id = s.Id,
+                        Tag = s.Tag,
+                        BusinessType = s.BusinessType.ToString(),
+                        Value = s.Value,
+                        CreatedAt = s.CreatedAt,
+                        UsageCount = s.BusinessServices.Count
+                    }).ToList();
 
                     Log.Debug("[AdminModule - GetAllServices] Returned {Count} services.", response.Count);
 
@@ -628,12 +632,26 @@ public static class AdminModule
 
                 try
                 {
-                    var service = await db.Services.FindAsync(id);
+                    var service = await db.Services
+                        .Include(s => s.BusinessServices)
+                        .FirstOrDefaultAsync(s => s.Id == id);
 
                     if (service == null)
                     {
                         Log.Debug("[AdminModule - DeleteService] Not found. {ServiceId}", id);
                         return Results.NotFound("Service not found.");
+                    }
+
+                    // Check if service is in use
+                    if (service.BusinessServices.Any())
+                    {
+                        Log.Warning("[AdminModule - DeleteService] Service in use. {ServiceId} UsageCount: {Count}",
+                            id, service.BusinessServices.Count);
+                        return Results.BadRequest(new
+                        {
+                            error = "Cannot delete service that is in use by businesses.",
+                            usageCount = service.BusinessServices.Count
+                        });
                     }
 
                     service.IsDeleted = true;

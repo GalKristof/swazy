@@ -146,4 +146,54 @@ export class BusinessService {
     console.log('[BusinessService] Loading all available services');
     return this.http.get<ServiceDetails[]>(url);
   }
+
+  /**
+   * Load all businesses (admin only)
+   * Calls GET /api/admin/business/all
+   */
+  getAllBusinesses(): Observable<Business[]> {
+    const url = `${environment.apiUrl}/admin/business/all`;
+    console.log('[BusinessService] Loading all businesses');
+    return this.http.get<Business[]>(url);
+  }
+
+  /**
+   * Get business by ID
+   * Calls GET /api/business/{id}
+   */
+  getBusinessById(id: string): Observable<Business> {
+    const url = `${environment.apiUrl}/business/${id}`;
+    console.log('[BusinessService] Loading business by ID:', id);
+    return this.http.get<Business>(url);
+  }
+
+  /**
+   * Create a new service (admin only)
+   * Calls POST /api/admin/service
+   */
+  createService(service: { tag: string; businessType: string; value: string }): Observable<any> {
+    const url = `${environment.apiUrl}/admin/service`;
+    console.log('[BusinessService] Creating service:', service);
+    return this.http.post(url, service);
+  }
+
+  /**
+   * Update a service (admin only)
+   * Calls PUT /api/admin/service
+   */
+  updateService(service: { id: string; tag: string; businessType: string; value: string }): Observable<any> {
+    const url = `${environment.apiUrl}/admin/service`;
+    console.log('[BusinessService] Updating service:', service);
+    return this.http.put(url, service);
+  }
+
+  /**
+   * Delete a service (admin only)
+   * Calls DELETE /api/admin/service/{id}
+   */
+  deleteService(id: string): Observable<any> {
+    const url = `${environment.apiUrl}/admin/service/${id}`;
+    console.log('[BusinessService] Deleting service:', id);
+    return this.http.delete(url);
+  }
 }

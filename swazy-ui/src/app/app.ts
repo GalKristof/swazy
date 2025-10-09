@@ -52,13 +52,13 @@ export class App implements OnInit, OnDestroy {
       this.router.events.pipe(
         filter(event => event instanceof NavigationEnd)
       ).subscribe((event: any) => {
-        const appRoutes = ['/auth/login', '/auth/setup-password', '/admin'];
+        const appRoutes = ['/login', '/setup', '/admin'];
         const shouldShowRouterOutlet = appRoutes.some(route => event.url.startsWith(route));
         this.showLandingPage.set(!shouldShowRouterOutlet);
       });
 
       // Set initial state
-      const appRoutes = ['/auth/login', '/auth/setup-password', '/admin'];
+      const appRoutes = ['/login', '/setup', '/admin'];
       const shouldShowRouterOutlet = appRoutes.some(route => this.router.url.startsWith(route));
       this.showLandingPage.set(!shouldShowRouterOutlet);
 
@@ -74,13 +74,13 @@ export class App implements OnInit, OnDestroy {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      const hideNavbarRoutes = ['/manage', '/business-management', '/auth/login', '/auth/setup-password'];
+      const hideNavbarRoutes = ['/manage', '/login', '/setup'];
       const shouldHide = hideNavbarRoutes.some(route => event.url.startsWith(route));
       this.showNavbarFooter.set(!shouldHide);
     });
 
     // Set initial state
-    const hideNavbarRoutes = ['/manage', '/business-management', '/auth/login', '/auth/setup-password'];
+    const hideNavbarRoutes = ['/manage', '/login', '/setup'];
     const shouldHide = hideNavbarRoutes.some(route => this.router.url.startsWith(route));
     this.showNavbarFooter.set(!shouldHide);
   }

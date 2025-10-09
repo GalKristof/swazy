@@ -42,7 +42,7 @@ public class SwazyDbContext(DbContextOptions<SwazyDbContext> options) : DbContex
 
         modelBuilder.Entity<BusinessService>()
             .HasOne(bs => bs.Service)
-            .WithMany()
+            .WithMany(s => s.BusinessServices)
             .HasForeignKey(bs => bs.ServiceId);
         
         modelBuilder.Entity<Booking>()
