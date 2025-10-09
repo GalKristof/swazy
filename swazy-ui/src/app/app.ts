@@ -9,6 +9,7 @@ import { of, timer, map, catchError, take, combineLatest, interval, Subscription
 import { filter } from 'rxjs/operators';
 import { NavbarComponent } from './shared/navbar/navbar';
 import { FooterComponent } from './shared/footer/footer';
+import { SwazyPlatformComponent } from './swazy-platform/swazy-platform';
 
 interface SuccessResult { success: true; business: any; }
 interface ErrorResult { success: false; error: any; }
@@ -16,7 +17,7 @@ interface ErrorResult { success: false; error: any; }
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, NavbarComponent, FooterComponent],
+  imports: [RouterOutlet, CommonModule, NavbarComponent, FooterComponent, SwazyPlatformComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.scss']
 })
@@ -32,6 +33,7 @@ export class App implements OnInit, OnDestroy {
   loadingText = signal('Betöltés');
   private loadingSubscription: Subscription | undefined;
   showNavbarFooter = signal(true);
+  isPlatformMode = environment.platformType === 'platform';
 
   private MIN_LOAD_TIME_MS = 1000;
 
@@ -40,6 +42,13 @@ export class App implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // If platform mode, skip tenant loading and show platform landing page
+    if (this.isPlatformMode) {
+      this.isLoading.set(false);
+      this.hasError.set(false);
+      return;
+    }
+
     // Start the tenant data loading sequence
     this.loadTenantData();
     // Start the loading animation only if we are in the browser

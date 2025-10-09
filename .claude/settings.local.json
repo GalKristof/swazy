@@ -3,7 +3,10 @@
     "allow": [
       "WebSearch",
       "Bash(dotnet ef migrations add:*)",
-      "Bash(dotnet build)"
+      "Bash(dotnet build)",
+      "Bash(npm run build:*)",
+      "Bash(ng build:*)",
+      "Bash(ng serve:*)"
     ],
     "deny": [],
     "ask": []

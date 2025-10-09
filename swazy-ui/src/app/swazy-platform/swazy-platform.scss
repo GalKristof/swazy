@@ -1,0 +1,11 @@
+// Minimal custom styles - everything else uses DaisyUI and Tailwind
+
+// Smooth scroll behavior
+html {
+  scroll-behavior: smooth;
+}
+
+// Subtle hover transition for cards (only enhancement to DaisyUI)
+.card {
+  transition: all 0.2s ease;
+}

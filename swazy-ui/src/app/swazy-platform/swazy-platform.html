@@ -1,0 +1,689 @@
+<!-- NAVBAR -->
+<nav class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <div class="flex items-center">
+        <img src="images/logo/swazy_square_withname.png" alt="Swazy" class="h-8">
+      </div>
+
+      <!-- Desktop Menu -->
+      <div class="hidden md:flex items-center gap-8">
+        <a (click)="scrollToSection('features')" class="text-gray-700 hover:text-emerald-600 font-medium cursor-pointer">Funkciók</a>
+        <a (click)="scrollToSection('pricing')" class="text-gray-700 hover:text-emerald-600 font-medium cursor-pointer">Árazás</a>
+        <a (click)="scrollToSection('faq')" class="text-gray-700 hover:text-emerald-600 font-medium cursor-pointer">GYIK</a>
+      </div>
+
+      <!-- CTA Button -->
+      <div class="flex items-center">
+        <button class="hidden md:block bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-full font-medium transition-colors cursor-pointer" (click)="openSignupModal()">
+          Próbáld ki ingyen
+        </button>
+
+        <!-- Mobile Menu Button -->
+        <button class="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+          <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden py-4 border-t border-gray-100">
+      <div class="flex flex-col gap-4">
+        <a (click)="scrollToSection('features')" class="text-gray-700 hover:text-emerald-600 font-medium cursor-pointer">Funkciók</a>
+        <a (click)="scrollToSection('pricing')" class="text-gray-700 hover:text-emerald-600 font-medium cursor-pointer">Árazás</a>
+        <a (click)="scrollToSection('faq')" class="text-gray-700 hover:text-emerald-600 font-medium cursor-pointer">GYIK</a>
+        <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-full font-medium w-full cursor-pointer" (click)="openSignupModal()">
+          Próbáld ki ingyen
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO SECTION -->
+<div class="bg-gradient-to-b from-emerald-50 to-white pt-32 pb-20">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="text-center max-w-4xl mx-auto">
+      <h1 class="text-6xl md:text-7xl font-bold mb-6 text-gray-900 leading-tight">
+        Saját weboldal +<br/>foglalási rendszer
+      </h1>
+
+      <p class="text-xl md:text-2xl text-gray-600 mb-10 leading-relaxed">
+        Építsd fel a márkádat egyedi weboldallal, és automatizáld a foglalásokat.<br class="hidden md:block"/>Nem csak naptár. Teljes online jelenlét.
+      </p>
+
+      <p class="text-base text-gray-500 mb-8 max-w-2xl mx-auto">
+        Készítette egy fodrász és egy fejlesztő, akik tudják: a szalonodnak több kell, mint egy foglalási rendszer.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+        <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-lg hover:shadow-xl cursor-pointer" (click)="openSignupModal()">
+          Kezdd el ingyen 30 napig
+        </button>
+        <button class="bg-white hover:bg-gray-50 text-gray-900 px-8 py-4 rounded-full font-semibold text-lg border-2 border-gray-300 hover:border-emerald-600 transition-all cursor-pointer" (click)="scrollToSection('features')">
+          Tudj meg többet →
+        </button>
+      </div>
+
+      <div class="flex flex-wrap gap-6 justify-center text-sm text-gray-500">
+        <div class="flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          <span>Bankkártya nem szükséges</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          <span>Weboldal + Foglalás 2-in-1</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          <span>Magyar támogatás</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VALUE PROPOSITION BAR -->
+<div class="bg-white py-16 border-y border-gray-100">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+      <div>
+        <div class="text-4xl mb-3">⚡</div>
+        <div class="font-bold text-gray-900 mb-2">2 perc kitöltés</div>
+        <div class="text-gray-600 text-sm">24 óra alatt használható</div>
+      </div>
+      <div>
+        <div class="text-4xl mb-3">🌐</div>
+        <div class="font-bold text-gray-900 mb-2">Weboldal + Foglalás</div>
+        <div class="text-gray-600 text-sm">2-in-1 megoldás</div>
+      </div>
+      <div>
+        <div class="mb-3 flex justify-center">
+          <svg class="w-12 h-12" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#CE2939" d="M32 5H4a4 4 0 0 0-4 4v4h36V9a4 4 0 0 0-4-4z"/>
+            <path fill="#FFF" d="M0 13h36v10H0z"/>
+            <path fill="#436F4D" d="M4 31h28a4 4 0 0 0 4-4v-4H0v4a4 4 0 0 0 4 4z"/>
+          </svg>
+        </div>
+        <div class="font-bold text-gray-900 mb-2">100% magyar</div>
+        <div class="text-gray-600 text-sm">Rendszer és támogatás</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM SECTION -->
+<div class="bg-gray-50 py-20">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4 text-gray-900">Ismerősek ezek a problémák?</h2>
+      <p class="text-xl text-gray-600">A legtöbb szalon ezekkel küzd nap mint nap</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-lg transition-shadow">
+        <div class="text-5xl mb-4">🚫</div>
+        <h3 class="text-xl font-bold mb-3 text-gray-900">Nincs online jelenlét</h3>
+        <p class="text-gray-600 leading-relaxed">
+          Csak egy Facebook oldal van, ami nem professzionális. Az emberek nem találnak meg Googleben, elveszíted az ügyfeleket.
+        </p>
+      </div>
+
+      <div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-lg transition-shadow">
+        <div class="text-5xl mb-4">📞</div>
+        <h3 class="text-xl font-bold mb-3 text-gray-900">Elmulasztott foglalások</h3>
+        <p class="text-gray-600 leading-relaxed">
+          Épp dolgozol, nem tudod felvenni a telefont. Az ügyfél máshova megy, te pedig elveszítesz egy foglalást.
+        </p>
+      </div>
+
+      <div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-lg transition-shadow">
+        <div class="text-5xl mb-4">📝</div>
+        <h3 class="text-xl font-bold mb-3 text-gray-900">Káosz a naptárban</h3>
+        <p class="text-gray-600 leading-relaxed">
+          WhatsApp üzenetek, papír alapú naptár, telefonhívások. Dupla foglalások és kimaradt időpontok.
+        </p>
+      </div>
+    </div>
+
+    <!-- CTA After Problems -->
+    <div class="text-center mt-12">
+      <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-lg hover:shadow-xl cursor-pointer" (click)="openSignupModal()">
+        Próbáld ki ingyen 30 napig
+      </button>
+      <p class="text-sm text-gray-500 mt-4">Nincs szükség bankkártyára</p>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES SECTION -->
+<div id="features" class="bg-white py-20">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4 text-gray-900">Nem csak foglalási rendszer</h2>
+      <p class="text-xl text-gray-600">Építsd fel a márkádat és automatizáld a foglalásokat egyben</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="p-6 rounded-xl border-2 border-emerald-300 bg-emerald-50 hover:shadow-md transition-all">
+        <div class="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-4">🌐</div>
+        <h3 class="text-lg font-bold mb-2 text-gray-900">Saját márkás weboldal</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">32 sablon, saját logó, színek, domain. Készítsd el pár kattintással, ahogy te akarod.</p>
+      </div>
+
+      <div class="p-6 rounded-xl border-2 border-emerald-300 bg-emerald-50 hover:shadow-md transition-all">
+        <div class="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-4">📅</div>
+        <h3 class="text-lg font-bold mb-2 text-gray-900">Online foglalási rendszer</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Ügyfeleid 0-24 foglalhatnak. Többdolgozós naptár, automatikus visszaigazolás.</p>
+      </div>
+
+      <div class="p-6 rounded-xl border border-gray-200 hover:border-emerald-300 hover:shadow-md transition-all">
+        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-2xl mb-4">💬</div>
+        <h3 class="text-lg font-bold mb-2 text-gray-900">SMS értesítések</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Automatikus foglalás visszaigazolás és emlékeztetők SMS-ben.</p>
+      </div>
+
+      <div class="p-6 rounded-xl border border-gray-200 hover:border-emerald-300 hover:shadow-md transition-all">
+        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-2xl mb-4">🎨</div>
+        <h3 class="text-lg font-bold mb-2 text-gray-900">Könnyű testreszabás</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Kattintással változtathatsz színeket, logót, háttérképeket. Nincs szükség programozóra.</p>
+      </div>
+
+      <div class="p-6 rounded-xl border border-gray-200 hover:border-emerald-300 hover:shadow-md transition-all">
+        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-2xl mb-4">👥</div>
+        <h3 class="text-lg font-bold mb-2 text-gray-900">Ügyfél adatbázis</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Minden ügyféladatod egy helyen, kereshető és rendezhető.</p>
+      </div>
+
+      <div class="p-6 rounded-xl border border-gray-200 hover:border-emerald-300 hover:shadow-md transition-all">
+        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-2xl mb-4">📊</div>
+        <h3 class="text-lg font-bold mb-2 text-gray-900">Statisztikák</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Részletes kimutatások a foglalásokról és a bevételről.</p>
+      </div>
+
+      <div class="p-6 rounded-xl border border-gray-200 hover:border-emerald-300 hover:shadow-md transition-all">
+        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-2xl mb-4">📱</div>
+        <h3 class="text-lg font-bold mb-2 text-gray-900">Mobilbarát</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Tökéletes élmény minden eszközön, tableten és telefonon.</p>
+      </div>
+
+      <div class="p-6 rounded-xl border border-gray-200 hover:border-emerald-300 hover:shadow-md transition-all">
+        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-2xl mb-4">🔒</div>
+        <h3 class="text-lg font-bold mb-2 text-gray-900">Biztonságos</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">GDPR kompatibilis, titkosított adattárolás.</p>
+      </div>
+
+      <div class="p-6 rounded-xl border border-gray-200 hover:border-emerald-300 hover:shadow-md transition-all">
+        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-4">
+          <svg class="w-8 h-8" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#CE2939" d="M32 5H4a4 4 0 0 0-4 4v4h36V9a4 4 0 0 0-4-4z"/>
+            <path fill="#FFF" d="M0 13h36v10H0z"/>
+            <path fill="#436F4D" d="M4 31h28a4 4 0 0 0 4-4v-4H0v4a4 4 0 0 0 4 4z"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold mb-2 text-gray-900">Magyar</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Teljesen magyar nyelvű rendszer és ügyfélszolgálat.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- VALUE COMPARISON -->
+<div class="bg-gradient-to-br from-gray-900 to-gray-800 py-20">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4 text-white">Számold ki, mennyit spórolsz</h2>
+      <p class="text-xl text-gray-300">Ha külön vennéd meg mindent, amit a Swazy ad...</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+      <!-- Traditional Way -->
+      <div class="bg-white/5 border-2 border-red-500 rounded-2xl p-8">
+        <div class="text-center mb-6">
+          <div class="inline-block bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold mb-4">
+            ❌ Hagyományos módszer
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-2">Külön veszed meg mindent</h3>
+        </div>
+
+        <div class="space-y-4 mb-6">
+          <div class="flex justify-between items-center text-white border-b border-gray-700 pb-3">
+            <span class="text-gray-300">Weboldal fejlesztés (egyedi)</span>
+            <span class="font-bold">300,000 Ft</span>
+          </div>
+          <div class="flex justify-between items-center text-white border-b border-gray-700 pb-3">
+            <span class="text-gray-300">Domain (.hu)</span>
+            <span class="font-bold">5,000 Ft/év</span>
+          </div>
+          <div class="flex justify-between items-center text-white border-b border-gray-700 pb-3">
+            <span class="text-gray-300">Hosting</span>
+            <span class="font-bold">3,000 Ft/hó</span>
+          </div>
+          <div class="flex justify-between items-center text-white border-b border-gray-700 pb-3">
+            <span class="text-gray-300">Foglalási rendszer (SMS-szel)</span>
+            <span class="font-bold">15,000 Ft/hó</span>
+          </div>
+          <div class="flex justify-between items-center text-white border-b border-gray-700 pb-3">
+            <span class="text-gray-300">Karbantartás + frissítések</span>
+            <span class="font-bold">25,000 Ft/hó</span>
+          </div>
+          <div class="flex justify-between items-center text-white border-b border-gray-700 pb-3">
+            <span class="text-gray-300">Minden módosítás/frissítés</span>
+            <span class="font-bold">15,000-50,000 Ft</span>
+          </div>
+        </div>
+
+        <div class="border-t-2 border-red-500 pt-4">
+          <div class="text-center">
+            <div class="text-gray-400 text-sm mb-2">Induló költség</div>
+            <div class="text-3xl font-bold text-red-500 mb-4">305,000 Ft</div>
+            <div class="text-gray-400 text-sm mb-2">Havi költség</div>
+            <div class="text-3xl font-bold text-red-500">43,000 Ft/hó</div>
+            <div class="text-xs text-gray-500 mt-2">+ minden egyes frissítés után 15-50k</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Swazy Way -->
+      <div class="bg-emerald-600 rounded-2xl p-8 relative overflow-hidden">
+        <div class="absolute top-0 right-0 bg-amber-400 text-gray-900 px-6 py-2 rounded-bl-2xl font-bold text-sm">
+          🔥 LEGJOBB AJÁNLAT
+        </div>
+
+        <div class="text-center mb-6 mt-8">
+          <div class="inline-block bg-white text-emerald-700 px-4 py-2 rounded-full text-sm font-bold mb-4">
+            ✅ Swazy módszer
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-2">Minden egyben, egy áron</h3>
+        </div>
+
+        <div class="space-y-4 mb-6">
+          <div class="flex justify-between items-center text-white border-b border-emerald-400 pb-3">
+            <span>✓ Egyedi weboldal (32 sablon)</span>
+            <span class="font-bold line-through opacity-60">300,000 Ft</span>
+          </div>
+          <div class="flex justify-between items-center text-white border-b border-emerald-400 pb-3">
+            <span>✓ Domain (.hu)</span>
+            <span class="font-bold line-through opacity-60">5,000 Ft/év</span>
+          </div>
+          <div class="flex justify-between items-center text-white border-b border-emerald-400 pb-3">
+            <span>✓ Hosting</span>
+            <span class="font-bold line-through opacity-60">3,000 Ft/hó</span>
+          </div>
+          <div class="flex justify-between items-center text-white border-b border-emerald-400 pb-3">
+            <span>✓ Foglalási rendszer + SMS</span>
+            <span class="font-bold line-through opacity-60">15,000 Ft/hó</span>
+          </div>
+          <div class="flex justify-between items-center text-white border-b border-emerald-400 pb-3">
+            <span>✓ Karbantartás + frissítések</span>
+            <span class="font-bold line-through opacity-60">25,000 Ft/hó</span>
+          </div>
+          <div class="flex justify-between items-center text-white border-b border-emerald-400 pb-3">
+            <span>✓ Korlátlan módosítás</span>
+            <span class="font-bold">INGYEN</span>
+          </div>
+          <div class="flex justify-between items-center text-white border-b border-emerald-400 pb-3">
+            <span>✓ Magyar támogatás</span>
+            <span class="font-bold">INGYEN</span>
+          </div>
+        </div>
+
+        <div class="border-t-2 border-white pt-4">
+          <div class="text-center">
+            <div class="text-emerald-100 text-sm mb-2">Induló költség</div>
+            <div class="text-4xl font-bold text-white mb-4">0 Ft</div>
+            <div class="text-emerald-100 text-sm mb-2">Havi költség</div>
+            <div class="text-5xl font-bold text-white mb-2">20,000 Ft</div>
+            <div class="text-sm text-white font-semibold bg-emerald-700 inline-block px-4 py-2 rounded-full">
+              Több mint 50% megtakarítás
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Emphasis -->
+    <div class="text-center">
+      <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 max-w-3xl mx-auto">
+        <div class="text-3xl font-bold text-white mb-4">
+          Spórolj 305,000 Ft induló költséget<br/>+ 23,000 Ft-ot havonta
+        </div>
+        <p class="text-xl text-gray-300 mb-6">
+          Nincs rejtett költség. Nincs extra díj frissítésekért. Nincs meglepetés.<br/>
+          Csak egy egyszerű, átlátható ár. Minden benne.
+        </p>
+        <button class="bg-white text-emerald-700 hover:bg-gray-100 px-10 py-5 rounded-full font-bold text-xl transition-all shadow-2xl hover:shadow-white/20 cursor-pointer" (click)="openSignupModal()">
+          Próbáld ki 30 napig ingyen
+        </button>
+        <p class="text-sm text-gray-400 mt-4">Bankkártya nem szükséges az ingyenes próbához</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING SECTION -->
+<div id="pricing" class="bg-gray-50 py-20">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4 text-gray-900">Egyszerű, átlátható árazás</h2>
+      <p class="text-xl text-gray-600">Nincs meglepetés, nincs rejtett költség</p>
+    </div>
+
+    <div class="max-w-lg mx-auto">
+      <div class="bg-white rounded-3xl border-2 border-emerald-500 p-8 shadow-xl">
+        <div class="text-center mb-8">
+          <div class="inline-block bg-emerald-100 text-emerald-800 px-4 py-1 rounded-full text-sm font-semibold mb-4">
+            Kezdő csomag
+          </div>
+          <h3 class="text-2xl font-bold mb-2 text-gray-900">Swazy Start</h3>
+          <div class="flex items-end justify-center gap-2">
+            <span class="text-6xl font-bold text-gray-900">20,000</span>
+            <div class="pb-2">
+              <div class="text-xl text-gray-600 font-semibold">Ft <span class="text-sm text-gray-500 font-normal">/hó</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mb-8">
+          <div class="inline-block text-left space-y-4">
+            <div class="flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-gray-700">Saját weboldal egyedi domainen</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-gray-700">Korlátlan foglalás és dolgozó</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-gray-700">SMS és email értesítések</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-gray-700">Teljes testreszabás (32 téma)</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-gray-700">Magyar nyelvű támogatás</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-gray-700">Minden alap funkció benne</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none rounded-full w-full btn-lg cursor-pointer transition-all" (click)="openSignupModal()">
+          Kezdd el ingyen 30 napig
+        </button>
+
+        <p class="text-sm text-center text-gray-500 mt-6">
+          30 napos ingyenes próbaidőszak. Bármikor lemondható.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SOCIAL PROOF -->
+<div class="bg-white py-20">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4 text-gray-900">Az első partnereink</h2>
+      <p class="text-xl text-gray-600">Akik hisznek a jövőben és velünk építik</p>
+    </div>
+
+    <div class="max-w-2xl mx-auto">
+      <div class="bg-gray-50 p-8 rounded-2xl border-2 border-emerald-200">
+        <div class="flex items-center gap-1 mb-4 text-amber-400">
+          ★★★★★
+        </div>
+        <p class="text-gray-700 mb-6 leading-relaxed text-lg">
+          "Végre van saját weboldalunk, nem csak egy Facebook oldal. Pár kattintással feltettem a logónkat, képeket, és már mehetett is. Az ügyfelek pedig most online foglalnak, nem kell állandóan a telefont nyomkodni. Egyszerű rendszer, amivel tényleg építheted a márkádat."
+        </p>
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center font-bold text-white">
+            SZD
+          </div>
+          <div>
+            <div class="font-bold text-gray-900">Szökőcs Dániel</div>
+            <div class="text-sm text-gray-600">Blends Barbershop tulajdonos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA After Social Proof -->
+    <div class="text-center mt-16">
+      <div class="inline-block bg-emerald-50 px-12 py-10 rounded-2xl max-w-2xl">
+        <h3 class="text-2xl font-bold text-gray-900 mb-3">Légy te is az elsők között</h3>
+        <p class="text-gray-600 mb-6">Próbáld ki kockázat nélkül 30 napig ingyen</p>
+        <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-lg hover:shadow-xl cursor-pointer" (click)="openSignupModal()">
+          Kezdd el ingyen 30 napig
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ SECTION -->
+<div id="faq" class="bg-gray-50 py-20">
+  <div class="max-w-3xl mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4 text-gray-900">Gyakori kérdések</h2>
+      <p class="text-xl text-gray-600">Minden amit tudnod kell</p>
+    </div>
+
+    <div class="space-y-4">
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <input type="radio" name="faq" id="faq1" class="peer hidden" checked />
+        <label for="faq1" class="flex justify-between items-center p-6 cursor-pointer hover:bg-gray-50">
+          <span class="text-lg font-semibold text-gray-900">Mennyire nehéz beállítani a Swazyt?</span>
+          <svg class="w-6 h-6 text-gray-600 peer-checked:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </label>
+        <div class="peer-checked:block hidden p-6 pt-0 text-gray-600">
+          <p>Nagyon egyszerű! Regisztrálás után 2 percet vesz igénybe az adataid megadása, majd mi 24 órán belül elkészítjük és beállítjuk a teljes rendszeredet. Te csak megadod az információkat, mi megcsináljuk.</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <input type="radio" name="faq" id="faq2" class="peer hidden" />
+        <label for="faq2" class="flex justify-between items-center p-6 cursor-pointer hover:bg-gray-50">
+          <span class="text-lg font-semibold text-gray-900">Működik mobilon is?</span>
+          <svg class="w-6 h-6 text-gray-600 peer-checked:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </label>
+        <div class="peer-checked:block hidden p-6 pt-0 text-gray-600">
+          <p>Igen! A Swazy teljesen mobilbarát, mind a szalon tulajdonosok, mind az ügyfelek számára. Bármilyen eszközről elérhető.</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <input type="radio" name="faq" id="faq3" class="peer hidden" />
+        <label for="faq3" class="flex justify-between items-center p-6 cursor-pointer hover:bg-gray-50">
+          <span class="text-lg font-semibold text-gray-900">Mi történik a 30 napos próbaidőszak után?</span>
+          <svg class="w-6 h-6 text-gray-600 peer-checked:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </label>
+        <div class="peer-checked:block hidden p-6 pt-0 text-gray-600">
+          <p>Ha tetszik a rendszer, megadhatod a bankkártya adataidat és folytathatod havi 20,000 Ft-ért. Ha nem tetszik, nem történik semmi - nincs kötelezettség.</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <input type="radio" name="faq" id="faq4" class="peer hidden" />
+        <label for="faq4" class="flex justify-between items-center p-6 cursor-pointer hover:bg-gray-50">
+          <span class="text-lg font-semibold text-gray-900">Van-e rejtett költség?</span>
+          <svg class="w-6 h-6 text-gray-600 peer-checked:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </label>
+        <div class="peer-checked:block hidden p-6 pt-0 text-gray-600">
+          <p>Nincs! A Swazy Start csomag 20,000 Ft/hó és tartalmaz mindent: egyedi weboldalad, domaint, hostingot, foglalási rendszert, SMS értesítéseket, korlátlan módosítást és magyar támogatást. Semmi extra.</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <input type="radio" name="faq" id="faq5" class="peer hidden" />
+        <label for="faq5" class="flex justify-between items-center p-6 cursor-pointer hover:bg-gray-50">
+          <span class="text-lg font-semibold text-gray-900">Hány dolgozót tudok hozzáadni?</span>
+          <svg class="w-6 h-6 text-gray-600 peer-checked:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </label>
+        <div class="peer-checked:block hidden p-6 pt-0 text-gray-600">
+          <p>Korlátlanul! A Swazy Start csomag már tartalmazza a korlátlan dolgozó funkciót. Akár 2, akár 50 dolgozód van, ugyanannyiba kerül. Nincs extra díj.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL CTA -->
+<div class="bg-gradient-to-br from-emerald-600 to-emerald-700 py-20">
+  <div class="max-w-4xl mx-auto px-4 text-center text-white">
+    <h2 class="text-4xl md:text-5xl font-bold mb-6">Készen állsz az indulásra?</h2>
+    <p class="text-xl mb-10 opacity-90">
+      Automatizáld a foglalásaidat és növeld a bevételedet
+    </p>
+    <button class="btn bg-white text-emerald-700 hover:bg-gray-100 border-none rounded-full px-8 btn-lg font-bold cursor-pointer transition-all" (click)="openSignupModal()">
+      Kezdd el ingyen 30 napig
+    </button>
+    <p class="text-sm mt-6 opacity-75">
+      Bankkártya nem szükséges • 2 perces regisztráció • Bármikor lemondható
+    </p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="bg-white border-t border-gray-200 py-12">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <div class="col-span-1">
+        <img src="images/logo/swazy_square_withname.png" alt="Swazy" class="h-10 mb-4">
+        <p class="text-gray-600 text-sm">Modern foglalási rendszer szalonoknak</p>
+      </div>
+      <div>
+        <h4 class="font-bold text-gray-900 mb-4">Termék</h4>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li><a href="#features" class="hover:text-emerald-600">Funkciók</a></li>
+          <li><a href="#pricing" class="hover:text-emerald-600">Árazás</a></li>
+          <li><a href="#faq" class="hover:text-emerald-600">GYIK</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-bold text-gray-900 mb-4">Cég</h4>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li><a href="#" class="hover:text-emerald-600">Rólunk</a></li>
+          <li><a href="#" class="hover:text-emerald-600">Kapcsolat</a></li>
+          <li><a href="#" class="hover:text-emerald-600">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-bold text-gray-900 mb-4">Jogi</h4>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li><a href="#" class="hover:text-emerald-600">Adatvédelem</a></li>
+          <li><a href="#" class="hover:text-emerald-600">Felhasználási feltételek</a></li>
+          <li><a href="#" class="hover:text-emerald-600">Cookie szabályzat</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-gray-200 pt-8 text-center text-sm text-gray-600">
+      <p>© 2025 Swazy. Minden jog fenntartva.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- SIGNUP MODAL -->
+<dialog id="signup_modal" class="modal">
+  <div class="modal-box max-w-md bg-white rounded-3xl p-8">
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-gray-500 hover:text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors">✕</button>
+    </form>
+    <h3 class="font-bold text-3xl mb-2 text-gray-900">Kezdd el ingyen!</h3>
+    <p class="text-gray-600 mb-8">Add meg az adataidat és azonnal elküldjük a hozzáférésed.</p>
+
+    <div class="space-y-5">
+      <div>
+        <label class="block text-sm font-semibold text-gray-900 mb-2">Szalon neve</label>
+        <input type="text" placeholder="pl. Bella Szépségszalon" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all bg-white text-gray-900" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-900 mb-2">Neved</label>
+        <input type="text" placeholder="pl. Kovács Anna" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all bg-white text-gray-900" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-900 mb-2">Email cím</label>
+        <input type="email" placeholder="pelda@email.hu" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all bg-white text-gray-900" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-900 mb-2">Telefonszám</label>
+        <input type="tel" placeholder="+36 30 123 4567" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all bg-white text-gray-900" />
+      </div>
+
+      <button class="bg-emerald-600 hover:bg-emerald-700 text-white border-none rounded-full w-full py-4 text-lg font-bold mt-6 transition-all shadow-lg hover:shadow-xl cursor-pointer">
+        Indítsd el most ingyen
+      </button>
+
+      <p class="text-xs text-center text-gray-500 mt-4">
+        A regisztrációval elfogadod az <a href="#" class="text-emerald-600 hover:underline">Adatvédelmi nyilatkozatot</a> és a <a href="#" class="text-emerald-600 hover:underline">Felhasználási feltételeket</a>.
+      </p>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop bg-black/50">
+    <button>close</button>
+  </form>
+</dialog>
+
+<!-- FLOATING CTA (appears on scroll) -->
+<div class="fixed bottom-6 right-6 z-40 hidden" id="floating-cta">
+  <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-full font-semibold shadow-2xl hover:shadow-emerald-500/50 transition-all flex items-center gap-2 cursor-pointer" (click)="openSignupModal()">
+    <span>Próbáld ki ingyen</span>
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+    </svg>
+  </button>
+</div>
+
+<script>
+  // Show floating CTA on scroll
+  if (typeof window !== 'undefined') {
+    window.addEventListener('scroll', function() {
+      const floatingCta = document.getElementById('floating-cta');
+      if (window.scrollY > 800) {
+        floatingCta?.classList.remove('hidden');
+      } else {
+        floatingCta?.classList.add('hidden');
+      }
+    });
+  }
+</script>
